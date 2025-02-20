@@ -1,0 +1,74 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/accounts`)
+
+  +boxTitle(pageTitle)
+
+  form(
+    method="POST"
+    action=`/${admin}/accounts/create`
+    enctype="multipart/form-data"
+  )
+    .mb-3
+      label.form-label Họ và tên
+      input(
+        class="form-control"
+        name="fullName"
+        required
+      )
+    .mb-3
+      label.form-label Email
+      input(
+        class="form-control"
+        type="email"
+        name="email"
+        required
+      )
+    .mb-3
+      label.form-label Password
+      input(
+        class="form-control"
+        type="password"
+        name="password"
+        required
+      )
+    .mb-3
+      label.form-label Số điện thoại
+      input(
+        class="form-control"
+        name="phone"
+        required
+      )
+    .mb-3
+      label.form-label Ảnh
+      input(
+        class="form-control"
+        type="file"
+        name="avatar"
+        required
+      )
+    .mb-3
+      label.form-label Trạng thái
+      select(
+        class="form-select"
+        name="status"
+        required
+      )
+        option(value="active") Hoạt động
+        option(value="inactive") Ngưng hoạt động
+    .mb-3
+      label.form-label Vai trò
+      select(
+        class="form-select"
+        name="roleId"
+        required
+      )
+        each role in roles
+          option(value=role.id) #{role.title}
+    
+    .d-flex.justify-content-center.mb-3
+      button.btn.btn-primary Thêm

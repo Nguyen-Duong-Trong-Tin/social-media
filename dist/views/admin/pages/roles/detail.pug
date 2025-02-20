@@ -1,0 +1,49 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/roles`)
+
+  +boxTitle(pageTitle)
+
+  .mb-3
+    label.form-label Tiêu đề
+    input(
+      class="form-control"
+      value=role.title
+      readonly
+    )
+  .mb-3
+    label.form-label Mô tả
+    textarea(
+      tinymce
+      readonly
+    ) #{role.description}
+  .mb-3
+    label.form-label Thêm bởi
+    input(
+      class="form-control"
+      value=createdBy.account.fullName
+      readonly
+    )
+    input(
+      class="form-control"
+      value=moment(createdBy.createdAt).format("DD-MM-YYYY HH:mm:ss")
+      readonly
+    )
+  .mb-3
+    label.form-label Cập nhật bởi
+    each item in updatedBy
+      .mb-1
+        input(
+          class="form-control"
+          value=item.account.fullName
+          readonly
+        )
+        input(
+          class="form-control"
+          value=moment(item.updatedAt).format("DD-MM-YYYY HH:mm:ss")
+          readonly
+        )

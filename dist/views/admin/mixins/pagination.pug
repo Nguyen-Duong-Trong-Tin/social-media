@@ -1,0 +1,82 @@
+mixin pagination(url, page, maxPage, limit)
+  - const searchParams = new URLSearchParams(url.query);
+  - searchParams.set("limit", limit);
+
+  nav.d-flex.justify-content-end.mb-3
+    ul.pagination
+      if (page === 2)
+        - searchParams.set("page", page - 1);
+        li.page-item
+          a(
+            class="page-link"
+            href=`${url.base}?${searchParams.toString()}`
+          ) Trước
+        li.page-item
+          a(
+            class="page-link"
+            href=`${url.base}?${searchParams.toString()}`
+          ) #{page - 1}
+
+      if (page > 2)
+        - searchParams.set("page", page - 1);
+        li.page-item
+          a(
+            class="page-link"
+            href=`${url.base}?${searchParams.toString()}`
+          ) Trước
+
+        - searchParams.set("page", page - 2);
+        li.page-item
+          a(
+            class="page-link"
+            href=`${url.base}?${searchParams.toString()}`
+          ) #{page - 2}
+
+        - searchParams.set("page", page - 1);
+        li.page-item
+          a(
+            class="page-link"
+            href=`${url.base}?${searchParams.toString()}`
+          ) #{page - 1}
+
+      - searchParams.set("page", page);
+      li.page-item
+        a(
+          class="page-link active"
+          href=`${url.base}?${searchParams.toString()}`
+        ) #{page}
+      
+      if (page + 1 < maxPage)
+        - searchParams.set("page", page + 1);
+        li.page-item
+          a(
+            class="page-link"
+            href=`${url.base}?${searchParams.toString()}`
+          ) #{page + 1}
+
+        - searchParams.set("page", page + 2);
+        li.page-item
+          a(
+            class="page-link"
+            href=`${url.base}?${searchParams.toString()}`
+          ) #{page + 2}
+         
+        - searchParams.set("page", page + 1); 
+        li.page-item
+          a(
+            class="page-link"
+            href=`${url.base}?${searchParams.toString()}`
+          ) Sau
+
+      if (page + 1 === maxPage)  
+        - searchParams.set("page", page + 1); 
+        li.page-item
+          a(
+            class="page-link"
+            href=`${url.base}?${searchParams.toString()}`
+          ) #{page + 1}
+        li.page-item
+          a(
+            class="page-link"
+            href=`${url.base}?${searchParams.toString()}`
+          ) Sau

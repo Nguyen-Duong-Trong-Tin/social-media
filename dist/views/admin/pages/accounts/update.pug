@@ -1,0 +1,74 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/accounts`)
+
+  +boxTitle(pageTitle)
+
+  form(
+    method="POST"
+    action=`/${admin}/accounts/update/${account.id}?_method=PATCH`
+    enctype="multipart/form-data"
+  )
+    .mb-3
+      label.form-label Họ và tên
+      input(
+        class="form-control"
+        name="fullName"
+        value=account.fullName
+        required
+      )
+    .mb-3
+      label.form-label Email
+      input(
+        class="form-control"
+        type="email"
+        name="email"
+        value=account.email
+        required
+      )
+    .mb-3
+      label.form-label Số điện thoại
+      input(
+        class="form-control"
+        name="phone"
+        value=account.phone
+        required
+      )
+    .mb-3
+      label.form-label Ảnh
+      .w-25.mb-1
+        img(
+          class="img-thumbnail"
+          src=account.avatar
+        )
+      input(
+        class="form-control"
+        type="file"
+        name="avatar"
+        value=account.avatar
+      )
+    .mb-3
+      label.form-label Trạng thái
+      select(
+        class="form-select"
+        name="status"
+        required
+      )
+        option(value="active" selected=(account.status === "active")) Hoạt động
+        option(value="inactive" selected=(account.status === "inactive")) Ngưng hoạt động
+    .mb-3
+      label.form-label Vai trò
+      select(
+        class="form-select"
+        name="roleId"
+        required
+      )
+        each role in roles
+          option(value=role.id selected=(account.roleId = role.id)) #{role.title}
+    
+    .d-flex.justify-content-center.mb-3
+      button.btn.btn-primary Cập nhật

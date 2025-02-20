@@ -1,0 +1,29 @@
+extends ../../../layouts/auth
+
+include ../../../mixins/boxTitle
+
+block main
+  .login
+    +boxTitle(pageTitle)
+
+    form(
+      class="form-login"
+      method="POST"
+      action=`/${admin}/auth/login`
+    )
+      .mb-3
+        label.form-label Email
+        input(
+          class="form-control"
+          type="email"
+          name="email"
+        )
+      .mb-3
+        label.form-label Mật khẩu
+        input(
+          class="form-control"
+          type="password"
+          name="password"
+        )
+      .d-flex.justify-content-center.mb-3
+        button.btn.btn-primary Đăng nhập

@@ -1,0 +1,89 @@
+/* Message */
+.flash {
+  position: fixed;
+  top: 100px;
+  right: 30px;
+  width: 25%;
+  border-radius: 20px;
+  font-weight: bold;
+  text-align: center;
+  padding: 20px 0;
+  z-index: 9999;
+  color: #ffffff;
+}
+
+.flash-success {
+   background-color: green;
+}
+
+.flash-error {
+  background-color: red;
+}
+/* End Message */
+
+/* Box Title */
+.box-title {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.title {
+  font-size: 48px;
+  font-weight: bold;
+}
+/* End Box Title */
+
+/* Menu */
+.menu {
+  height: 100%;
+  padding: 20px 10px;
+  border-right: 2px solid #dddddd;
+}
+
+.menu li {
+  margin-top: 10px;
+}
+
+.menu li .btn {
+  width: 100%;
+  font-weight: bold;
+}
+/* End Menu */
+
+/* Header */
+.header {
+  padding: 20px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #dddddd;
+}
+
+.header .header-image {
+  width: 15%;
+}
+
+.header .header-image img {
+  object-fit: cover;
+  width: 100%;
+}
+
+.header .header-menu {
+  display: flex;
+  align-items: center;
+}
+
+.header .header-menu li {
+  margin-left: 10px;
+}
+/* End Header */
+
+/* Footer */
+.footer {
+  padding: 30px;
+  background-color: rgb(49, 46, 46);
+  color: #ffffff;
+  font-weight: bold;
+  text-align: center;
+}
+/* End Footer */
