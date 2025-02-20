@@ -1,0 +1,12 @@
+mixin formSort(sort)
+  form(form-sort)
+    label.form-label Sắp xếp
+    select(
+      class="form-select mb-3"
+      name="sort"
+    )
+      each sortOption in sort.sortOptions
+        option(
+          value=sortOption.value
+          selected=(sort.sort === sortOption.value)
+        ) #{sortOption.title}

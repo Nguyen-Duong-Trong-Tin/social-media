@@ -1,0 +1,15 @@
+mixin formAction(action, options)
+  form(
+    method="POST"
+    action=action
+    form-action
+  )
+    label.form-label Hành động
+    .input-group.mb-3
+      select(
+        class="form-select"
+        name="action"
+      )
+        each option in options
+          option(value=option.value) #{option.title}
+      button.btn.btn-primary Thực hiện

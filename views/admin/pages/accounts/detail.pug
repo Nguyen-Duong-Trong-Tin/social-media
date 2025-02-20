@@ -1,0 +1,81 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/accounts`)
+
+  +boxTitle(pageTitle)
+
+  .mb-3
+    label.form-label Họ và tên
+    input(
+      class="form-control"
+      value=account.fullName
+      readonly
+    )
+  .mb-3
+    label.form-label Email
+    input(
+      class="form-control"
+      type="email"
+      value=account.email
+      readonly
+    )
+  .mb-3
+    label.form-label Số điện thoại
+    input(
+      class="form-control"
+      value=account.phone
+      readonly
+    )
+  .mb-3
+    label.form-label Ảnh
+    .w-25.mb-1
+      img(
+        class="img-thumbnail"
+        src=account.avatar
+      )
+  .mb-3
+    label.form-label Trạng thái
+    select(
+      class="form-select"
+      disabled
+    )
+      option(value="active" selected=(account.status === "active")) Hoạt động
+      option(value="inactive" selected=(account.status === "inactive")) Ngưng hoạt động
+  .mb-3
+    label.form-label Vai trò
+    select(
+      class="form-select"
+      disabled
+    )
+      each role in roles
+        option(value=role.id selected=(account.roleId = role.id)) #{role.title}
+  .mb-3
+    label.form-label Thêm bởi
+    input(
+      class="form-control"
+      value=createdBy.account.fullName
+      readonly
+    )
+    input(
+      class="form-control"
+      value=moment(createdBy.createdAt).format("DD-MM-YYYY HH:mm:ss")
+      readonly
+    )
+  .mb-3
+    label.form-label Cập nhật bởi
+    each item in updatedBy
+      .mb-1
+        input(
+          class="form-control"
+          value=item.account.fullName
+          readonly
+        )
+        input(
+          class="form-control"
+          value=moment(item.updatedAt).format("DD-MM-YYYY HH:mm:ss")
+          readonly
+        )

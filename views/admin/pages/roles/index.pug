@@ -1,0 +1,56 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxTitle
+include ../../mixins/boxCreate
+include ../../mixins/formSort
+include ../../mixins/formSearch
+include ../../mixins/formAction
+include ../../mixins/pagination
+
+block main
+  +boxTitle(pageTitle)
+  
+  +boxCreate(`/${admin}/roles/create`)
+
+  +formSort(sort)
+
+  +formSearch(keyword, "Tìm kiếm theo tên...")
+
+  +formAction(`${url.base}/actions?_method=PATCH`, actionOptions)
+
+  table.table
+    thead
+      tr
+        th(scope="col")
+          input(
+            class="form-check-input"
+            type="checkbox"
+            name="checkbox-all"
+          )
+        th(scope="col") #
+        th(scope="col") Tiêu đề
+        th(scope="col") Hành động
+    tbody
+      each role, index in roles
+        tr
+          th(scope="row")
+            input(
+              class="form-check-input"
+              type="checkbox"
+              name="checkbox"
+              value=role.id
+            )
+          th(scope="row") #{((pagination.page - 1) * pagination.limit) + (index + 1)}
+          td #{role.title}
+          td
+            a(class="btn btn-primary" href=`/${admin}/roles/detail/${role.id}`) Xem 
+            a(class="btn btn-warning mx-1" href=`/${admin}/roles/update/${role.id}`) Sửa
+            form(
+              class="d-inline"
+              method="POST"
+              action=`/${admin}/roles/delete/${role.id}?_method=DELETE`
+              form-delete-item
+            )
+              button.btn.btn-danger Xóa
+
+  +pagination(url, pagination.page, pagination.maxPage, pagination.limit)

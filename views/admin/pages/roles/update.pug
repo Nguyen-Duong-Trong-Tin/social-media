@@ -1,0 +1,30 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/roles`)
+
+  +boxTitle(pageTitle)
+
+  form(
+    method="POST"
+    action=`/${admin}/roles/update/${role.id}?_method=PATCH`
+  )
+    .mb-3
+      label.form-label Tiêu đề
+      input(
+        class="form-control"
+        name="title"
+        value=role.title
+        required
+      )
+    .mb-3
+      label.form-label Mô tả
+      textarea(
+        name="description"
+        tinymce
+      ) #{role.description}
+    .d-flex.justify-content-center.mb-3
+      button.btn.btn-primary Cập nhật

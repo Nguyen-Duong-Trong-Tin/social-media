@@ -1,0 +1,10 @@
+header.header
+  .header-image
+    a(href="/") 
+      img(src="https://cdn.daca.vn/media/logo/logo.svg")
+  .header-auth
+    form(
+      method="POST"
+      action=`/${admin}/auth/logout`
+    )
+      button.btn.btn-danger Đăng xuất

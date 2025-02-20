@@ -1,0 +1,11 @@
+mixin formSearch(keyword, placeholder)
+  form(form-search)
+    label.form-label Tìm kiếm
+    .input-group.mb-3
+      input(
+        class="form-control"
+        name="keyword"
+        value=keyword
+        placeholder=placeholder
+      )
+      button.btn.btn-primary Tìm kiếm
