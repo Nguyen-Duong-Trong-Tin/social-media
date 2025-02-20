@@ -1,0 +1,22 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const router = express_1.default.Router();
+const storage_util_1 = __importDefault(require("../../utils/storage.util"));
+const multer_util_1 = __importDefault(require("../../utils/multer.util"));
+const upload = (0, multer_util_1.default)({ storage: storage_util_1.default });
+const account_validate_1 = __importDefault(require("../../validates/admin/account.validate"));
+const account_controller_1 = __importDefault(require("../../controllers/admin/account.controller"));
+router.get("/", account_controller_1.default.get);
+router.get("/detail/:id", account_controller_1.default.getById);
+router.get("/create", account_controller_1.default.create);
+router.post("/create", upload.single("avatar"), account_validate_1.default.createPost, account_controller_1.default.createPost);
+router.get("/update/:id", account_controller_1.default.update);
+router.patch("/update/:id", upload.single("avatar"), account_validate_1.default.updatePatch, account_controller_1.default.updatePatch);
+router.patch("/actions", account_validate_1.default.actions, account_controller_1.default.actions);
+router.patch("/updateStatus/:status/:id", account_validate_1.default.updateStatus, account_controller_1.default.updateStatus);
+router.delete("/delete/:id", account_controller_1.default.del);
+exports.default = router;
