@@ -19,7 +19,6 @@ const jwt_util_1 = __importDefault(require("../../utils/jwt.util"));
 // [GET] /admin/auth/login
 const login = (req, res) => {
     try {
-        console.log("OK");
         return res.render("admin/pages/auth/login", { pageTitle: "Đăng Nhập" });
     }
     catch (_a) {

@@ -10,7 +10,6 @@ import jwtUtil from "../../utils/jwt.util";
 // [GET] /admin/auth/login
 const login = (req: any, res: Response): void => {
   try {
-    console.log("OK");
     return res.render("admin/pages/auth/login", { pageTitle: "Đăng Nhập" });
   } catch {
     req.flash("error", "Có lỗi xảy ra!");
