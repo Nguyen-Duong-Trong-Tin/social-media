@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const jwt = require("jsonwebtoken");
-const accountGenerate = (accountId, roleId, expiresIn) => {
-    return jwt.sign({ accountId, roleId }, process.env.TOKEN_SECRET, { expiresIn });
+const accountGenerate = (accountId, permissions, expiresIn) => {
+    return jwt.sign({ accountId, permissions }, process.env.TOKEN_SECRET, { expiresIn });
 };
 const accountVerify = (token) => {
     const verify = {
         success: false,
-        account: { accountId: "", roleId: "" }
+        account: { accountId: "", permissions: [] }
     };
     jwt.verify(token, process.env.TOKEN_SECRET, (err, account) => {
         if (err) {

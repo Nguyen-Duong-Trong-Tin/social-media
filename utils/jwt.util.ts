@@ -2,11 +2,11 @@ const jwt = require("jsonwebtoken");
 
 const accountGenerate = (
   accountId: string,
-  roleId: string,
+  permissions: string[],
   expiresIn: string
 ) => {
   return jwt.sign(
-    { accountId, roleId },
+    { accountId, permissions },
     process.env.TOKEN_SECRET as string,
     { expiresIn }
   );
@@ -15,16 +15,16 @@ const accountGenerate = (
 const accountVerify = (token: string) => {
   const verify: {
     success: boolean;
-    account: { accountId: string, roleId: string }
+    account: { accountId: string, permissions: string[] }
   } = {
     success: false,
-    account: { accountId: "", roleId: "" }
+    account: { accountId: "", permissions: [] }
   };
 
   jwt.verify(
     token,
     process.env.TOKEN_SECRET as string,
-    (err: Error, account: { accountId: string, roleId: string }) => {
+    (err: Error, account: { accountId: string, permissions: string[] }) => {
       if (err) {
         return;
       }

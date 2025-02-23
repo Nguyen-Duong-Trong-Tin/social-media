@@ -1,0 +1,118 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxTitle
+
+block main
+  +boxTitle(pageTitle)
+
+  table.table.table-borderless
+    thead
+      tr
+        th(scope="col") #
+        each role of roles
+          th(scope="col") #{role.title}
+    tbody
+      //- Accounts
+      tr.border-top
+        th(scope="row") Tài khoản
+      tr
+        td Xem
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="accountView"
+              checked=role.permissions.includes("accountView")
+            )
+      tr
+        td Thêm
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="accountCreate"
+              checked=role.permissions.includes("accountCreate")
+            )
+      tr
+        td Sửa
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="accountUpdate"
+              checked=role.permissions.includes("accountUpdate")
+            )
+      tr
+        td Xóa
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="accountDelete"
+              checked=role.permissions.includes("accountDelete")
+            )
+
+      //- Roles
+      tr.border-top
+        th(scope="row") Vai trò
+      tr
+        td Xem
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="roleView"
+              checked=role.permissions.includes("roleView")
+            )
+      tr
+        td Thêm
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="roleCreate"
+              checked=role.permissions.includes("roleCreate")
+            )
+      tr
+        td Sửa
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="roleUpdate"
+              checked=role.permissions.includes("roleUpdate")
+            )
+      tr
+        td Xóa
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="roleDelete"
+              checked=role.permissions.includes("roleDelete")
+            )
+
+  form(
+    class="d-flex justify-content-center mb-3"
+    method="POST"
+    action=`/${admin}/permissions/update?_method=PATCH`
+    roles=roles.map(role => ({id: role.id, permissions: []}))
+    form-permission
+  )
+    button.btn.btn-primary Cập nhật

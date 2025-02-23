@@ -1,7 +1,7 @@
 interface IRole {
   title: string;
   description: string;
-  permission: string[];
+  permissions: string[];
   createdBy: {
     accountId: string;
     createdAt: Date;

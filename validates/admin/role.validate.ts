@@ -1,4 +1,3 @@
-import { log } from "console";
 import { NextFunction, Response } from "express";
 
 // [POST] /admin/roles/create

@@ -9,6 +9,7 @@ import authRoutes from "./auth.route";
 import dashboardRoutes from "./dashboard.route";
 import roleRoutes from "./role.route";
 import accountRoutes from "./account.route";
+import permissionRoutes from "./permission.route";
 
 const adminRoutes = (app: Express): void => {
   const prefixAdmin: string = `/${configs.admin}`;
@@ -17,7 +18,11 @@ const adminRoutes = (app: Express): void => {
   app.get(`${prefixAdmin}`, adminMiddleware.redirect);
 
   app.use(`${prefixAdmin}/auth`, authRoutes);
-  app.use(`${prefixAdmin}/dashboard`, dashboardRoutes);
+  app.use(
+    `${prefixAdmin}/dashboard`,
+    deserialize, 
+    dashboardRoutes
+  );
   app.use(
     `${prefixAdmin}/roles`,
     deserialize,
@@ -27,6 +32,11 @@ const adminRoutes = (app: Express): void => {
     `${prefixAdmin}/accounts`,
     deserialize,
     accountRoutes
+  );
+  app.use(
+    `${prefixAdmin}/permissions`,
+    deserialize,
+    permissionRoutes
   );
 }
 

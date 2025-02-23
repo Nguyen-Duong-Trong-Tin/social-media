@@ -16,6 +16,7 @@ const index_config_1 = __importDefault(require("../../configs/index.config"));
 const auth_service_1 = __importDefault(require("../../services/admin/auth.service"));
 const md5_util_1 = __importDefault(require("../../utils/md5.util"));
 const jwt_util_1 = __importDefault(require("../../utils/jwt.util"));
+const role_service_1 = __importDefault(require("../../services/admin/role.service"));
 // [GET] /admin/auth/login
 const login = (req, res) => {
     try {
@@ -36,7 +37,12 @@ const loginPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             req.flash("error", "Đăng nhập không thành công!");
             return res.redirect("back");
         }
-        const token = jwt_util_1.default.accountGenerate(accountExists.id, accountExists.roleId, "1d");
+        const roleExists = yield role_service_1.default.findById(accountExists.roleId);
+        if (!roleExists) {
+            req.flash("error", "Vai trò không tồn tại!");
+            return res.redirect("back");
+        }
+        const token = jwt_util_1.default.accountGenerate(accountExists.id, roleExists.permissions, "1d");
         res.cookie("token", token, {
             httpOnly: true,
             secure: true,

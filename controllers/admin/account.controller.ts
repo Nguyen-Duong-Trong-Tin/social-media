@@ -14,6 +14,16 @@ import md5Util from "../../utils/md5.util";
 // [GET] /admin/accounts?page=:page&limit=:limit&keyword=:keyword&sort=title-asc
 const get = async (req: any, res: Response): Promise<void> => {
   try {
+    const myAccount: {
+      accountId: string;
+      permissions: string[];
+    } = res.locals.account;
+
+    if (!myAccount.permissions.includes("accountView")) {
+      req.flash("error", "Bạn không có quyền!");
+      return res.redirect(`/${configs.admin}/dashboard`);
+    }
+
     const filter: string = req.query.filter;
     const filterOptions: {
       value: string,
@@ -88,6 +98,16 @@ const get = async (req: any, res: Response): Promise<void> => {
 // [GET] /admin/accounts/detail/:id
 const getById = async (req: any, res: Response): Promise<void> => {
   try {
+    const myAccount: {
+      accountId: string;
+      permissions: string[];
+    } = res.locals.account;
+
+    if (!myAccount.permissions.includes("accountView")) {
+      req.flash("error", "Bạn không có quyền!");
+      return res.redirect(`/${configs.admin}/dashboard`);
+    }
+
     const id: string = req.params.id;
 
     const [
@@ -133,6 +153,16 @@ const getById = async (req: any, res: Response): Promise<void> => {
 // [GET] /admin/accounts/create
 const create = async (req: any, res: Response): Promise<void> => {
   try {
+    const myAccount: {
+      accountId: string;
+      permissions: string[];
+    } = res.locals.account;
+
+    if (!myAccount.permissions.includes("accountCreate")) {
+      req.flash("error", "Bạn không có quyền!");
+      return res.redirect(`/${configs.admin}/accounts`);
+    }
+
     const roles = await roleService.findAll();
     return res.render("admin/pages/accounts/create", {
       pageTitle: "Tạo Mới Tài Khoản",
@@ -149,8 +179,13 @@ const createPost = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
       accountId: string,
-      roleId: string
-    } = req.account;
+      permissions: string[]
+    } = res.locals.account;
+
+    if (!myAccount.permissions.includes("accountCreate")) {
+      req.flash("error", "Bạn không có quyền!");
+      return res.redirect(`/${configs.admin}/accounts`);
+    }
 
     const fullName: string = req.body.fullName;
     const email: string = req.body.email;
@@ -208,6 +243,16 @@ const createPost = async (req: any, res: Response): Promise<void> => {
 // [GET] /admin/accounts/update/:id
 const update = async (req: any, res: Response): Promise<void> => {
   try {
+    const myAccount: {
+      accountId: string,
+      permissions: string[]
+    } = res.locals.account;
+
+    if (!myAccount.permissions.includes("accountUpdate")) {
+      req.flash("error", "Bạn không có quyền!");
+      return res.redirect(`/${configs.admin}/accounts`);
+    }
+
     const id: string = req.params.id;
 
     const [
@@ -238,8 +283,13 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
       accountId: string,
-      roleId: string
-    } = req.account;
+      permissions: string[]
+    } = res.locals.account;
+
+    if (!myAccount.permissions.includes("accountUpdate")) {
+      req.flash("error", "Bạn không có quyền!");
+      return res.redirect(`/${configs.admin}/accounts`);
+    }
 
     const id: string = req.params.id;
 
@@ -314,14 +364,19 @@ const actions = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
       accountId: string,
-      roleId: string
-    } = req.account;
+      permissions: string[]
+    } = res.locals.account;
 
     const action: string = req.body.action;
     const ids: string[] = req.body.ids.split(',');
 
     switch (action) {
       case "delete": {
+        if (!myAccount.permissions.includes("accountDelete")) {
+          req.flash("error", "Bạn không có quyền!");
+          return res.redirect(`/${configs.admin}/accounts`);
+        }
+
         await Promise.all(ids.map(id => accountService.del(id, {
           accountId: myAccount.accountId,
           deletedAt: new Date()
@@ -331,6 +386,11 @@ const actions = async (req: any, res: Response): Promise<void> => {
       }
 
       case "active": {
+        if (!myAccount.permissions.includes("accountUpdate")) {
+          req.flash("error", "Bạn không có quyền!");
+          return res.redirect(`/${configs.admin}/accounts`);
+        }
+
         await Promise.all(ids.map(id => accountService.update(id, {
           status: EAccountStatus.active,
           $push: {
@@ -345,6 +405,11 @@ const actions = async (req: any, res: Response): Promise<void> => {
       }
 
       case "inactive": {
+        if (!myAccount.permissions.includes("accountUpdate")) {
+          req.flash("error", "Bạn không có quyền!");
+          return res.redirect(`/${configs.admin}/accounts`);
+        }
+
         await Promise.all(ids.map(id => accountService.update(id, {
           status: EAccountStatus.inactive,
           $push: {
@@ -376,8 +441,13 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
       accountId: string,
-      roleId: string
-    } = req.account;
+      permissions: string[]
+    } = res.locals.account;
+
+    if (!myAccount.permissions.includes("accountUpdate")) {
+      req.flash("error", "Bạn không có quyền!");
+      return res.redirect(`/${configs.admin}/accounts`);
+    }
 
     const id: string = req.params.id;
     const status: string = req.params.status;
@@ -409,8 +479,13 @@ const del = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
       accountId: string,
-      roleId: string
-    } = req.account;
+      permissions: string[]
+    } = res.locals.account;
+
+    if (!myAccount.permissions.includes("accountDelete")) {
+      req.flash("error", "Bạn không có quyền!");
+      return res.redirect(`/${configs.admin}/accounts`);
+    }
 
     const id: string = req.params.id;
 

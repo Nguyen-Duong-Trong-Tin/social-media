@@ -16,7 +16,7 @@ const deserialize = (req: any, res: Response, next: NextFunction) => {
       success: boolean;
       account: {
         accountId: string;
-        roleId: string;
+        permissions: string[];
       };
     } = jwtUtil.accountVerify(token);
     if (!verify.success) {
@@ -24,7 +24,7 @@ const deserialize = (req: any, res: Response, next: NextFunction) => {
       return res.redirect(`/${configs.admin}/auth/login`);
     }
 
-    req.account = verify.account;
+    res.locals.account = verify.account;
     return next();
   } catch {
     req.flash("error", "Có lỗi xảy ra!");

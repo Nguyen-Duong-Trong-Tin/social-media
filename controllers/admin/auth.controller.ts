@@ -6,6 +6,7 @@ import authService from "../../services/admin/auth.service";
 
 import md5Util from "../../utils/md5.util";
 import jwtUtil from "../../utils/jwt.util";
+import roleService from "../../services/admin/role.service";
 
 // [GET] /admin/auth/login
 const login = (req: any, res: Response): void => {
@@ -29,9 +30,15 @@ const loginPost = async (req: any, res: Response): Promise<void> => {
       return res.redirect("back");
     }
 
+    const roleExists = await roleService.findById(accountExists.roleId);
+    if (!roleExists) {
+      req.flash("error", "Vai trò không tồn tại!");
+      return res.redirect("back");
+    }
+
     const token = jwtUtil.accountGenerate(
       accountExists.id,
-      accountExists.roleId,
+      roleExists.permissions,
       "1d"
     );
     res.cookie("token", token, {

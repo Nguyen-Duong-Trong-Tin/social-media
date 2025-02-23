@@ -21,6 +21,11 @@ const md5_util_1 = __importDefault(require("../../utils/md5.util"));
 // [GET] /admin/accounts?page=:page&limit=:limit&keyword=:keyword&sort=title-asc
 const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const myAccount = res.locals.account;
+        if (!myAccount.permissions.includes("accountView")) {
+            req.flash("error", "Bạn không có quyền!");
+            return res.redirect(`/${index_config_1.default.admin}/dashboard`);
+        }
         const filter = req.query.filter;
         const filterOptions = [
             { value: "", title: "---" },
@@ -80,6 +85,11 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 // [GET] /admin/accounts/detail/:id
 const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const myAccount = res.locals.account;
+        if (!myAccount.permissions.includes("accountView")) {
+            req.flash("error", "Bạn không có quyền!");
+            return res.redirect(`/${index_config_1.default.admin}/dashboard`);
+        }
         const id = req.params.id;
         const [accountExists, roles] = yield Promise.all([
             account_service_1.default.findById(id),
@@ -115,6 +125,11 @@ const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 // [GET] /admin/accounts/create
 const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const myAccount = res.locals.account;
+        if (!myAccount.permissions.includes("accountCreate")) {
+            req.flash("error", "Bạn không có quyền!");
+            return res.redirect(`/${index_config_1.default.admin}/accounts`);
+        }
         const roles = yield role_service_1.default.findAll();
         return res.render("admin/pages/accounts/create", {
             pageTitle: "Tạo Mới Tài Khoản",
@@ -129,7 +144,11 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 // [POST] /admin/accounts/create
 const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const myAccount = req.account;
+        const myAccount = res.locals.account;
+        if (!myAccount.permissions.includes("accountCreate")) {
+            req.flash("error", "Bạn không có quyền!");
+            return res.redirect(`/${index_config_1.default.admin}/accounts`);
+        }
         const fullName = req.body.fullName;
         const email = req.body.email;
         const password = md5_util_1.default.encode(req.body.password);
@@ -179,6 +198,11 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 // [GET] /admin/accounts/update/:id
 const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const myAccount = res.locals.account;
+        if (!myAccount.permissions.includes("accountUpdate")) {
+            req.flash("error", "Bạn không có quyền!");
+            return res.redirect(`/${index_config_1.default.admin}/accounts`);
+        }
         const id = req.params.id;
         const [accountExists, roles] = yield Promise.all([
             account_service_1.default.findById(id),
@@ -202,7 +226,11 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 // [PATCH] /admin/accounts/update/:id
 const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const myAccount = req.account;
+        const myAccount = res.locals.account;
+        if (!myAccount.permissions.includes("accountUpdate")) {
+            req.flash("error", "Bạn không có quyền!");
+            return res.redirect(`/${index_config_1.default.admin}/accounts`);
+        }
         const id = req.params.id;
         const fullName = req.body.fullName;
         const email = req.body.email;
@@ -261,11 +289,15 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 // [PATCH] /admin/accounts/actions
 const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const myAccount = req.account;
+        const myAccount = res.locals.account;
         const action = req.body.action;
         const ids = req.body.ids.split(',');
         switch (action) {
             case "delete": {
+                if (!myAccount.permissions.includes("accountDelete")) {
+                    req.flash("error", "Bạn không có quyền!");
+                    return res.redirect(`/${index_config_1.default.admin}/accounts`);
+                }
                 yield Promise.all(ids.map(id => account_service_1.default.del(id, {
                     accountId: myAccount.accountId,
                     deletedAt: new Date()
@@ -273,6 +305,10 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 break;
             }
             case "active": {
+                if (!myAccount.permissions.includes("accountUpdate")) {
+                    req.flash("error", "Bạn không có quyền!");
+                    return res.redirect(`/${index_config_1.default.admin}/accounts`);
+                }
                 yield Promise.all(ids.map(id => account_service_1.default.update(id, {
                     status: account_enum_1.EAccountStatus.active,
                     $push: {
@@ -285,6 +321,10 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 break;
             }
             case "inactive": {
+                if (!myAccount.permissions.includes("accountUpdate")) {
+                    req.flash("error", "Bạn không có quyền!");
+                    return res.redirect(`/${index_config_1.default.admin}/accounts`);
+                }
                 yield Promise.all(ids.map(id => account_service_1.default.update(id, {
                     status: account_enum_1.EAccountStatus.inactive,
                     $push: {
@@ -311,7 +351,11 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 // [PATCH] /admin/accounts/updateStatus/:status/:id
 const updateStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const myAccount = req.account;
+        const myAccount = res.locals.account;
+        if (!myAccount.permissions.includes("accountUpdate")) {
+            req.flash("error", "Bạn không có quyền!");
+            return res.redirect(`/${index_config_1.default.admin}/accounts`);
+        }
         const id = req.params.id;
         const status = req.params.status;
         const accountExists = yield account_service_1.default.findById(id);
@@ -338,7 +382,11 @@ const updateStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 // [DELETE] /admin/accounts/delete/:id
 const del = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const myAccount = req.account;
+        const myAccount = res.locals.account;
+        if (!myAccount.permissions.includes("accountDelete")) {
+            req.flash("error", "Bạn không có quyền!");
+            return res.redirect(`/${index_config_1.default.admin}/accounts`);
+        }
         const id = req.params.id;
         const accountExists = yield account_service_1.default.findById(id);
         if (!accountExists) {
