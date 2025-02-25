@@ -10,7 +10,7 @@ const get = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string,
       permissions: string[]
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleUpdate")) {
       req.flash("error", "Bạn không có quyền!");
@@ -34,7 +34,7 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string,
       permissions: string[]
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleUpdate")) {
       req.flash("error", "Bạn không có quyền!");

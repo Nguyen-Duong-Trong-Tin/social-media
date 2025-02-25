@@ -6,6 +6,8 @@ import getUrlHelper from "../../helpers/getUrl.helper";
 
 import roleService from "../../services/admin/role.service";
 import accountService from "../../services/admin/account.service";
+import slugUtil from "../../utils/slug.util";
+import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
 
 // [GET] /admin/roles?page=:page&limit=:limit&keyword=:keyword&sort=title-asc
 const get = async (req: any, res: Response): Promise<void> => {
@@ -13,7 +15,7 @@ const get = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string,
       permissions: string[]
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleView")) {
       req.flash("error", "Bạn không có quyền!");
@@ -76,7 +78,7 @@ const getById = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string,
       permissions: string[]
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleView")) {
       req.flash("error", "Bạn không có quyền!");
@@ -124,7 +126,7 @@ const create = (req: any, res: Response): void => {
     const myAccount: {
       accountId: string,
       permissions: string[]
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleCreate")) {
       req.flash("error", "Bạn không có quyền!");
@@ -146,7 +148,7 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string,
       permissions: string[]
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleCreate")) {
       req.flash("error", "Bạn không có quyền!");
@@ -154,10 +156,18 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     }
 
     const title: string = req.body.title;
+    const slug: string = slugUtil.convert(title) + '-' + shortUniqueKeyUtil.generate();
     const description: string = req.body.description;
+
+    const roleSlugExists = await roleService.findBySlug(slug);
+    if (roleSlugExists) {
+      req.flash("error", "Có lỗi xảy ra!");
+      return res.redirect("back");
+    }
 
     await roleService.create({
       title,
+      slug,
       description,
       permissions: [],
       createdBy: {
@@ -169,7 +179,9 @@ const createPost = async (req: any, res: Response): Promise<void> => {
 
     req.flash("success", "Vai trò được tạo thành công!");
     return res.redirect(`/${configs.admin}/roles`);
-  } catch {
+  } catch(e) {
+    console.log(e);
+
     req.flash("error", "Có lỗi xảy ra!");
     return res.redirect("back");
   }
@@ -181,7 +193,7 @@ const update = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string,
       permissions: string[]
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleUpdate")) {
       req.flash("error", "Bạn không có quyền!");
@@ -212,7 +224,7 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string,
       permissions: string[]
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleUpdate")) {
       req.flash("error", "Bạn không có quyền!");
@@ -222,16 +234,28 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     const id: string = req.params.id;
 
     const title: string = req.body.title;
+    const slug: string = slugUtil.convert(title) + '-' + shortUniqueKeyUtil.generate();
     const description: string = req.body.description;
 
-    const roleExists = await roleService.findById(id);
+    const [
+      roleExists,
+      roleSlugExists
+    ] = await Promise.all([
+      roleService.findById(id),
+      roleService.findBySlug(slug)
+    ]);
     if (!roleExists) {
       req.flash("error", "Vai trò không tồn tại!");
       return req.redirect("back");
     }
+    if (roleSlugExists) {
+      req.flash("error", "Có lỗi xảy ra!");
+      return res.redirect("back");
+    }
 
     await roleService.update(id, {
       title,
+      slug,
       description,
       $push: {
         updatedBy: {
@@ -242,7 +266,9 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     },);
 
     req.flash("success", "Vai trò được cập nhật thành công!");
-  } catch {
+  } catch(e) {
+    console.log(e);
+    
     req.flash("error", "Có lỗi xảy ra!");
   }
   return res.redirect("back");
@@ -254,7 +280,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string,
       permissions: string[]
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     const action: string = req.body.action;
     const ids: string[] = req.body.ids.split(',');
@@ -293,7 +319,7 @@ const del = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string;
       permissions: string[];
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleDelete")) {
       req.flash("error", "Bạn không có quyền!");

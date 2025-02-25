@@ -8,6 +8,8 @@ import IRole from "../../interfaces/role.interface";
 
 import RoleModel from "../../models/role.model";
 
+import slugUtil from "../../utils/slug.util";
+
 const findAll = async () => {
   const roles = await RoleModel.find({ deleted: false });
   return roles;
@@ -21,11 +23,12 @@ const find = async (req: Request) => {
 
   const find: {
     deleted: boolean,
-    title?: RegExp
+    slug?: RegExp
   } = { deleted: false };
 
   if (req.query.keyword) {
-    find.title = new RegExp(req.query.keyword as string, "i");
+    const slug: string = slugUtil.convert(req.query.keyword as string);
+    find.slug = new RegExp(slug, "i");
   }
 
   const sort: { [key: string]: SortOrder } = sortHelper(req);
@@ -41,6 +44,14 @@ const find = async (req: Request) => {
 const findById = async (id: string) => {
   const roleExists = await RoleModel.findOne({
     _id: id,
+    deleted: false
+  });
+  return roleExists;
+}
+
+const findBySlug = async (slug: string) => {
+  const roleExists = await RoleModel.findOne({
+    slug,
     deleted: false
   });
   return roleExists;
@@ -102,6 +113,7 @@ const roleService = {
   findAll,
   find,
   findById,
+  findBySlug,
   calculateMaxPage,
   create,
   update,

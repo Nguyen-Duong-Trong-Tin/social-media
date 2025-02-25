@@ -8,6 +8,8 @@ import IAccount from "../../interfaces/account.interface";
 
 import AccountModel from "../../models/account.model";
 import filterHelper from "../../helpers/filter.helper";
+import slugUtil from "../../utils/slug.util";
+import RoleModel from "../../models/role.model";
 
 const find = async (req: Request) => {
   const pagination: {
@@ -17,11 +19,12 @@ const find = async (req: Request) => {
 
   const find: {
     deleted: boolean,
-    email?: RegExp
+    slug?: RegExp
   } = { deleted: false };
 
   if (req.query.keyword) {
-    find.email = new RegExp(req.query.keyword as string, "i");
+    const slug: string = slugUtil.convert(req.query.keyword as string);
+    find.slug = new RegExp(slug, "i");
   }
 
   const filter: { [key: string]: any } = filterHelper(req);
@@ -48,6 +51,14 @@ const findById = async (id: string) => {
     })
     .select("-password");
   return accountExists;
+}
+
+const findBySlug = async (slug: string) => {
+  const roleExists = await RoleModel.findOne({
+    slug,
+    deleted: false
+  });
+  return roleExists;
 }
 
 const findByEmail = async (email: string) => {
@@ -131,6 +142,7 @@ const del = async (
 const accountService = {
   find,
   findById,
+  findBySlug,
   findByEmail,
   findByPhone,
   calculateMaxPage,

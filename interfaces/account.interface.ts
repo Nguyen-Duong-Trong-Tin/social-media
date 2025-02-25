@@ -2,6 +2,7 @@ import { EAccountStatus } from "../enums/account.enum";
 
 interface IAccount {
   fullName: string;
+  slug: string;
   email: string;
   password: string;
   phone: string;

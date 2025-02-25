@@ -24,7 +24,7 @@ const deserialize = (req: any, res: Response, next: NextFunction) => {
       return res.redirect(`/${configs.admin}/auth/login`);
     }
 
-    res.locals.account = verify.account;
+    res.locals.myAccount = verify.account;
     return next();
   } catch {
     req.flash("error", "Có lỗi xảy ra!");

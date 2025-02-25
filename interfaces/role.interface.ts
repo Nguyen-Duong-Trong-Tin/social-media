@@ -1,5 +1,6 @@
 interface IRole {
   title: string;
+  slug: string;
   description: string;
   permissions: string[];
   createdBy: {

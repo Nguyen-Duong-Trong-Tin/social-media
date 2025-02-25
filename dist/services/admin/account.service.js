@@ -16,11 +16,14 @@ const pagination_helper_1 = __importDefault(require("../../helpers/pagination.he
 const sort_helper_1 = __importDefault(require("../../helpers/sort.helper"));
 const account_model_1 = __importDefault(require("../../models/account.model"));
 const filter_helper_1 = __importDefault(require("../../helpers/filter.helper"));
+const slug_util_1 = __importDefault(require("../../utils/slug.util"));
+const role_model_1 = __importDefault(require("../../models/role.model"));
 const find = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const pagination = (0, pagination_helper_1.default)(req);
     const find = { deleted: false };
     if (req.query.keyword) {
-        find.email = new RegExp(req.query.keyword, "i");
+        const slug = slug_util_1.default.convert(req.query.keyword);
+        find.slug = new RegExp(slug, "i");
     }
     const filter = (0, filter_helper_1.default)(req);
     const sort = (0, sort_helper_1.default)(req);
@@ -41,6 +44,13 @@ const findById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     })
         .select("-password");
     return accountExists;
+});
+const findBySlug = (slug) => __awaiter(void 0, void 0, void 0, function* () {
+    const roleExists = yield role_model_1.default.findOne({
+        slug,
+        deleted: false
+    });
+    return roleExists;
 });
 const findByEmail = (email) => __awaiter(void 0, void 0, void 0, function* () {
     const accountExists = yield account_model_1.default
@@ -100,6 +110,7 @@ const del = (id, deletedBy) => __awaiter(void 0, void 0, void 0, function* () {
 const accountService = {
     find,
     findById,
+    findBySlug,
     findByEmail,
     findByPhone,
     calculateMaxPage,

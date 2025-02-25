@@ -17,7 +17,7 @@ const deserialize = (req, res, next) => {
             req.flash("error", "Đăng nhập để tiếp tục!");
             return res.redirect(`/${index_config_1.default.admin}/auth/login`);
         }
-        res.locals.account = verify.account;
+        res.locals.myAccount = verify.account;
         return next();
     }
     catch (_a) {

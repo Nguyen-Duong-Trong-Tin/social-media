@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const pagination_helper_1 = __importDefault(require("../../helpers/pagination.helper"));
 const sort_helper_1 = __importDefault(require("../../helpers/sort.helper"));
 const role_model_1 = __importDefault(require("../../models/role.model"));
+const slug_util_1 = __importDefault(require("../../utils/slug.util"));
 const findAll = () => __awaiter(void 0, void 0, void 0, function* () {
     const roles = yield role_model_1.default.find({ deleted: false });
     return roles;
@@ -23,7 +24,8 @@ const find = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const pagination = (0, pagination_helper_1.default)(req);
     const find = { deleted: false };
     if (req.query.keyword) {
-        find.title = new RegExp(req.query.keyword, "i");
+        const slug = slug_util_1.default.convert(req.query.keyword);
+        find.slug = new RegExp(slug, "i");
     }
     const sort = (0, sort_helper_1.default)(req);
     const roles = yield role_model_1.default
@@ -36,6 +38,13 @@ const find = (req) => __awaiter(void 0, void 0, void 0, function* () {
 const findById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const roleExists = yield role_model_1.default.findOne({
         _id: id,
+        deleted: false
+    });
+    return roleExists;
+});
+const findBySlug = (slug) => __awaiter(void 0, void 0, void 0, function* () {
+    const roleExists = yield role_model_1.default.findOne({
+        slug,
         deleted: false
     });
     return roleExists;
@@ -76,6 +85,7 @@ const roleService = {
     findAll,
     find,
     findById,
+    findBySlug,
     calculateMaxPage,
     create,
     update,

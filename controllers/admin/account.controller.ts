@@ -10,6 +10,8 @@ import roleService from "../../services/admin/role.service";
 import accountService from "../../services/admin/account.service";
 
 import md5Util from "../../utils/md5.util";
+import slugUtil from "../../utils/slug.util";
+import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
 
 // [GET] /admin/accounts?page=:page&limit=:limit&keyword=:keyword&sort=title-asc
 const get = async (req: any, res: Response): Promise<void> => {
@@ -17,7 +19,7 @@ const get = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string;
       permissions: string[];
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountView")) {
       req.flash("error", "Bạn không có quyền!");
@@ -101,7 +103,7 @@ const getById = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string;
       permissions: string[];
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountView")) {
       req.flash("error", "Bạn không có quyền!");
@@ -156,7 +158,7 @@ const create = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string;
       permissions: string[];
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountCreate")) {
       req.flash("error", "Bạn không có quyền!");
@@ -180,7 +182,7 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string,
       permissions: string[]
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountCreate")) {
       req.flash("error", "Bạn không có quyền!");
@@ -188,6 +190,7 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     }
 
     const fullName: string = req.body.fullName;
+    const slug: string = slugUtil.convert(fullName) + '-' + shortUniqueKeyUtil.generate();
     const email: string = req.body.email;
     const password: string = md5Util.encode(req.body.password);
     const phone: string = req.body.phone;
@@ -196,14 +199,20 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     const roleId: string = req.body.roleId;
 
     const [
+      accountSlugExists,
       accountEmailExists,
       accountPhoneExists,
       roleExists
     ] = await Promise.all([
+      accountService.findBySlug(slug),
       accountService.findByEmail(email),
       accountService.findByPhone(phone),
       roleService.findById(roleId)
     ]);
+    if (accountSlugExists) {
+      req.flash("error", "Có lỗi xảy ra!");
+      return res.redirect("back");
+    }
     if (accountEmailExists) {
       req.flash("error", "Email đã tồn tại!");
       return res.redirect("back");
@@ -219,6 +228,7 @@ const createPost = async (req: any, res: Response): Promise<void> => {
 
     await accountService.create({
       fullName,
+      slug,
       email,
       password,
       phone,
@@ -246,7 +256,7 @@ const update = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string,
       permissions: string[]
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountUpdate")) {
       req.flash("error", "Bạn không có quyền!");
@@ -284,7 +294,7 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string,
       permissions: string[]
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountUpdate")) {
       req.flash("error", "Bạn không có quyền!");
@@ -294,6 +304,7 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     const id: string = req.params.id;
 
     const fullName: string = req.body.fullName;
+    const slug: string = slugUtil.convert(fullName) + '-' + shortUniqueKeyUtil.generate();
     const email: string = req.body.email;
     const phone: string = req.body.phone;
     const status: string = req.body.status;
@@ -306,17 +317,23 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
 
     const [
       accountIdExists,
+      accountSlugExists,
       accountEmailExists,
       accountPhoneExists,
       roleExists
     ] = await Promise.all([
       accountService.findById(id),
+      accountService.findBySlug(slug),
       accountService.findByEmail(email),
       accountService.findByPhone(phone),
       roleService.findById(roleId)
     ]);
     if (!accountIdExists) {
       req.flash("error", "Tài khoản không tồn tại!");
+      return res.redirect("back");
+    }
+    if (accountSlugExists) {
+      req.flash("error", "Có lỗi xảy ra!");
       return res.redirect("back");
     }
     if (
@@ -340,6 +357,7 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
 
     await accountService.update(id, {
       fullName,
+      slug,
       email,
       phone,
       avatar,
@@ -365,7 +383,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string,
       permissions: string[]
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     const action: string = req.body.action;
     const ids: string[] = req.body.ids.split(',');
@@ -442,7 +460,7 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string,
       permissions: string[]
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountUpdate")) {
       req.flash("error", "Bạn không có quyền!");
@@ -480,7 +498,7 @@ const del = async (req: any, res: Response): Promise<void> => {
     const myAccount: {
       accountId: string,
       permissions: string[]
-    } = res.locals.account;
+    } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountDelete")) {
       req.flash("error", "Bạn không có quyền!");

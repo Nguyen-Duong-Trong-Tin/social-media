@@ -2,14 +2,14 @@ ul.menu
   li
     a(class="btn btn-primary" href=`/${admin}/dashboard`) Tổng Quan
 
-  if (account.permissions.includes("accountView"))
+  if (myAccount.permissions.includes("accountView"))
     li
       a(class="btn btn-primary" href=`/${admin}/accounts`) Tài khoản
 
-  if (account.permissions.includes("roleView")) 
+  if (myAccount.permissions.includes("roleView")) 
     li
       a(class="btn btn-primary" href=`/${admin}/roles`) Vai Trò
       
-  if (account.permissions.includes("roleView")) 
+  if (myAccount.permissions.includes("roleView")) 
     li
       a(class="btn btn-primary" href=`/${admin}/permissions`) Phân Quyền

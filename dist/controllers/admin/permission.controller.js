@@ -17,7 +17,7 @@ const role_service_1 = __importDefault(require("../../services/admin/role.servic
 // [GET] /admin/permissions
 const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const myAccount = res.locals.account;
+        const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roleUpdate")) {
             req.flash("error", "Bạn không có quyền!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
@@ -36,7 +36,7 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 // [PATCH] /admin/permissions/update
 const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const myAccount = res.locals.account;
+        const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roleUpdate")) {
             req.flash("error", "Bạn không có quyền!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
