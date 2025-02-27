@@ -1,0 +1,84 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/users`)
+
+  +boxTitle(pageTitle)
+
+  form(
+    method="POST"
+    action=`/${admin}/users/update/${user.id}?_method=PATCH`
+    enctype="multipart/form-data"
+  )
+    .mb-3
+      label.form-label Họ và tên
+      input(
+        class="form-control"
+        name="fullName"
+        value=user.fullName
+        required
+      )
+    .mb-3
+      label.form-label Email
+      input(
+        class="form-control"
+        type="email"
+        name="email"
+        value=user.email
+        required
+      )
+    .mb-3
+      label.form-label Số điện thoại
+      input(
+        class="form-control"
+        name="phone"
+        value=user.phone
+        required
+      )
+    .mb-3
+      label.form-label Ảnh
+      .w-25.mb-1
+        img(
+          class="img-thumbnail"
+          src=user.avatar
+        )
+      input(
+        class="form-control"
+        type="file"
+        name="avatar"
+        value=user.avatar
+      )
+    .mb-3
+      label.form-label Ảnh bìa
+      .w-25.mb-1
+        img(
+          class="img-thumbnail"
+          src=user.coverPhoto
+        )
+      input(
+        class="form-control"
+        type="file"
+        name="coverPhoto"
+        value=user.coverPhoto
+      )
+    .mb-3
+      label.form-label Tiểu sử
+      textarea(
+        name="bio"
+        tinymce
+      ) #{user.bio}
+    .mb-3
+      label.form-label Trạng thái
+      select(
+        class="form-select"
+        name="status"
+        required
+      )
+        option(value="active" selected=(user.status === "active")) Hoạt động
+        option(value="inactive" selected=(user.status === "inactive")) Ngưng hoạt động
+    
+    .d-flex.justify-content-center.mb-3
+      button.btn.btn-primary Cập nhật

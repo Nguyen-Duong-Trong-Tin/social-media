@@ -1,0 +1,22 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const router = express_1.default.Router();
+const storage_util_1 = __importDefault(require("../../utils/storage.util"));
+const multer_util_1 = __importDefault(require("../../utils/multer.util"));
+const upload = (0, multer_util_1.default)({ storage: storage_util_1.default });
+const user_validate_1 = __importDefault(require("../../validates/admin/user.validate"));
+const user_controller_1 = __importDefault(require("../../controllers/admin/user.controller"));
+router.get("/", user_controller_1.default.get);
+router.get("/detail/:id", user_controller_1.default.getById);
+router.get("/create", user_controller_1.default.create);
+router.post("/create", upload.fields([{ name: "avatar", maxCount: 1 }, { name: "coverPhoto", maxCount: 1 }]), user_validate_1.default.createPost, user_controller_1.default.createPost);
+router.get("/update/:id", user_controller_1.default.update);
+router.patch("/update/:id", upload.fields([{ name: "avatar", maxCount: 1 }, { name: "coverPhoto", maxCount: 1 }]), user_validate_1.default.updatePatch, user_controller_1.default.updatePatch);
+router.patch("/actions", user_validate_1.default.actions, user_controller_1.default.actions);
+router.patch("/updateStatus/:status/:id", user_validate_1.default.updateStatus, user_controller_1.default.updateStatus);
+router.delete("/delete/:id", user_controller_1.default.del);
+exports.default = router;

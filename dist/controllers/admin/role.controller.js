@@ -148,8 +148,7 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         req.flash("success", "Vai trò được tạo thành công!");
         return res.redirect(`/${index_config_1.default.admin}/roles`);
     }
-    catch (e) {
-        console.log(e);
+    catch (_a) {
         req.flash("error", "Có lỗi xảy ra!");
         return res.redirect("back");
     }
@@ -215,8 +214,7 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         });
         req.flash("success", "Vai trò được cập nhật thành công!");
     }
-    catch (e) {
-        console.log(e);
+    catch (_a) {
         req.flash("error", "Có lỗi xảy ra!");
     }
     return res.redirect("back");

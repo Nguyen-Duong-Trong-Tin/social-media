@@ -10,6 +10,7 @@ import dashboardRoutes from "./dashboard.route";
 import roleRoutes from "./role.route";
 import accountRoutes from "./account.route";
 import permissionRoutes from "./permission.route";
+import userRoutes from "./user.route";
 
 const adminRoutes = (app: Express): void => {
   const prefixAdmin: string = `/${configs.admin}`;
@@ -37,6 +38,11 @@ const adminRoutes = (app: Express): void => {
     `${prefixAdmin}/permissions`,
     deserialize,
     permissionRoutes
+  );
+  app.use(
+    `${prefixAdmin}/users`,
+    deserialize,
+    userRoutes
   );
 }
 

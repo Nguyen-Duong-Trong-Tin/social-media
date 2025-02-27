@@ -1,9 +1,10 @@
 import { NextFunction, Response } from "express";
 
-import { EAccountStatus } from "../../enums/account.enum";
+import EUserStatus from "../../enums/user.enum";
+
 import validateHelper from "../../helpers/validate.helper";
 
-// [POST] /admin/accounts/create
+// [POST] /admin/users/create
 const createPost = (req: any, res: Response, next: NextFunction): void => {
   try {
     const fullName = req.body.fullName;
@@ -11,16 +12,17 @@ const createPost = (req: any, res: Response, next: NextFunction): void => {
     const password = req.body.password;
     const phone = req.body.phone;
     const status = req.body.status;
-    const roleId = req.body.roleId;
+    const bio = req.body.bio;
 
     if (
       !fullName ||
       !email ||
       !password ||
       !phone ||
-      !req.file ||
+      !req.files["avatar"] ||
+      !req.files["coverPhoto"] ||
       !status ||
-      !roleId
+      !bio
     ) {
       req.flash("error", "Thông tin không đầy đủ!");
       return res.redirect("back");
@@ -32,7 +34,7 @@ const createPost = (req: any, res: Response, next: NextFunction): void => {
       typeof password !== "string" ||
       typeof phone !== "string" ||
       typeof status !== "string" ||
-      typeof roleId !== "string"
+      typeof bio !== "string"
     ) {
       req.flash("error", "Kiểu dữ liệu không chính xác!");
       return res.redirect("back");
@@ -48,7 +50,7 @@ const createPost = (req: any, res: Response, next: NextFunction): void => {
       return res.redirect("back");
     }
 
-    if (!Object.values(EAccountStatus).includes(status as EAccountStatus)) {
+    if (!Object.values(EUserStatus).includes(status as EUserStatus)) {
       req.flash("error", "Trạng thái không chính xác!");
       return res.redirect("back");
     }
@@ -60,21 +62,21 @@ const createPost = (req: any, res: Response, next: NextFunction): void => {
   }
 }
 
-// [PATCH] /admin/accounts/update/:id
+// [PATCH] /admin/users/update/:id
 const updatePatch = (req: any, res: Response, next: NextFunction): void => {
   try {
     const fullName = req.body.fullName;
     const email = req.body.email;
     const phone = req.body.phone;
     const status = req.body.status;
-    const roleId = req.body.roleId;
+    const bio = req.body.bio;
 
     if (
       !fullName ||
       !email ||
       !phone ||
       !status ||
-      !roleId
+      !bio
     ) {
       req.flash("error", "Có lỗi xảy ra!");
       return res.redirect("back");
@@ -85,7 +87,7 @@ const updatePatch = (req: any, res: Response, next: NextFunction): void => {
       typeof email !== "string" ||
       typeof phone !== "string" ||
       typeof status !== "string" ||
-      typeof roleId !== "string"
+      typeof bio !== "string"
     ) {
       req.flash("error", "Kiểu dữ liệu không chính xác!");
       return res.redirect("back");
@@ -96,7 +98,7 @@ const updatePatch = (req: any, res: Response, next: NextFunction): void => {
       return res.redirect("back");
     }
 
-    if (!Object.values(EAccountStatus).includes(status as EAccountStatus)) {
+    if (!Object.values(EUserStatus).includes(status as EUserStatus)) {
       req.flash("error", "Trạng thái không chính xác!");
       return res.redirect("back");
     }
@@ -108,12 +110,12 @@ const updatePatch = (req: any, res: Response, next: NextFunction): void => {
   }
 }
 
-// [PATCH] /admin/accounts/updateStatus/:status/:id
+// [PATCH] /admin/users/updateStatus/:status/:id
 const updateStatus = (req: any, res: Response, next: NextFunction): void => {
   try {
     const status: string = req.params.status;
 
-    if (!Object.values(EAccountStatus).includes(status as EAccountStatus)) {
+    if (!Object.values(EUserStatus).includes(status as EUserStatus)) {
       req.flash("error", "Trạng thái không chính xác!");
       return res.redirect("back");
     }
@@ -125,7 +127,7 @@ const updateStatus = (req: any, res: Response, next: NextFunction): void => {
   }
 }
 
-// [PATCH] /admin/accounts/actions
+// [PATCH] /admin/users/actions
 const actions = (req: any, res: Response, next: NextFunction): void => {
   try {
     const action = req.body.action;
@@ -154,10 +156,10 @@ const actions = (req: any, res: Response, next: NextFunction): void => {
   }
 }
 
-const accountValidate = {
+const userValidate = {
   createPost,
   updatePatch,
   updateStatus,
   actions
 };
-export default accountValidate;
+export default userValidate;

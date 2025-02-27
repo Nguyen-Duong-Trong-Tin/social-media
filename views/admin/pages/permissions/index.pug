@@ -107,6 +107,54 @@ block main
               value="roleDelete"
               checked=role.permissions.includes("roleDelete")
             )
+      
+      //- Users
+      tr.border-top
+        th(scope="row") Người Dùng
+      tr
+        td Xem
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="userView"
+              checked=role.permissions.includes("userView")
+            )
+      tr
+        td Thêm
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="userCreate"
+              checked=role.permissions.includes("userCreate")
+            )
+      tr
+        td Sửa
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="userUpdate"
+              checked=role.permissions.includes("userUpdate")
+            )
+      tr
+        td Xóa
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="userDelete"
+              checked=role.permissions.includes("userDelete")
+            )
 
   form(
     class="d-flex justify-content-center mb-3"

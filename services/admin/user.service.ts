@@ -1,16 +1,14 @@
 import { Request } from "express";
 import { SortOrder } from "mongoose";
 
+import filterHelper from "../../helpers/filter.helper";
 import paginationHelper from "../../helpers/pagination.helper";
 import sortHelper from "../../helpers/sort.helper";
-import filterHelper from "../../helpers/filter.helper";
 
-import IAccount from "../../interfaces/account.interface";
-
-import AccountModel from "../../models/account.model";
-import RoleModel from "../../models/role.model";
+import UserModel from "../../models/user.model";
 
 import slugUtil from "../../utils/slug.util";
+import IUser from "../../interfaces/user.interface";
 
 const find = async (req: Request) => {
   const pagination: {
@@ -32,7 +30,7 @@ const find = async (req: Request) => {
 
   const sort: { [key: string]: SortOrder } = sortHelper(req);
 
-  const accounts = await AccountModel
+  const users = await UserModel
     .find({
       ...find,
       ...filter
@@ -41,110 +39,93 @@ const find = async (req: Request) => {
     .sort(sort)
     .skip(pagination.skip)
     .limit(pagination.limit);;
-  return accounts;
+  return users;
 }
 
 const findById = async (id: string) => {
-  const accountExists = await AccountModel
+  const userExists = await UserModel
     .findOne({
       _id: id,
       deleted: false
     })
     .select("-password");
-  return accountExists;
+  return userExists;
 }
 
 const findBySlug = async (slug: string) => {
-  const roleExists = await RoleModel
+  const userExists = await UserModel
     .findOne({
       slug,
       deleted: false
     })
     .select("-password");
-  return roleExists;
+  return userExists;
 }
 
 const findByEmail = async (email: string) => {
-  const accountExists = await AccountModel
+  const userExists = await UserModel
     .findOne({
       email,
       deleted: false
     })
     .select("-password");
-  return accountExists;
+  return userExists;
 }
 
 const findByPhone = async (phone: string) => {
-  const accountExists = await AccountModel
+  const userExists = await UserModel
     .findOne({
       phone,
       deleted: false
     })
     .select("-password");
-  return accountExists;
+  return userExists;
 }
 
 const calculateMaxPage = async (limit: number) => {
-  const quantity: number = await AccountModel.countDocuments({ deleted: false });
+  const quantity: number = await UserModel.countDocuments({ deleted: false });
   return Math.ceil(quantity / limit);
 }
 
-const create = async (account: Partial<IAccount>) => {
-  const newAccount = new AccountModel(account);
-  await newAccount.save();
+const create = async (user: Partial<IUser>) => {
+  const newUser = new UserModel(user);
+  await newUser.save();
 
-  const accountExists = await AccountModel
-    .findOne({ _id: newAccount.id })
+  const userExists = await UserModel
+    .findOne({ _id: newUser.id })
     .select("-password");
-  return accountExists;
+  return userExists;
 }
 
-const update = async (
-  id: string,
-  account: Partial<IAccount> & {
-    $push: {
-      updatedBy: {
-        accountId: string,
-        updatedAt: Date
-      }
-    }
-  }
-) => {
-  const newAccount = await AccountModel
-    .updateOne({
+const update = async (id: string, user: Partial<IUser>) => {
+  const newUser = await UserModel
+    .findOneAndUpdate({
       _id: id,
       deleted: false
-    }, account, {
+    }, user, {
       new: true,
       runValidators: true
     })
     .select("-password");
-  return newAccount;
+  return newUser;
 }
 
-const del = async (
-  id: string,
-  deletedBy: {
-    accountId: string,
-    deletedAt: Date
-  }
-) => {
-  const newAccount = await AccountModel
+const del = async (id: string) => {
+  const newUser = await UserModel
     .findOneAndUpdate({
       _id: id,
       deleted: false
     }, {
-      deleted: true,
-      deletedBy
+      deleted: true
     }, {
       new: true,
       runValidators: true
     })
     .select("-password");
-  return newAccount;
+  return newUser;
 }
 
-const accountService = {
+const userService = {
   find,
   findById,
   findBySlug,
@@ -155,4 +136,4 @@ const accountService = {
   update,
   del
 };
-export default accountService;
+export default userService;

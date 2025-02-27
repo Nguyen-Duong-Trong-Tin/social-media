@@ -6,6 +6,7 @@ import getUrlHelper from "../../helpers/getUrl.helper";
 
 import roleService from "../../services/admin/role.service";
 import accountService from "../../services/admin/account.service";
+
 import slugUtil from "../../utils/slug.util";
 import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
 
@@ -179,9 +180,7 @@ const createPost = async (req: any, res: Response): Promise<void> => {
 
     req.flash("success", "Vai trò được tạo thành công!");
     return res.redirect(`/${configs.admin}/roles`);
-  } catch(e) {
-    console.log(e);
-
+  } catch {
     req.flash("error", "Có lỗi xảy ra!");
     return res.redirect("back");
   }
@@ -266,9 +265,7 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     },);
 
     req.flash("success", "Vai trò được cập nhật thành công!");
-  } catch(e) {
-    console.log(e);
-    
+  } catch {
     req.flash("error", "Có lỗi xảy ra!");
   }
   return res.redirect("back");

@@ -2,18 +2,17 @@ import { Response } from "express";
 
 import configs from "../../configs/index.config";
 
-import { EAccountStatus } from "../../enums/account.enum";
+import EUserStatus from "../../enums/user.enum";
 
 import getUrlHelper from "../../helpers/getUrl.helper";
 
-import roleService from "../../services/admin/role.service";
-import accountService from "../../services/admin/account.service";
+import userService from "../../services/admin/user.service";
 
 import md5Util from "../../utils/md5.util";
 import slugUtil from "../../utils/slug.util";
 import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
 
-// [GET] /admin/accounts?page=:page&limit=:limit&keyword=:keyword&sort=title-asc
+// [GET] /admin/users
 const get = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
@@ -21,7 +20,7 @@ const get = async (req: any, res: Response): Promise<void> => {
       permissions: string[];
     } = res.locals.myAccount;
 
-    if (!myAccount.permissions.includes("accountView")) {
+    if (!myAccount.permissions.includes("userView")) {
       req.flash("error", "Bạn không có quyền!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
@@ -45,8 +44,7 @@ const get = async (req: any, res: Response): Promise<void> => {
         { value: "fullName-asc", title: "Họ tên tăng dần" },
         { value: "fullName-desc", title: "Họ tên giảm dần" },
         { value: "email-asc", title: "Email tăng dần" },
-        { value: "email-desc", title: "Email giảm dần" },
-        { value: "roleId-asc", title: "Gom nhóm theo vai trò" }
+        { value: "email-desc", title: "Email giảm dần" }
       ];
 
     const keyword: string = req.query.keyword;
@@ -64,17 +62,15 @@ const get = async (req: any, res: Response): Promise<void> => {
     const page: number = parseInt(req.query.page as string) || 1;
     const limit: number = parseInt(req.query.limit as string) || 10;
 
-    const [maxPage, accounts] = await Promise.all([
-      accountService.calculateMaxPage(limit),
-      accountService.find(req)
+    const [maxPage, users] = await Promise.all([
+      userService.calculateMaxPage(limit),
+      userService.find(req)
     ]);
-    const roles = await Promise.all(accounts.map(account => roleService.findById(account.roleId)));
 
-    return res.render("admin/pages/accounts", {
-      pageTitle: "Danh Sách Tài Khoản",
+    return res.render("admin/pages/users", {
+      pageTitle: "Danh Sách Người Dùng",
       url: getUrlHelper(req),
-      accounts,
-      roles,
+      users,
       filter: {
         filter,
         filterOptions
@@ -97,7 +93,7 @@ const get = async (req: any, res: Response): Promise<void> => {
   }
 }
 
-// [GET] /admin/accounts/detail/:id
+// [GET] /admin/users/detail/:id
 const getById = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
@@ -105,46 +101,22 @@ const getById = async (req: any, res: Response): Promise<void> => {
       permissions: string[];
     } = res.locals.myAccount;
 
-    if (!myAccount.permissions.includes("accountView")) {
+    if (!myAccount.permissions.includes("userView")) {
       req.flash("error", "Bạn không có quyền!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
 
     const id: string = req.params.id;
 
-    const [
-      accountExists,
-      roles
-    ] = await Promise.all([
-      accountService.findById(id),
-      roleService.findAll()
-    ]);
-    if (!accountExists) {
-      req.flash("error", "Tài khoản không tồn tại!");
+    const userExists = await userService.findById(id);
+    if (!userExists) {
+      req.flash("error", "Người dùng không tồn tại!");
       return res.redirect("back");
     }
 
-    const [
-      createdBy,
-      updatedBy
-    ] = await Promise.all([
-      accountService.findById(accountExists.createdBy.accountId as string).then(account => ({
-        account,
-        createdAt: accountExists.createdBy.createdAt as Date
-      })),
-
-      Promise.all(accountExists.updatedBy.map(item => accountService.findById(item.accountId as string).then(account => ({
-        account,
-        updatedAt: item.updatedAt as Date
-      }))))
-    ]);
-
-    return res.render("admin/pages/accounts/detail", {
-      pageTitle: "Chi Tiết Tài Khoản",
-      account: accountExists,
-      roles,
-      createdBy,
-      updatedBy
+    return res.render("admin/pages/users/detail", {
+      pageTitle: "Chi Tiết Người Dùng",
+      user: userExists
     });
   } catch {
     req.flash("error", "Có lỗi xảy ra!");
@@ -152,23 +124,21 @@ const getById = async (req: any, res: Response): Promise<void> => {
   }
 }
 
-// [GET] /admin/accounts/create
-const create = async (req: any, res: Response): Promise<void> => {
+// [GET] /admin/users/create
+const create = (req: any, res: Response): void => {
   try {
     const myAccount: {
       accountId: string;
       permissions: string[];
     } = res.locals.myAccount;
 
-    if (!myAccount.permissions.includes("accountCreate")) {
+    if (!myAccount.permissions.includes("userCreate")) {
       req.flash("error", "Bạn không có quyền!");
-      return res.redirect(`/${configs.admin}/accounts`);
+      return res.redirect(`/${configs.admin}/users`);
     }
 
-    const roles = await roleService.findAll();
-    return res.render("admin/pages/accounts/create", {
-      pageTitle: "Tạo Mới Tài Khoản",
-      roles
+    return res.render("admin/pages/users/create", {
+      pageTitle: "Tạo Mới Người Dùng",
     });
   } catch {
     req.flash("error", "Có lỗi xảy ra!");
@@ -176,7 +146,7 @@ const create = async (req: any, res: Response): Promise<void> => {
   }
 }
 
-// [POST] /admin/accounts/create
+// [POST] /admin/users/create
 const createPost = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
@@ -184,9 +154,9 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       permissions: string[]
     } = res.locals.myAccount;
 
-    if (!myAccount.permissions.includes("accountCreate")) {
+    if (!myAccount.permissions.includes("userCreate")) {
       req.flash("error", "Bạn không có quyền!");
-      return res.redirect(`/${configs.admin}/accounts`);
+      return res.redirect(`/${configs.admin}/users`);
     }
 
     const fullName: string = req.body.fullName;
@@ -194,65 +164,55 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     const email: string = req.body.email;
     const password: string = md5Util.encode(req.body.password);
     const phone: string = req.body.phone;
-    const avatar: string = req.file.path;
+    const avatar: string = req.files["avatar"][0].path;
+    const coverPhoto: string = req.files["coverPhoto"][0].path;
+    const bio: string = req.body.bio;
     const status: string = req.body.status;
-    const roleId: string = req.body.roleId;
 
     const [
-      accountSlugExists,
-      accountEmailExists,
-      accountPhoneExists,
-      roleExists
+      userSlugExists,
+      userEmailExists,
+      userPhoneExists
     ] = await Promise.all([
-      accountService.findBySlug(slug),
-      accountService.findByEmail(email),
-      accountService.findByPhone(phone),
-      roleService.findById(roleId)
+      userService.findBySlug(slug),
+      userService.findByEmail(email),
+      userService.findByPhone(phone)
     ]);
-    if (accountSlugExists) {
+    if (userSlugExists) {
       req.flash("error", "Có lỗi xảy ra!");
       return res.redirect("back");
     }
-    if (accountEmailExists) {
+    if (userEmailExists) {
       req.flash("error", "Email đã tồn tại!");
       return res.redirect("back");
     }
-    if (accountPhoneExists) {
+    if (userPhoneExists) {
       req.flash("error", "Số điện thoại đã tồn tại!");
       return res.redirect("back");
     }
-    if (!roleExists) {
-      req.flash("error", "Vai trò không được tìm thấy!");
-      return res.redirect("back");
-    }
 
-    await accountService.create({
+    await userService.create({
       fullName,
       slug,
       email,
       password,
       phone,
       avatar,
-      status: status as EAccountStatus,
-      roleId,
-      createdBy: {
-        accountId: myAccount.accountId,
-        createdAt: new Date()
-      },
+      coverPhoto,
+      bio,
+      status: status as EUserStatus,
       deleted: false
     });
 
-    req.flash("success", "Tài khoản được tạo thành công!");
-    return res.redirect(`/${configs.admin}/accounts`);
-  } catch(e) {
-    console.log(e);
-    
+    req.flash("success", "Người dùng được tạo thành công!");
+    return res.redirect(`/${configs.admin}/users`);
+  } catch {
     req.flash("error", "Có lỗi xảy ra!");
     return res.redirect("back");
   }
 }
 
-// [GET] /admin/accounts/update/:id
+// [GET] /admin/users/update/:id
 const update = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
@@ -260,29 +220,22 @@ const update = async (req: any, res: Response): Promise<void> => {
       permissions: string[]
     } = res.locals.myAccount;
 
-    if (!myAccount.permissions.includes("accountUpdate")) {
+    if (!myAccount.permissions.includes("userUpdate")) {
       req.flash("error", "Bạn không có quyền!");
-      return res.redirect(`/${configs.admin}/accounts`);
+      return res.redirect(`/${configs.admin}/users`);
     }
 
     const id: string = req.params.id;
 
-    const [
-      accountExists,
-      roles
-    ] = await Promise.all([
-      accountService.findById(id),
-      roleService.findAll()
-    ]);
-    if (!accountExists) {
-      req.flash("error", "Tài khoản không tồn tại!");
+    const userExists = await userService.findById(id);
+    if (!userExists) {
+      req.flash("error", "Người dùng không tồn tại!");
       return res.redirect("back");
     }
 
-    return res.render("admin/pages/accounts/update", {
-      pageTitle: "Cập Nhật Tài Khoản",
-      account: accountExists,
-      roles
+    return res.render("admin/pages/users/update", {
+      pageTitle: "Cập Nhật Người Dùng",
+      user: userExists
     });
   } catch {
     req.flash("error", "Có lỗi xảy ra!");
@@ -290,7 +243,7 @@ const update = async (req: any, res: Response): Promise<void> => {
   }
 }
 
-// [PATCH] /admin/accounts/update/:id
+// [PATCH] /admin/users/update/:id
 const updatePatch = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
@@ -298,9 +251,9 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       permissions: string[]
     } = res.locals.myAccount;
 
-    if (!myAccount.permissions.includes("accountUpdate")) {
+    if (!myAccount.permissions.includes("userUpdate")) {
       req.flash("error", "Bạn không có quyền!");
-      return res.redirect(`/${configs.admin}/accounts`);
+      return res.redirect(`/${configs.admin}/users`);
     }
 
     const id: string = req.params.id;
@@ -310,76 +263,69 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     const email: string = req.body.email;
     const phone: string = req.body.phone;
     const status: string = req.body.status;
-    const roleId: string = req.body.roleId;
+    const bio: string = req.body.bio;
 
     let avatar: string | undefined = undefined;
-    if (req.file) {
-      avatar = req.file.path
+    if (req.files["avatar"]) {
+      avatar = req.files["avatar"][0].path;
+    }
+    let coverPhoto: string | undefined = undefined;
+    if (req.files["coverPhoto"]) {
+      coverPhoto = req.files["coverPhoto"][0].path;
     }
 
     const [
-      accountIdExists,
-      accountSlugExists,
-      accountEmailExists,
-      accountPhoneExists,
-      roleExists
+      userIdExists,
+      userSlugExists,
+      userEmailExists,
+      userPhoneExists,
     ] = await Promise.all([
-      accountService.findById(id),
-      accountService.findBySlug(slug),
-      accountService.findByEmail(email),
-      accountService.findByPhone(phone),
-      roleService.findById(roleId)
+      userService.findById(id),
+      userService.findBySlug(slug),
+      userService.findByEmail(email),
+      userService.findByPhone(phone),
     ]);
-    if (!accountIdExists) {
-      req.flash("error", "Tài khoản không tồn tại!");
+    if (!userIdExists) {
+      req.flash("error", "Người dùng không tồn tại!");
       return res.redirect("back");
     }
-    if (accountSlugExists) {
+    if (userSlugExists) {
       req.flash("error", "Có lỗi xảy ra!");
       return res.redirect("back");
     }
     if (
-      accountEmailExists &&
-      accountEmailExists.id !== id
+      userEmailExists &&
+      userEmailExists.id !== id
     ) {
       req.flash("error", "Email đã tồn tại!");
       return res.redirect("back");
     }
     if (
-      accountPhoneExists &&
-      accountPhoneExists.id !== id
+      userPhoneExists &&
+      userPhoneExists.id !== id
     ) {
       req.flash("error", "Số điện thoại đã tồn tại!");
       return res.redirect("back");
     }
-    if (!roleExists) {
-      req.flash("error", "Vai trò không tồn tại!");
-      return res.redirect("back");
-    }
 
-    await accountService.update(id, {
+    await userService.update(id, {
       fullName,
       slug,
       email,
       phone,
       avatar,
-      status: status as EAccountStatus,
-      roleId,
-      $push: {
-        updatedBy: {
-          accountId: myAccount.accountId,
-          updatedAt: new Date()
-        }
-      }
+      coverPhoto,
+      bio,
+      status: status as EUserStatus
     });
-    req.flash("success", "Tài khoản được cập nhật thành công!");
+    req.flash("success", "Người dùng được cập nhật thành công!");
   } catch {
     req.flash("error", "Có lỗi xảy ra!");
   }
   return res.redirect("back");
 }
 
-// [PATCH] /admin/accounts/actions
+// [PATCH] /admin/users/actions
 const actions = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
@@ -392,53 +338,34 @@ const actions = async (req: any, res: Response): Promise<void> => {
 
     switch (action) {
       case "delete": {
-        if (!myAccount.permissions.includes("accountDelete")) {
+        if (!myAccount.permissions.includes("userDelete")) {
           req.flash("error", "Bạn không có quyền!");
-          return res.redirect(`/${configs.admin}/accounts`);
+          return res.redirect(`/${configs.admin}/users`);
         }
 
-        await Promise.all(ids.map(id => accountService.del(id, {
-          accountId: myAccount.accountId,
-          deletedAt: new Date()
-        })));
+        await Promise.all(ids.map(id => userService.del(id)));
 
         break;
       }
 
       case "active": {
-        if (!myAccount.permissions.includes("accountUpdate")) {
+        if (!myAccount.permissions.includes("userUpdate")) {
           req.flash("error", "Bạn không có quyền!");
-          return res.redirect(`/${configs.admin}/accounts`);
+          return res.redirect(`/${configs.admin}/users`);
         }
 
-        await Promise.all(ids.map(id => accountService.update(id, {
-          status: EAccountStatus.active,
-          $push: {
-            updatedBy: {
-              accountId: myAccount.accountId,
-              updatedAt: new Date()
-            }
-          }
-        })));
+        await Promise.all(ids.map(id => userService.update(id, { status: EUserStatus.active })));
 
         break;
       }
 
       case "inactive": {
-        if (!myAccount.permissions.includes("accountUpdate")) {
+        if (!myAccount.permissions.includes("userUpdate")) {
           req.flash("error", "Bạn không có quyền!");
-          return res.redirect(`/${configs.admin}/accounts`);
+          return res.redirect(`/${configs.admin}/users`);
         }
 
-        await Promise.all(ids.map(id => accountService.update(id, {
-          status: EAccountStatus.inactive,
-          $push: {
-            updatedBy: {
-              accountId: myAccount.accountId,
-              updatedAt: new Date()
-            }
-          }
-        })));
+        await Promise.all(ids.map(id => userService.update(id, { status: EUserStatus.inactive })));
 
         break;
       }
@@ -449,14 +376,14 @@ const actions = async (req: any, res: Response): Promise<void> => {
       }
     }
 
-    req.flash("success", "Các tài khoản được cập nhật thành công!");
+    req.flash("success", "Các người dùng được cập nhật thành công!");
   } catch {
     req.flash("error", "Có lỗi xảy ra!");
   }
   return res.redirect("back");
 }
 
-// [PATCH] /admin/accounts/updateStatus/:status/:id
+// [PATCH] /admin/users/updateStatus/:status/:id
 const updateStatus = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
@@ -464,37 +391,29 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
       permissions: string[]
     } = res.locals.myAccount;
 
-    if (!myAccount.permissions.includes("accountUpdate")) {
+    if (!myAccount.permissions.includes("userUpdate")) {
       req.flash("error", "Bạn không có quyền!");
-      return res.redirect(`/${configs.admin}/accounts`);
+      return res.redirect(`/${configs.admin}/users`);
     }
 
     const id: string = req.params.id;
     const status: string = req.params.status;
 
-    const accountExists = await accountService.findById(id);
-    if (!accountExists) {
-      req.flash("error", "Tài khoản không tồn tại!");
+    const userExists = await userService.findById(id);
+    if (!userExists) {
+      req.flash("error", "Người dùng không tồn tại!");
       return res.redirect("back");
     }
 
-    await accountService.update(id, {
-      status: status as EAccountStatus,
-      $push: {
-        updatedBy: {
-          accountId: myAccount.accountId,
-          updatedAt: new Date()
-        }
-      }
-    });
-    req.flash("success", "Tài khoản được cập nhật thành công!");
+    await userService.update(id, { status: status as EUserStatus });
+    req.flash("success", "Người dùng được cập nhật thành công!");
   } catch {
     req.flash("error", "Có lỗi xảy ra!");
   }
   return res.redirect("back");
 }
 
-// [DELETE] /admin/accounts/delete/:id
+// [DELETE] /admin/users/delete/:id
 const del = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
@@ -502,31 +421,28 @@ const del = async (req: any, res: Response): Promise<void> => {
       permissions: string[]
     } = res.locals.myAccount;
 
-    if (!myAccount.permissions.includes("accountDelete")) {
+    if (!myAccount.permissions.includes("userDelete")) {
       req.flash("error", "Bạn không có quyền!");
-      return res.redirect(`/${configs.admin}/accounts`);
+      return res.redirect(`/${configs.admin}/users`);
     }
 
     const id: string = req.params.id;
 
-    const accountExists = await accountService.findById(id);
-    if (!accountExists) {
-      req.flash("error", "Tài khoản không tồn tại!");
+    const userExists = await userService.findById(id);
+    if (!userExists) {
+      req.flash("error", "Người dùng không tồn tại!");
       return res.redirect("back");
     }
 
-    await accountService.del(id, {
-      accountId: myAccount.accountId,
-      deletedAt: new Date()
-    });
-    req.flash("success", "Tài khoản được xóa thành công!");
+    await userService.del(id);
+    req.flash("success", "Người dùng được xóa thành công!");
   } catch {
     req.flash("error", "Có lỗi xảy ra!");
   }
   return res.redirect("back");
 }
 
-const accountController = {
+const userController = {
   get,
   getById,
   create,
@@ -537,4 +453,4 @@ const accountController = {
   updateStatus,
   del
 };
-export default accountController;
+export default userController;

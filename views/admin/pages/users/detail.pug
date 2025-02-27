@@ -1,0 +1,61 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/users`)
+
+  +boxTitle(pageTitle)
+
+  .mb-3
+    label.form-label Họ và tên
+    input(
+      class="form-control"
+      value=user.fullName
+      readonly
+    )
+  .mb-3
+    label.form-label Email
+    input(
+      class="form-control"
+      type="email"
+      value=user.email
+      readonly
+    )
+  .mb-3
+    label.form-label Số điện thoại
+    input(
+      class="form-control"
+      value=user.phone
+      readonly
+    )
+  .mb-3
+    label.form-label Ảnh
+    .w-25.mb-1
+      img(
+        class="img-thumbnail"
+        src=user.avatar
+      )
+  .mb-3
+    label.form-label Ảnh bìa
+    .w-25.mb-1
+      img(
+        class="img-thumbnail"
+        src=user.coverPhoto
+      )
+  .mb-3
+    label.form-label Tiểu sử
+    textarea(
+      name="bio"
+      tinymce
+      readonly
+    ) #{user.bio}
+  .mb-3
+    label.form-label Trạng thái
+    select(
+      class="form-select"
+      disabled
+    )
+      option(value="active" selected=(user.status === "active")) Hoạt động
+      option(value="inactive" selected=(user.status === "inactive")) Ngưng hoạt động

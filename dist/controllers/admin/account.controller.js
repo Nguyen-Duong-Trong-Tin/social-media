@@ -199,7 +199,8 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         req.flash("success", "Tài khoản được tạo thành công!");
         return res.redirect(`/${index_config_1.default.admin}/accounts`);
     }
-    catch (_a) {
+    catch (e) {
+        console.log(e);
         req.flash("error", "Có lỗi xảy ra!");
         return res.redirect("back");
     }
@@ -218,7 +219,7 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             role_service_1.default.findAll()
         ]);
         if (!accountExists) {
-            req.flash("error", "Có lỗi xảy ra!");
+            req.flash("error", "Tài khoản không tồn tại!");
             return res.redirect("back");
         }
         return res.render("admin/pages/accounts/update", {
@@ -248,7 +249,7 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const status = req.body.status;
         const roleId = req.body.roleId;
         let avatar = undefined;
-        if (req.file && req.file.path) {
+        if (req.file) {
             avatar = req.file.path;
         }
         const [accountIdExists, accountSlugExists, accountEmailExists, accountPhoneExists, roleExists] = yield Promise.all([
