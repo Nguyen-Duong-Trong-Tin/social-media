@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
-const user_enum_1 = __importDefault(require("../enums/user.enum"));
+const user_enum_1 = require("../enums/user.enum");
 const UserSchema = new mongoose_1.default.Schema({
     fullName: {
         type: String,
@@ -33,7 +33,7 @@ const UserSchema = new mongoose_1.default.Schema({
     },
     status: {
         type: String,
-        enum: Object.values(user_enum_1.default),
+        enum: Object.values(user_enum_1.EUserStatus),
         required: true
     },
     coverPhoto: {
@@ -42,6 +42,26 @@ const UserSchema = new mongoose_1.default.Schema({
     },
     bio: {
         type: String,
+        required: true
+    },
+    friends: {
+        type: [{
+                userId: String,
+                roomChatId: String
+            }],
+        required: true
+    },
+    acceptFriends: {
+        type: Array,
+        required: true
+    },
+    requestFriends: {
+        type: Array,
+        required: true
+    },
+    online: {
+        type: String,
+        enum: Object.values(user_enum_1.EUserOnline),
         required: true
     },
     deleted: {

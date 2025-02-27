@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import EUserStatus from "../enums/user.enum";
+import { EUserOnline, EUserStatus } from "../enums/user.enum";
 
 const UserSchema = new mongoose.Schema({
   fullName: {
@@ -39,6 +39,26 @@ const UserSchema = new mongoose.Schema({
   },
   bio: {
     type: String,
+    required: true
+  },
+  friends: {
+    type: [{
+      userId: String,
+      roomChatId: String
+    }],
+    required: true
+  },
+  acceptFriends: {
+    type: Array,
+    required: true
+  },
+  requestFriends: {
+    type: Array,
+    required: true
+  },
+  online: {
+    type: String,
+    enum: Object.values(EUserOnline),
     required: true
   },
   deleted: {

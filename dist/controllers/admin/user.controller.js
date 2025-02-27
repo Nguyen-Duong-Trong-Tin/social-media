@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const index_config_1 = __importDefault(require("../../configs/index.config"));
-const user_enum_1 = __importDefault(require("../../enums/user.enum"));
+const user_enum_1 = require("../../enums/user.enum");
 const getUrl_helper_1 = __importDefault(require("../../helpers/getUrl.helper"));
 const user_service_1 = __importDefault(require("../../services/admin/user.service"));
 const md5_util_1 = __importDefault(require("../../utils/md5.util"));
@@ -165,6 +165,10 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             coverPhoto,
             bio,
             status: status,
+            friends: [],
+            acceptFriends: [],
+            requestFriends: [],
+            online: user_enum_1.EUserOnline.offline,
             deleted: false
         });
         req.flash("success", "Người dùng được tạo thành công!");
@@ -283,7 +287,7 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     req.flash("error", "Bạn không có quyền!");
                     return res.redirect(`/${index_config_1.default.admin}/users`);
                 }
-                yield Promise.all(ids.map(id => user_service_1.default.update(id, { status: user_enum_1.default.active })));
+                yield Promise.all(ids.map(id => user_service_1.default.update(id, { status: user_enum_1.EUserStatus.active })));
                 break;
             }
             case "inactive": {
@@ -291,7 +295,7 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     req.flash("error", "Bạn không có quyền!");
                     return res.redirect(`/${index_config_1.default.admin}/users`);
                 }
-                yield Promise.all(ids.map(id => user_service_1.default.update(id, { status: user_enum_1.default.inactive })));
+                yield Promise.all(ids.map(id => user_service_1.default.update(id, { status: user_enum_1.EUserStatus.inactive })));
                 break;
             }
             default: {

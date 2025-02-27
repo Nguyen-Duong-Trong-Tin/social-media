@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 
-import EUserStatus from "../../enums/user.enum";
+import { EUserStatus } from "../../enums/user.enum";
 
 import validateHelper from "../../helpers/validate.helper";
 

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const user_enum_1 = __importDefault(require("../../enums/user.enum"));
+const user_enum_1 = require("../../enums/user.enum");
 const validate_helper_1 = __importDefault(require("../../helpers/validate.helper"));
 // [POST] /admin/users/create
 const createPost = (req, res, next) => {
@@ -42,7 +42,7 @@ const createPost = (req, res, next) => {
             req.flash("error", "Mật khẩu phải có độ dài từ 8 kí tự, có kí tự in hoa, in thường, số và kí tự đặc biệt.");
             return res.redirect("back");
         }
-        if (!Object.values(user_enum_1.default).includes(status)) {
+        if (!Object.values(user_enum_1.EUserStatus).includes(status)) {
             req.flash("error", "Trạng thái không chính xác!");
             return res.redirect("back");
         }
@@ -81,7 +81,7 @@ const updatePatch = (req, res, next) => {
             req.flash("error", "Email không chính xác!");
             return res.redirect("back");
         }
-        if (!Object.values(user_enum_1.default).includes(status)) {
+        if (!Object.values(user_enum_1.EUserStatus).includes(status)) {
             req.flash("error", "Trạng thái không chính xác!");
             return res.redirect("back");
         }
@@ -96,7 +96,7 @@ const updatePatch = (req, res, next) => {
 const updateStatus = (req, res, next) => {
     try {
         const status = req.params.status;
-        if (!Object.values(user_enum_1.default).includes(status)) {
+        if (!Object.values(user_enum_1.EUserStatus).includes(status)) {
             req.flash("error", "Trạng thái không chính xác!");
             return res.redirect("back");
         }

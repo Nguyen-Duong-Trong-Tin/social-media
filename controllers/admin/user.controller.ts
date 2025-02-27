@@ -2,7 +2,7 @@ import { Response } from "express";
 
 import configs from "../../configs/index.config";
 
-import EUserStatus from "../../enums/user.enum";
+import { EUserOnline, EUserStatus } from "../../enums/user.enum";
 
 import getUrlHelper from "../../helpers/getUrl.helper";
 
@@ -201,6 +201,10 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       coverPhoto,
       bio,
       status: status as EUserStatus,
+      friends: [],
+      acceptFriends: [],
+      requestFriends: [],
+      online: EUserOnline.offline,
       deleted: false
     });
 

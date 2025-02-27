@@ -3,4 +3,12 @@ enum EUserStatus {
   inactive = "inactive"
 };
 
-export default EUserStatus;
+enum EUserOnline {
+  online = "online",
+  offline = "offline"
+};
+
+export {
+  EUserStatus,
+  EUserOnline
+};
