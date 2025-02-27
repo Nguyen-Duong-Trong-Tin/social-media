@@ -166,8 +166,8 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             bio,
             status: status,
             friends: [],
-            acceptFriends: [],
-            requestFriends: [],
+            friendAccepts: [],
+            friendRequests: [],
             online: user_enum_1.EUserOnline.offline,
             deleted: false
         });

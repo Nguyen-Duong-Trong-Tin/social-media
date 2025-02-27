@@ -14,8 +14,8 @@ interface IUser {
     userId: string,
     roomChatId: string
   }[],
-  acceptFriends: string[];
-  requestFriends: string[];
+  friendAccepts: string[];
+  friendRequests: string[];
   online: EUserOnline;
   deleted: boolean;
 };

@@ -202,8 +202,8 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       bio,
       status: status as EUserStatus,
       friends: [],
-      acceptFriends: [],
-      requestFriends: [],
+      friendAccepts: [],
+      friendRequests: [],
       online: EUserOnline.offline,
       deleted: false
     });

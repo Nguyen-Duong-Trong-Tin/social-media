@@ -48,11 +48,11 @@ const UserSchema = new mongoose.Schema({
     }],
     required: true
   },
-  acceptFriends: {
+  friendAccepts: {
     type: Array,
     required: true
   },
-  requestFriends: {
+  friendRequests: {
     type: Array,
     required: true
   },

@@ -51,11 +51,11 @@ const UserSchema = new mongoose_1.default.Schema({
             }],
         required: true
     },
-    acceptFriends: {
+    friendAccepts: {
         type: Array,
         required: true
     },
-    requestFriends: {
+    friendRequests: {
         type: Array,
         required: true
     },
