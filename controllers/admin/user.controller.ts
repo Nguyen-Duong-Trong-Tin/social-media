@@ -401,7 +401,7 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
     }
 
     const id: string = req.params.id;
-    const status: string = req.params.status;
+    const status: EUserStatus = req.params.status;
 
     const userExists = await userService.findById(id);
     if (!userExists) {
@@ -409,7 +409,7 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
       return res.redirect("back");
     }
 
-    await userService.update(id, { status: status as EUserStatus });
+    await userService.update(id, { status });
     req.flash("success", "Người dùng được cập nhật thành công!");
   } catch {
     req.flash("error", "Có lỗi xảy ra!");

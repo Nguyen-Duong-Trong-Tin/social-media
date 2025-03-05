@@ -1,0 +1,88 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxTitle
+include ../../mixins/boxCreate
+include ../../mixins/formSort
+include ../../mixins/formSearch
+include ../../mixins/formAction
+include ../../mixins/pagination
+
+block main
+  +boxTitle(pageTitle)
+
+  +boxCreate(`/${admin}/roomChats/create`)
+
+  form(form-filter)
+    label.form-label Bộ lọc
+    .input-group.mb-3
+      select(
+        class="form-select"
+        name="filter"
+      )
+        each filterOption in filter.filterOptions
+          option(
+            value=filterOption.value 
+            selected=(filter.filter === filterOption.value)
+          ) #{filterOption.title}
+
+  +formSort(sort)
+
+  +formSearch(keyword, "Tìm kiếm theo tiêu đề phòng trò chuyện...")
+
+  +formAction(`${url.base}/actions?_method=PATCH`, actionOptions)
+
+  table.table
+    thead
+      tr
+        th(scope="col")
+          input(
+            class="form-check-input"
+            type="checkbox"
+            name="checkbox-all"
+          )
+        th(scope="col") #
+        th(scope="col") Ảnh
+        th(scope="col") Tiêu đề
+        th(scope="col") Kiểu
+        th(scope="col") Trạng thái
+        th(scope="col") Hành động
+    tbody
+      each roomChat, index in roomChats
+        tr
+          th(scope="row")
+            input(
+              class="form-check-input"
+              type="checkbox"
+              name="checkbox"
+              value=roomChat.id
+            )
+          th(scope="row") #{((pagination.page - 1) * pagination.limit) + (index + 1)}
+          td(style="width: 15%")
+            img(class="img-thumbnail" src=roomChat.avatar)
+          td #{roomChat.title}
+          td #{roomChat.type === "group" ? "Nhóm" : "Bạn bè"}
+          td
+            form(
+              method="POST"
+              id=roomChat.id
+              form-update-status
+            )
+              select(
+                class="form-select"
+                name="status"
+                required
+              )
+                option(value="active" selected=(roomChat.status === "active")) Hoạt động
+                option(value="inactive" selected=(roomChat.status === "inactive")) Ngưng hoạt động
+          td
+            a(class="btn btn-primary" href=`/${admin}/roomChats/detail/${roomChat.id}`) Xem 
+            a(class="btn btn-warning mx-1" href=`/${admin}/roomChats/update/${roomChat.id}`) Sửa
+            form(
+              class="d-inline"
+              method="POST"
+              action=`/${admin}/roomChats/delete/${roomChat.id}?_method=DELETE`
+              form-delete-item
+            )
+              button.btn.btn-danger Xóa
+  
+  +pagination(url, pagination.page, pagination.maxPage, pagination.limit)

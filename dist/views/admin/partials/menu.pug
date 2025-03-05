@@ -2,6 +2,10 @@ ul.menu
   li
     a(class="btn btn-primary" href=`/${admin}/dashboard`) Tổng Quan
   
+  if (myAccount.permissions.includes("roomChatView"))
+    li
+      a(class="btn btn-primary" href=`/${admin}/roomChats`) Phòng Trò Chuyện
+
   if (myAccount.permissions.includes("userView"))
     li
       a(class="btn btn-primary" href=`/${admin}/users`) Người Dùng

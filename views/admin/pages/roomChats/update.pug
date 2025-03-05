@@ -1,0 +1,140 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/roomChats`)
+
+  +boxTitle(pageTitle)
+
+  form(
+    method="POST"
+    action=`/${admin}/roomChats/update/${roomChat.id}?_method=PATCH`
+    enctype="multipart/form-data"
+  )
+    .mb-3
+      label.form-label Tiêu đề
+      input(
+        class="form-control"
+        name="title"
+        value=roomChat.title 
+        required
+      )
+    .mb-3
+      label.form-label Ảnh
+      .w-25.mb-1
+        img(
+          class="img-thumbnail"
+          src=roomChat.avatar
+        )
+      input(
+        class="form-control"
+        type="file"
+        name="avatar"
+        value=roomChat.avatar
+      )
+    .mb-3
+      label.form-label Kiểu
+      select(
+        class="form-select"
+        disabled
+      )
+        option(value="group" selected=(roomChat.type === "group")) Nhóm
+        option(value="friend" selected=(roomChat.type === "friend")) Bạn bè
+    .mb-3
+      label.form-label Trạng thái
+      select(
+        class="form-select"
+        name="status"
+        required
+      )
+        option(value="active" selected=(roomChat.status === "active")) Hoạt động
+        option(value="inactive" selected=(roomChat.status === "inactive")) Ngưng hoạt động
+    
+    .d-flex.justify-content-center.mb-3
+      button.btn.btn-primary Cập nhật
+      
+  .mb-3
+    label.form-label Danh sách người tham gia
+    .row
+      each item in users
+        .col-3
+          .card
+            img(
+              class="card-img-top"
+              style="aspect-ratio: 4/3"
+              src=item.user.avatar
+            )
+            .card-body
+              h5.card-title #{item.user.fullName}
+
+              form(
+                method="POST"
+                action=`/${admin}/roomChats/changeUserRole`
+                roomChatId=roomChat.id
+                userId=item.user.id
+                form-change-room-chat-user-role
+              )
+                .mb-3
+                  label.form-label Vai trò
+                  select.form-select
+                    option(value="superAdmin" selected=(item.role === "superAdmin")) Chủ phòng 
+                    option(value="admin" selected=(item.role === "admin")) Quản trị
+                    option(value="user" selected=(item.role === "user")) Người dùng
+              
+              p.card-text #{item.user.phone}
+              .d-flex
+                a(
+                  class="btn btn-primary me-1"
+                  href=`/${admin}/users/detail/${item.user.id}`
+                ) Chi tiết
+
+                form(
+                  method="POST"
+                  action=`/${admin}/roomChats/deleteUser`
+                  roomChatId=roomChat.id
+                  userId=item.user.id
+                  form-delete-room-chat-user
+                )
+                  button.btn.btn-danger Xóa
+
+
+  .mb-3
+    label.form-label Danh sách người yêu cầu
+    .row
+      each user in userRequests
+        .col-3
+          .card
+            img(
+              class="card-img-top"
+              style="aspect-ratio: 4/3"
+              src=user.avatar
+            )
+            .card-body
+              h5.card-title #{user.fullName}
+              p.card-text #{user.phone}
+              a(
+                class="btn btn-primary"
+                href=`/${admin}/users/detail/${user.id}`
+              ) Chi tiết
+
+              .mt-1.d-flex
+                form(
+                  method="POST"
+                  action=`/${admin}/roomChats/acceptUser`
+                  roomChatId=roomChat.id
+                  userId=user.id
+                  form-accept-room-chat-user
+                )
+                  button.btn.btn-primary Chấp nhận
+
+                form(
+                  class="ms-1"
+                  method="POST"
+                  action=`/${admin}/roomChats/deleteUserRequest`
+                  roomChatId=roomChat.id
+                  userId=user.id
+                  form-delete-room-chat-user-request
+                )
+                  button.btn.btn-danger Xóa

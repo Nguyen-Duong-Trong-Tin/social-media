@@ -325,7 +325,7 @@ const updateStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             req.flash("error", "Người dùng không tồn tại!");
             return res.redirect("back");
         }
-        yield user_service_1.default.update(id, { status: status });
+        yield user_service_1.default.update(id, { status });
         req.flash("success", "Người dùng được cập nhật thành công!");
     }
     catch (_a) {

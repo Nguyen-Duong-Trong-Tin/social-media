@@ -92,21 +92,6 @@ const updatePatch = (req, res, next) => {
         return res.redirect("back");
     }
 };
-// [PATCH] /admin/users/updateStatus/:status/:id
-const updateStatus = (req, res, next) => {
-    try {
-        const status = req.params.status;
-        if (!Object.values(user_enum_1.EUserStatus).includes(status)) {
-            req.flash("error", "Trạng thái không chính xác!");
-            return res.redirect("back");
-        }
-        return next();
-    }
-    catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
-        return res.redirect("back");
-    }
-};
 // [PATCH] /admin/users/actions
 const actions = (req, res, next) => {
     try {
@@ -129,10 +114,25 @@ const actions = (req, res, next) => {
         return res.redirect("back");
     }
 };
+// [PATCH] /admin/users/updateStatus/:status/:id
+const updateStatus = (req, res, next) => {
+    try {
+        const status = req.params.status;
+        if (!Object.values(user_enum_1.EUserStatus).includes(status)) {
+            req.flash("error", "Trạng thái không chính xác!");
+            return res.redirect("back");
+        }
+        return next();
+    }
+    catch (_a) {
+        req.flash("error", "Có lỗi xảy ra!");
+        return res.redirect("back");
+    }
+};
 const userValidate = {
     createPost,
     updatePatch,
-    updateStatus,
-    actions
+    actions,
+    updateStatus
 };
 exports.default = userValidate;

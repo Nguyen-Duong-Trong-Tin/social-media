@@ -1,0 +1,26 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const router = express_1.default.Router();
+const storage_util_1 = __importDefault(require("../../utils/storage.util"));
+const multer_util_1 = __importDefault(require("../../utils/multer.util"));
+const upload = (0, multer_util_1.default)({ storage: storage_util_1.default });
+const roomChat_validate_1 = __importDefault(require("../../validates/admin/roomChat.validate"));
+const roomChat_controller_1 = __importDefault(require("../../controllers/admin/roomChat.controller"));
+router.get("/", roomChat_controller_1.default.get);
+router.get("/detail/:id", roomChat_controller_1.default.getById);
+router.get("/create", roomChat_controller_1.default.create);
+router.post("/create", upload.single("avatar"), roomChat_validate_1.default.createPost, roomChat_controller_1.default.createPost);
+router.get("/update/:id", roomChat_controller_1.default.update);
+router.patch("/update/:id", upload.single("avatar"), roomChat_validate_1.default.updatePatch, roomChat_controller_1.default.updatePatch);
+router.patch("/changeUserRole/:role/:userId/:id", roomChat_validate_1.default.changeUserRole, roomChat_controller_1.default.changeUserRole);
+router.patch("/acceptUser/:userId/:id", roomChat_controller_1.default.acceptUser);
+router.patch("/actions", roomChat_validate_1.default.actions, roomChat_controller_1.default.actions);
+router.patch("/updateStatus/:status/:id", roomChat_validate_1.default.updateStatus, roomChat_controller_1.default.updateStatus);
+router.delete("/deleteUser/:userId/:id", roomChat_controller_1.default.delUser);
+router.delete("/deleteUserRequest/:userId/:id", roomChat_controller_1.default.delUserRequest);
+router.delete("/delete/:id", roomChat_controller_1.default.del);
+exports.default = router;

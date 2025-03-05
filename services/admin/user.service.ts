@@ -1,14 +1,27 @@
 import { Request } from "express";
 import { SortOrder } from "mongoose";
 
+import { EUserStatus } from "../../enums/user.enum";
+
 import filterHelper from "../../helpers/filter.helper";
 import paginationHelper from "../../helpers/pagination.helper";
 import sortHelper from "../../helpers/sort.helper";
 
+import IUser from "../../interfaces/user.interface";
+
 import UserModel from "../../models/user.model";
 
 import slugUtil from "../../utils/slug.util";
-import IUser from "../../interfaces/user.interface";
+
+const findAll = async () => {
+  const users = await UserModel
+    .find({
+      status: EUserStatus.active,
+      deleted: false
+    })
+    .select("-password");
+  return users;
+}
 
 const find = async (req: Request) => {
   const pagination: {
@@ -126,6 +139,7 @@ const del = async (id: string) => {
 }
 
 const userService = {
+  findAll,
   find,
   findById,
   findBySlug,

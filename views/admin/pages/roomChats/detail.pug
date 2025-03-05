@@ -1,0 +1,84 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/roomChats`)
+
+  +boxTitle(pageTitle)
+
+  .mb-3
+    label.form-label Tiêu đề
+    input(
+      class="form-control"
+      value=roomChat.title
+      readonly
+    )
+  .mb-3
+    label.form-label Ảnh
+    .w-25.mb-1
+      img(
+        class="img-thumbnail"
+        src=roomChat.avatar
+      )
+  .mb-3
+    label.form-label Kiểu
+    select(
+      class="form-select"
+      disabled
+    )
+      option(value="group" selected=(roomChat.type === "group")) Nhóm
+      option(value="friend" selected=(roomChat.type === "friend")) Bạn bè
+  .mb-3
+    label.form-label Trạng thái
+    select(
+      class="form-select"
+      disabled
+    )
+      option(value="active" selected=(roomChat.status === "active")) Hoạt động
+      option(value="inactive" selected=(roomChat.status === "inactive")) Ngưng hoạt động
+
+  .mb-3
+    label.form-label Danh sách người tham gia
+    .row
+      each item in users
+        .col-3
+          .card
+            img(
+              class="card-img-top"
+              style="aspect-ratio: 4/3"
+              src=item.user.avatar
+            )
+            .card-body
+              h5.card-title #{item.user.fullName}
+              -if(item.role === "superAdmin")
+                p.card-text #{"Chủ phòng"}
+              -else if (item.role === "admin")
+                p.card-text #{"Quản trị"}
+              -else
+                p.card-text #{"Người dùng"}
+              p.card-text #{item.user.phone}
+              a(
+                class="btn btn-primary"
+                href=`/${admin}/users/detail/${item.user.id}`
+              ) Chi tiết
+
+  .mb-3
+    label.form-label Danh sách người yêu cầu
+    .row
+      each user in userRequests
+        .col-3
+          .card
+            img(
+              class="card-img-top"
+              style="aspect-ratio: 4/3"
+              src=user.avatar
+            )
+            .card-body
+              h5.card-title #{user.fullName}
+              p.card-text #{user.phone}
+              a(
+                class="btn btn-primary"
+                href=`/${admin}/users/detail/${user.id}`
+              ) Chi tiết

@@ -156,6 +156,54 @@ block main
               checked=role.permissions.includes("userDelete")
             )
 
+      //- RoomChats
+      tr.border-top
+        th(scope="row") Phòng trò chuyện
+      tr
+        td Xem
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="roomChatView"
+              checked=role.permissions.includes("roomChatView")
+            )
+      tr
+        td Thêm
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="roomChatCreate"
+              checked=role.permissions.includes("roomChatCreate")
+            )
+      tr
+        td Sửa
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="roomChatUpdate"
+              checked=role.permissions.includes("roomChatUpdate")
+            )
+      tr
+        td Xóa
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="roomChatDelete"
+              checked=role.permissions.includes("roomChatDelete")
+            )
+
   form(
     class="d-flex justify-content-center mb-3"
     method="POST"

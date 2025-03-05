@@ -1,56 +1,35 @@
 import { NextFunction, Response } from "express";
 
-import { EUserStatus } from "../../enums/user.enum";
+import { ERoomChatRole, ERoomChatStatus } from "../../enums/roomChat.enum";
 
-import validateHelper from "../../helpers/validate.helper";
-
-// [POST] /admin/users/create
+// [POST] /admin/roomChats/create
 const createPost = (req: any, res: Response, next: NextFunction): void => {
   try {
-    const fullName = req.body.fullName;
-    const email = req.body.email;
-    const password = req.body.password;
-    const phone = req.body.phone;
+    const title = req.body.title;
+    const avatar = req.file;
     const status = req.body.status;
-    const bio = req.body.bio;
+    const userId = req.body.userId;
 
     if (
-      !fullName ||
-      !email ||
-      !password ||
-      !phone ||
-      !req.files["avatar"] ||
-      !req.files["coverPhoto"] ||
+      !title ||
+      !avatar ||
       !status ||
-      !bio
+      !userId
     ) {
       req.flash("error", "Thông tin không đầy đủ!");
       return res.redirect("back");
     }
 
     if (
-      typeof fullName !== "string" ||
-      typeof email !== "string" ||
-      typeof password !== "string" ||
-      typeof phone !== "string" ||
+      typeof title !== "string" ||
       typeof status !== "string" ||
-      typeof bio !== "string"
+      typeof userId !== "string"
     ) {
       req.flash("error", "Kiểu dữ liệu không chính xác!");
       return res.redirect("back");
     }
 
-    if (!validateHelper.email(email)) {
-      req.flash("error", "Email không chính xác!");
-      return res.redirect("back");
-    }
-
-    if (!validateHelper.password(password)) {
-      req.flash("error", "Mật khẩu phải có độ dài từ 8 kí tự, có kí tự in hoa, in thường, số và kí tự đặc biệt.");
-      return res.redirect("back");
-    }
-
-    if (!Object.values(EUserStatus).includes(status as EUserStatus)) {
+    if (!Object.values(ERoomChatStatus).includes(status as ERoomChatStatus)) {
       req.flash("error", "Trạng thái không chính xác!");
       return res.redirect("back");
     }
@@ -62,44 +41,25 @@ const createPost = (req: any, res: Response, next: NextFunction): void => {
   }
 }
 
-// [PATCH] /admin/users/update/:id
+// [PATCH] /admin/roomChats/update/:id
 const updatePatch = (req: any, res: Response, next: NextFunction): void => {
   try {
-    const fullName = req.body.fullName;
-    const email = req.body.email;
-    const phone = req.body.phone;
+    const title = req.body.title;
     const status = req.body.status;
-    const bio = req.body.bio;
 
     if (
-      !fullName ||
-      !email ||
-      !phone ||
-      !status ||
-      !bio
+      !title ||
+      !status
     ) {
       req.flash("error", "Có lỗi xảy ra!");
       return res.redirect("back");
     }
 
     if (
-      typeof fullName !== "string" ||
-      typeof email !== "string" ||
-      typeof phone !== "string" ||
-      typeof status !== "string" ||
-      typeof bio !== "string"
+      typeof title !== "string" ||
+      typeof status !== "string"
     ) {
       req.flash("error", "Kiểu dữ liệu không chính xác!");
-      return res.redirect("back");
-    }
-
-    if (!validateHelper.email(email)) {
-      req.flash("error", "Email không chính xác!");
-      return res.redirect("back");
-    }
-
-    if (!Object.values(EUserStatus).includes(status as EUserStatus)) {
-      req.flash("error", "Trạng thái không chính xác!");
       return res.redirect("back");
     }
 
@@ -110,7 +70,24 @@ const updatePatch = (req: any, res: Response, next: NextFunction): void => {
   }
 }
 
-// [PATCH] /admin/users/actions
+// [PATCH] /admin/roomChats/changeUserRole/:role/:userId/:id
+const changeUserRole = (req: any, res: Response, next: NextFunction): void => {
+  try {
+    const role: string = req.params.role;
+
+    if (!Object.values(ERoomChatRole).includes(role as ERoomChatRole)) {
+      req.flash("error", "Vai trò người dùng không chính xác!");
+      return res.redirect("back");
+    }
+
+    return next();
+  } catch {
+    req.flash("error", "Có lỗi xảy ra!");
+    return res.redirect("back");
+  }
+}
+
+// [PATCH] /admin/roomChats/actions
 const actions = (req: any, res: Response, next: NextFunction): void => {
   try {
     const action = req.body.action;
@@ -139,12 +116,12 @@ const actions = (req: any, res: Response, next: NextFunction): void => {
   }
 }
 
-// [PATCH] /admin/users/updateStatus/:status/:id
+// [PATCH] /admin/roomChats/updateStatus/:status/:id
 const updateStatus = (req: any, res: Response, next: NextFunction): void => {
   try {
     const status: string = req.params.status;
 
-    if (!Object.values(EUserStatus).includes(status as EUserStatus)) {
+    if (!Object.values(ERoomChatStatus).includes(status as ERoomChatStatus)) {
       req.flash("error", "Trạng thái không chính xác!");
       return res.redirect("back");
     }
@@ -156,10 +133,11 @@ const updateStatus = (req: any, res: Response, next: NextFunction): void => {
   }
 }
 
-const userValidate = {
+const roomChatValidate = {
   createPost,
   updatePatch,
+  changeUserRole,
   actions,
   updateStatus
 };
-export default userValidate;
+export default roomChatValidate;

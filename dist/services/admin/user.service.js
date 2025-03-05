@@ -12,11 +12,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const user_enum_1 = require("../../enums/user.enum");
 const filter_helper_1 = __importDefault(require("../../helpers/filter.helper"));
 const pagination_helper_1 = __importDefault(require("../../helpers/pagination.helper"));
 const sort_helper_1 = __importDefault(require("../../helpers/sort.helper"));
 const user_model_1 = __importDefault(require("../../models/user.model"));
 const slug_util_1 = __importDefault(require("../../utils/slug.util"));
+const findAll = () => __awaiter(void 0, void 0, void 0, function* () {
+    const users = yield user_model_1.default
+        .find({
+        status: user_enum_1.EUserStatus.active,
+        deleted: false
+    })
+        .select("-password");
+    return users;
+});
 const find = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const pagination = (0, pagination_helper_1.default)(req);
     const find = { deleted: false };
@@ -110,6 +120,7 @@ const del = (id) => __awaiter(void 0, void 0, void 0, function* () {
     return newUser;
 });
 const userService = {
+    findAll,
     find,
     findById,
     findBySlug,
