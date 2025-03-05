@@ -1,0 +1,24 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/groupTopics`)
+
+  +boxTitle(pageTitle)
+
+  .mb-3
+    label.form-label Tiêu đề
+    input(
+      class="form-control"
+      value=groupTopic.title
+      readonly
+    )
+  .mb-3
+    label.form-label Mô tả
+    textarea(
+      name="bio"
+      tinymce
+      readonly
+    ) #{groupTopic.description}

@@ -1,0 +1,56 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxTitle
+include ../../mixins/boxCreate
+include ../../mixins/formSort
+include ../../mixins/formSearch
+include ../../mixins/formAction
+include ../../mixins/pagination
+
+block main
+  +boxTitle(pageTitle)
+
+  +boxCreate(`/${admin}/groupTopics/create`)
+
+  +formSort(sort)
+
+  +formSearch(keyword, "Tìm kiếm theo tiêu đề...")
+
+  +formAction(`${url.base}/actions?_method=PATCH`, actionOptions)
+
+  table.table
+    thead
+      tr
+        th(scope="col")
+          input(
+            class="form-check-input"
+            type="checkbox"
+            name="checkbox-all"
+          )
+        th(scope="col") #
+        th(scope="col") Tiêu đề
+        th(scope="col") Hành động
+    tbody
+      each groupTopic, index in groupTopics
+        tr
+          th(scope="row")
+            input(
+              class="form-check-input"
+              type="checkbox"
+              name="checkbox"
+              value=groupTopic.id
+            )
+          th(scope="row") #{((pagination.page - 1) * pagination.limit) + (index + 1)}
+          td #{groupTopic.title}
+          td
+            a(class="btn btn-primary" href=`/${admin}/groupTopics/detail/${groupTopic.id}`) Xem 
+            a(class="btn btn-warning mx-1" href=`/${admin}/groupTopics/update/${groupTopic.id}`) Sửa
+            form(
+              class="d-inline"
+              method="POST"
+              action=`/${admin}/groupTopics/delete/${groupTopic.id}?_method=DELETE`
+              form-delete-item
+            )
+              button.btn.btn-danger Xóa
+  
+  +pagination(url, pagination.page, pagination.maxPage, pagination.limit)

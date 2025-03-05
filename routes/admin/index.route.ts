@@ -12,6 +12,7 @@ import accountRoutes from "./account.route";
 import permissionRoutes from "./permission.route";
 import userRoutes from "./user.route";
 import roomChatRoutes from "./roomChat.route";
+import groupTopicRoutes from "./groupTopic.route";
 
 const adminRoutes = (app: Express): void => {
   const prefixAdmin: string = `/${configs.admin}`;
@@ -49,6 +50,11 @@ const adminRoutes = (app: Express): void => {
     `${prefixAdmin}/roomChats`,
     deserialize,
     roomChatRoutes
+  );
+  app.use(
+    `${prefixAdmin}/groupTopics`,
+    deserialize,
+    groupTopicRoutes
   );
 }
 

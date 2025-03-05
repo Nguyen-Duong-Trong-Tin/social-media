@@ -1,6 +1,10 @@
 ul.menu
   li
     a(class="btn btn-primary" href=`/${admin}/dashboard`) Tổng Quan
+
+  if (myAccount.permissions.includes("groupTopicView"))
+    li
+      a(class="btn btn-primary" href=`/${admin}/groupTopics`) Chủ Đề Cộng Đồng
   
   if (myAccount.permissions.includes("roomChatView"))
     li

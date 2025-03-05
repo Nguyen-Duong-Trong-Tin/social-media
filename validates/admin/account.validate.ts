@@ -76,7 +76,7 @@ const updatePatch = (req: any, res: Response, next: NextFunction): void => {
       !status ||
       !roleId
     ) {
-      req.flash("error", "Có lỗi xảy ra!");
+      req.flash("error", "Thông tin không đầy đủ!");
       return res.redirect("back");
     }
 

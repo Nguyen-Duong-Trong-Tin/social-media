@@ -65,7 +65,7 @@ const updatePatch = (req, res, next) => {
             !phone ||
             !status ||
             !roleId) {
-            req.flash("error", "Có lỗi xảy ra!");
+            req.flash("error", "Thông tin không đầy đủ!");
             return res.redirect("back");
         }
         if (typeof fullName !== "string" ||

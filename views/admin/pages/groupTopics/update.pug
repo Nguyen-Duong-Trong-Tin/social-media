@@ -1,0 +1,31 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/groupTopics`)
+
+  +boxTitle(pageTitle)
+
+  form(
+    method="POST"
+    action=`/${admin}/groupTopics/update/${groupTopic.id}?_method=PATCH`
+  )
+    .mb-3
+      label.form-label Tiêu đề
+      input(
+        class="form-control"
+        name="title"
+        value=groupTopic.title
+        required
+      )
+    .mb-3
+      label.form-label Mô tả
+      textarea(
+        name="description"
+        tinymce
+      ) #{groupTopic.description}
+    
+    .d-flex.justify-content-center.mb-3
+      button.btn.btn-primary Cập nhật
