@@ -10,7 +10,7 @@ import accountService from "../../services/admin/account.service";
 import slugUtil from "../../utils/slug.util";
 import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
 
-// [GET] /admin/roles?page=:page&limit=:limit&keyword=:keyword&sort=title-asc
+// [GET] /admin/roles?page=:page&limit=:limit&keyword=:keyword&sort=:sort&filter=:filter
 const get = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {

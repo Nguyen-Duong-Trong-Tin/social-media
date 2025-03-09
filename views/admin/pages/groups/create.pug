@@ -1,0 +1,77 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/groups`)
+
+  +boxTitle(pageTitle)
+
+  form(
+    method="POST"
+    action=`/${admin}/groups/create`
+    enctype="multipart/form-data"
+  )
+    .mb-3
+      label.form-label Tiêu đề
+      input(
+        class="form-control"
+        name="title"
+        required
+      )
+    .mb-3
+      label.form-label Mô tả
+      textarea(
+        name="description"
+        tinymce
+      )
+    .mb-3
+      label.form-label Ảnh
+      input(
+        class="form-control"
+        type="file"
+        name="avatar"
+        required
+      )
+    .mb-3
+      label.form-label Ảnh bìa
+      input(
+        class="form-control"
+        type="file"
+        name="coverPhoto"
+        required
+      )
+    .mb-3
+      label.form-label Trạng thái
+      select(
+        class="form-select"
+        name="status"
+        required
+      )
+        option(value="active") Hoạt động
+        option(value="inactive") Ngưng hoạt động
+    .mb-3
+      label.form-label Chủ phòng
+      select(
+        class="form-select"
+        name="userId"
+        required
+      )
+        option(value="") ---
+        each user in users
+          option(value=user.id) #{user.fullName} - #{user.phone}
+
+    .mb-3
+      label.form-label Chủ đề
+      select(
+        class="form-select"
+        name="groupTopicId"
+        required
+      )
+        option(value="") ---
+        each groupTopic in groupTopics
+          option(value=groupTopic.id) #{groupTopic.title}
+    
+    .d-flex.justify-content-center.mb-3
+      button.btn.btn-primary Thêm

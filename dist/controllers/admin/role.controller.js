@@ -18,7 +18,7 @@ const role_service_1 = __importDefault(require("../../services/admin/role.servic
 const account_service_1 = __importDefault(require("../../services/admin/account.service"));
 const slug_util_1 = __importDefault(require("../../utils/slug.util"));
 const shortUniqueKey_util_1 = __importDefault(require("../../utils/shortUniqueKey.util"));
-// [GET] /admin/roles?page=:page&limit=:limit&keyword=:keyword&sort=title-asc
+// [GET] /admin/roles?page=:page&limit=:limit&keyword=:keyword&sort=:sort&filter=:filter
 const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;

@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
-const roomChat_enum_1 = require("../enums/roomChat.enum");
-const RoomChatSchema = new mongoose_1.default.Schema({
+const group_enum_1 = require("../enums/group.enum");
+const GroupSchema = new mongoose_1.default.Schema({
     title: {
         type: String,
         required: true
@@ -15,18 +15,21 @@ const RoomChatSchema = new mongoose_1.default.Schema({
         unique: true,
         required: true
     },
-    type: {
+    description: {
         type: String,
-        enum: Object.values(roomChat_enum_1.ERoomChatType),
         required: true
     },
     avatar: {
         type: String,
         required: true
     },
+    coverPhoto: {
+        type: String,
+        required: true
+    },
     status: {
         type: String,
-        enum: Object.values(roomChat_enum_1.ERoomChatStatus),
+        enum: Object.values(group_enum_1.EGroupStatus),
         required: true
     },
     users: {
@@ -34,7 +37,7 @@ const RoomChatSchema = new mongoose_1.default.Schema({
                 userId: String,
                 role: {
                     type: String,
-                    enum: Object.values(roomChat_enum_1.ERoomChatRole),
+                    enum: Object.values(group_enum_1.EGroupRole),
                     required: true
                 }
             }],
@@ -44,6 +47,10 @@ const RoomChatSchema = new mongoose_1.default.Schema({
         type: Array,
         required: true
     },
+    groupTopicId: {
+        type: String,
+        required: true
+    },
     deleted: {
         type: Boolean,
         required: true
@@ -51,5 +58,5 @@ const RoomChatSchema = new mongoose_1.default.Schema({
 }, {
     timestamps: true
 });
-const RoomChatModel = mongoose_1.default.model("RoomChatModel", RoomChatSchema, "roomChats");
-exports.default = RoomChatModel;
+const GroupModel = mongoose_1.default.model("GroupModel", GroupSchema, "groups");
+exports.default = GroupModel;

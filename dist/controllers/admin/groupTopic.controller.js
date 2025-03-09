@@ -17,7 +17,7 @@ const getUrl_helper_1 = __importDefault(require("../../helpers/getUrl.helper"));
 const groupTopic_service_1 = __importDefault(require("../../services/admin/groupTopic.service"));
 const slug_util_1 = __importDefault(require("../../utils/slug.util"));
 const shortUniqueKey_util_1 = __importDefault(require("../../utils/shortUniqueKey.util"));
-// [GET] /admin/groupTopics
+// [GET] /admin/groupTopics?page=:page&limit=:limit&keyword=:keyword&sort=:sort
 const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;

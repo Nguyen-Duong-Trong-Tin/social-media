@@ -5,6 +5,10 @@ ul.menu
   if (myAccount.permissions.includes("groupTopicView"))
     li
       a(class="btn btn-primary" href=`/${admin}/groupTopics`) Chủ Đề Cộng Đồng
+
+  if (myAccount.permissions.includes("groupView"))
+    li
+      a(class="btn btn-primary" href=`/${admin}/groups`) Cộng Đồng
   
   if (myAccount.permissions.includes("roomChatView"))
     li

@@ -1,0 +1,160 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/groups`)
+
+  +boxTitle(pageTitle)
+
+  form(
+    method="POST"
+    action=`/${admin}/groups/update/${group.id}?_method=PATCH`
+    enctype="multipart/form-data"
+  )
+    .mb-3
+      label.form-label Tiêu đề
+      input(
+        class="form-control"
+        name="title"
+        value=group.title 
+        required
+      )
+    .mb-3
+      label.form-label Mô tả
+      textarea(
+        name="description"
+        tinymce
+      ) #{group.description}
+    .mb-3
+      label.form-label Ảnh
+      .w-25.mb-1
+        img(
+          class="img-thumbnail"
+          src=group.avatar
+        )
+      input(
+        class="form-control"
+        type="file"
+        name="avatar"
+        value=group.avatar
+      )
+    .mb-3
+      label.form-label Ảnh bìa
+      .w-25.mb-1
+        img(
+          class="img-thumbnail"
+          src=group.coverPhoto
+        )
+      input(
+        class="form-control"
+        type="file"
+        name="coverPhoto"
+        value=group.coverPhoto
+      )
+    .mb-3
+      label.form-label Trạng thái
+      select(
+        class="form-select"
+        name="status"
+        required
+      )
+        option(value="active" selected=(group.status === "active")) Hoạt động
+        option(value="inactive" selected=(group.status === "inactive")) Ngưng hoạt động
+    .mb-3
+      label.form-label Chủ đề
+      select(
+        class="form-select"
+        name="groupTopicId"
+        required
+      )
+        each groupTopic in groupTopics
+          option(value=groupTopic.id selected=(groupTopic.id === group.groupTopicId)) #{groupTopic.title}
+    
+    .d-flex.justify-content-center.mb-3
+      button.btn.btn-primary Cập nhật
+      
+  .mb-3
+    label.form-label Danh sách người tham gia
+    .row
+      each item in users
+        .col-3
+          .card
+            img(
+              class="card-img-top"
+              style="aspect-ratio: 4/3"
+              src=item.user.avatar
+            )
+            .card-body
+              h5.card-title #{item.user.fullName}
+
+              form(
+                method="POST"
+                action=`/${admin}/groups/changeUserRole`
+                groupId=group.id
+                userId=item.user.id
+                form-change-group-user-role
+              )
+                .mb-3
+                  label.form-label Vai trò
+                  select.form-select
+                    option(value="superAdmin" selected=(item.role === "superAdmin")) Chủ phòng 
+                    option(value="admin" selected=(item.role === "admin")) Quản trị
+                    option(value="user" selected=(item.role === "user")) Người dùng
+              
+              p.card-text #{item.user.phone}
+              .d-flex
+                a(
+                  class="btn btn-primary me-1"
+                  href=`/${admin}/users/detail/${item.user.id}`
+                ) Chi tiết
+
+                form(
+                  method="POST"
+                  action=`/${admin}/groups/deleteUser`
+                  groupId=group.id
+                  userId=item.user.id
+                  form-delete-group-user
+                )
+                  button.btn.btn-danger Xóa
+
+
+  .mb-3
+    label.form-label Danh sách người yêu cầu
+    .row
+      each user in userRequests
+        .col-3
+          .card
+            img(
+              class="card-img-top"
+              style="aspect-ratio: 4/3"
+              src=user.avatar
+            )
+            .card-body
+              h5.card-title #{user.fullName}
+              p.card-text #{user.phone}
+              a(
+                class="btn btn-primary"
+                href=`/${admin}/users/detail/${user.id}`
+              ) Chi tiết
+
+              .mt-1.d-flex
+                form(
+                  method="POST"
+                  action=`/${admin}/groups/acceptUser`
+                  groupId=group.id
+                  userId=user.id
+                  form-accept-group-user
+                )
+                  button.btn.btn-primary Chấp nhận
+
+                form(
+                  class="ms-1"
+                  method="POST"
+                  action=`/${admin}/groups/deleteUserRequest`
+                  groupId=group.id
+                  userId=user.id
+                  form-delete-group-user-request
+                )
+                  button.btn.btn-danger Xóa

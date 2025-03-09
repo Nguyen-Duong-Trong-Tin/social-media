@@ -9,7 +9,7 @@ import groupTopicService from "../../services/admin/groupTopic.service";
 import slugUtil from "../../utils/slug.util";
 import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
 
-// [GET] /admin/groupTopics
+// [GET] /admin/groupTopics?page=:page&limit=:limit&keyword=:keyword&sort=:sort
 const get = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {

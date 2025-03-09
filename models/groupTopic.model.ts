@@ -7,6 +7,7 @@ const GroupTopicSchema = new mongoose.Schema({
   },
   slug: {
     type: String,
+    unique: true,
     required: true
   },
   description: {

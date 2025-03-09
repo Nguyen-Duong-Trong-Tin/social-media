@@ -1,0 +1,97 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/groups`)
+
+  +boxTitle(pageTitle)
+
+  .mb-3
+    label.form-label Tiêu đề
+    input(
+      class="form-control"
+      value=group.title
+      readonly
+    )
+  .mb-3
+    label.form-label Mô tả
+    textarea(
+      tinymce
+      readonly
+    ) #{group.description}
+  .mb-3
+    label.form-label Ảnh
+    .w-25.mb-1
+      img(
+        class="img-thumbnail"
+        src=group.avatar
+      )
+  .mb-3
+    label.form-label Ảnh bìa
+    .w-25.mb-1
+      img(
+        class="img-thumbnail"
+        src=group.coverPhoto
+      )
+  .mb-3
+    label.form-label Trạng thái
+    select(
+      class="form-select"
+      disabled
+    )
+      option(value="active" selected=(group.status === "active")) Hoạt động
+      option(value="inactive" selected=(group.status === "inactive")) Ngưng hoạt động
+  .mb-3
+    label.form-label Chủ đề
+    select(
+      class="form-select"
+      disabled
+    )
+      each groupTopic in groupTopics
+        option(value=groupTopic.id selected=(groupTopic.id === group.groupTopicId)) #{groupTopic.title}
+
+  .mb-3
+    label.form-label Danh sách người tham gia
+    .row
+      each item in users
+        .col-3
+          .card
+            img(
+              class="card-img-top"
+              style="aspect-ratio: 4/3"
+              src=item.user.avatar
+            )
+            .card-body
+              h5.card-title #{item.user.fullName}
+              -if(item.role === "superAdmin")
+                p.card-text #{"Chủ phòng"}
+              -else if (item.role === "admin")
+                p.card-text #{"Quản trị"}
+              -else
+                p.card-text #{"Người dùng"}
+              p.card-text #{item.user.phone}
+              a(
+                class="btn btn-primary"
+                href=`/${admin}/users/detail/${item.user.id}`
+              ) Chi tiết
+
+  .mb-3
+    label.form-label Danh sách người yêu cầu
+    .row
+      each user in userRequests
+        .col-3
+          .card
+            img(
+              class="card-img-top"
+              style="aspect-ratio: 4/3"
+              src=user.avatar
+            )
+            .card-body
+              h5.card-title #{user.fullName}
+              p.card-text #{user.phone}
+              a(
+                class="btn btn-primary"
+                href=`/${admin}/users/detail/${user.id}`
+              ) Chi tiết

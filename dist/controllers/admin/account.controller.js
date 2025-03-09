@@ -20,7 +20,7 @@ const account_service_1 = __importDefault(require("../../services/admin/account.
 const md5_util_1 = __importDefault(require("../../utils/md5.util"));
 const slug_util_1 = __importDefault(require("../../utils/slug.util"));
 const shortUniqueKey_util_1 = __importDefault(require("../../utils/shortUniqueKey.util"));
-// [GET] /admin/accounts?page=:page&limit=:limit&keyword=:keyword&sort=title-asc
+// [GET] /admin/accounts?page=:page&limit=:limit&keyword=:keyword&sort=:sort&filter=:filter
 const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;

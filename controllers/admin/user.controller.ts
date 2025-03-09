@@ -12,7 +12,7 @@ import md5Util from "../../utils/md5.util";
 import slugUtil from "../../utils/slug.util";
 import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
 
-// [GET] /admin/users
+// [GET] /admin/users?page=:page&limit=:limit&keyword=:keyword&sort=:sort&filter=:filter
 const get = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {

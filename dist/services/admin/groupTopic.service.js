@@ -16,6 +16,10 @@ const pagination_helper_1 = __importDefault(require("../../helpers/pagination.he
 const sort_helper_1 = __importDefault(require("../../helpers/sort.helper"));
 const groupTopic_model_1 = __importDefault(require("../../models/groupTopic.model"));
 const slug_util_1 = __importDefault(require("../../utils/slug.util"));
+const findAll = () => __awaiter(void 0, void 0, void 0, function* () {
+    const groupTopic = yield groupTopic_model_1.default.find({ deleted: false });
+    return groupTopic;
+});
 const find = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const pagination = (0, pagination_helper_1.default)(req);
     const find = { deleted: false };
@@ -79,6 +83,7 @@ const del = (id) => __awaiter(void 0, void 0, void 0, function* () {
     return newGroupTopic;
 });
 const groupTopicService = {
+    findAll,
     find,
     findById,
     findBySlug,

@@ -1,0 +1,26 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const router = express_1.default.Router();
+const storage_util_1 = __importDefault(require("../../utils/storage.util"));
+const multer_util_1 = __importDefault(require("../../utils/multer.util"));
+const upload = (0, multer_util_1.default)({ storage: storage_util_1.default });
+const group_validate_1 = __importDefault(require("../../validates/admin/group.validate"));
+const group_controller_1 = __importDefault(require("../../controllers/admin/group.controller"));
+router.get("/", group_controller_1.default.get);
+router.get("/detail/:id", group_controller_1.default.getById);
+router.get("/create", group_controller_1.default.create);
+router.post("/create", upload.fields([{ name: "avatar", maxCount: 1 }, { name: "coverPhoto", maxCount: 1 }]), group_validate_1.default.createPost, group_controller_1.default.createPost);
+router.get("/update/:id", group_controller_1.default.update);
+router.patch("/update/:id", upload.fields([{ name: "avatar", maxCount: 1 }, { name: "coverPhoto", maxCount: 1 }]), group_validate_1.default.updatePatch, group_controller_1.default.updatePatch);
+router.patch("/changeUserRole/:role/:userId/:id", group_validate_1.default.changeUserRole, group_controller_1.default.changeUserRole);
+router.patch("/acceptUser/:userId/:id", group_controller_1.default.acceptUser);
+router.patch("/actions", group_validate_1.default.actions, group_controller_1.default.actions);
+router.patch("/updateStatus/:status/:id", group_validate_1.default.updateStatus, group_controller_1.default.updateStatus);
+router.delete("/deleteUser/:userId/:id", group_controller_1.default.delUser);
+router.delete("/deleteUserRequest/:userId/:id", group_controller_1.default.delUserRequest);
+router.delete("/delete/:id", group_controller_1.default.del);
+exports.default = router;

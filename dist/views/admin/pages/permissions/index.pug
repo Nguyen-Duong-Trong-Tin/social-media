@@ -110,7 +110,7 @@ block main
       
       //- Users
       tr.border-top
-        th(scope="row") Người Dùng
+        th(scope="row") Người dùng
       tr
         td Xem
         each role of roles
@@ -206,7 +206,7 @@ block main
 
       //- GroupTopics
       tr.border-top
-        th(scope="row") Phòng trò chuyện
+        th(scope="row") Chủ đề cộng đồng
       tr
         td Xem
         each role of roles
@@ -250,6 +250,54 @@ block main
               roleId=role.id
               value="groupTopicDelete"
               checked=role.permissions.includes("groupTopicDelete")
+            )
+
+      //- Groups
+      tr.border-top
+        th(scope="row") Cộng đồng
+      tr
+        td Xem
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="groupView"
+              checked=role.permissions.includes("groupView")
+            )
+      tr
+        td Thêm
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="groupCreate"
+              checked=role.permissions.includes("groupCreate")
+            )
+      tr
+        td Sửa
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="groupUpdate"
+              checked=role.permissions.includes("groupUpdate")
+            )
+      tr
+        td Xóa
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="groupDelete"
+              checked=role.permissions.includes("groupDelete")
             )
 
   form(

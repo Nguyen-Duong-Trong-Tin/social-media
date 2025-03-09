@@ -11,6 +11,7 @@ const GroupTopicSchema = new mongoose_1.default.Schema({
     },
     slug: {
         type: String,
+        unique: true,
         required: true
     },
     description: {

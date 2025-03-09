@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
-import { ERoomChatRole, ERoomChatStatus, ERoomChatType } from "../enums/roomChat.enum";
+import { EGroupRole, EGroupStatus } from "../enums/group.enum";
 
-const RoomChatSchema = new mongoose.Schema({
+const GroupSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true
@@ -12,18 +12,21 @@ const RoomChatSchema = new mongoose.Schema({
     unique: true,
     required: true
   },
-  type: {
+  description: {
     type: String,
-    enum: Object.values(ERoomChatType),
     required: true
   },
   avatar: {
     type: String,
     required: true
   },
+  coverPhoto: {
+    type: String,
+    required: true
+  },
   status: {
     type: String,
-    enum: Object.values(ERoomChatStatus),
+    enum: Object.values(EGroupStatus),
     required: true
   },
   users: {
@@ -31,7 +34,7 @@ const RoomChatSchema = new mongoose.Schema({
       userId: String,
       role: {
         type: String,
-        enum: Object.values(ERoomChatRole),
+        enum: Object.values(EGroupRole),
         required: true
       }
     }],
@@ -39,6 +42,10 @@ const RoomChatSchema = new mongoose.Schema({
   },
   userRequests: {
     type: Array,
+    required: true
+  },
+  groupTopicId: {
+    type: String,
     required: true
   },
   deleted: {
@@ -49,5 +56,5 @@ const RoomChatSchema = new mongoose.Schema({
   timestamps: true
 });
 
-const RoomChatModel = mongoose.model("RoomChatModel", RoomChatSchema, "roomChats");
-export default RoomChatModel;
+const GroupModel = mongoose.model("GroupModel", GroupSchema, "groups");
+export default GroupModel;

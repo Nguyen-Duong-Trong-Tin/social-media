@@ -10,6 +10,11 @@ import GroupTopicModel from "../../models/groupTopic.model";
 
 import slugUtil from "../../utils/slug.util";
 
+const findAll = async () => {
+  const groupTopic = await GroupTopicModel.find({ deleted: false });
+  return groupTopic;
+}
+
 const find = async (req: Request) => {
   const pagination: {
     limit: number;
@@ -89,6 +94,7 @@ const del = async (id: string) => {
 }
 
 const groupTopicService = {
+  findAll,
   find,
   findById,
   findBySlug,
