@@ -15,6 +15,7 @@ const user_route_1 = __importDefault(require("./user.route"));
 const roomChat_route_1 = __importDefault(require("./roomChat.route"));
 const groupTopic_route_1 = __importDefault(require("./groupTopic.route"));
 const group_route_1 = __importDefault(require("./group.route"));
+const articleGroup_route_1 = __importDefault(require("./articleGroup.route"));
 const adminRoutes = (app) => {
     const prefixAdmin = `/${index_config_1.default.admin}`;
     app.use(admin_middleware_1.default.variable);
@@ -28,5 +29,6 @@ const adminRoutes = (app) => {
     app.use(`${prefixAdmin}/roomChats`, deserialize_middleware_1.default, roomChat_route_1.default);
     app.use(`${prefixAdmin}/groupTopics`, deserialize_middleware_1.default, groupTopic_route_1.default);
     app.use(`${prefixAdmin}/groups`, deserialize_middleware_1.default, group_route_1.default);
+    app.use(`${prefixAdmin}/articleGroups`, deserialize_middleware_1.default, articleGroup_route_1.default);
 };
 exports.default = adminRoutes;

@@ -12,6 +12,11 @@ import GroupModel from "../../models/group.model";
 import slugUtil from "../../utils/slug.util";
 import { EGroupRole } from "../../enums/group.enum";
 
+const findAll = async () => {
+  const groups = await GroupModel.find({ deleted: false });
+  return groups;
+}
+
 const find = async (req: Request) => {
   const pagination: {
     limit: number;
@@ -176,6 +181,7 @@ const del = async (id: string) => {
 }
 
 const groupService = {
+  findAll,
   find,
   findById,
   findBySlug,

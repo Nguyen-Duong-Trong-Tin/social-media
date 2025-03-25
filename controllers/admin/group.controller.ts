@@ -355,9 +355,7 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       groupTopicId
     })
     req.flash("success", "Cộng đồng được cập nhật thành công!");
-  } catch(e) {
-    console.log(e);
-
+  } catch {
     req.flash("error", "Có lỗi xảy ra!");
   }
   return res.redirect("back");

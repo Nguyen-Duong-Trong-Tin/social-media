@@ -13,10 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pagination_helper_1 = __importDefault(require("../../helpers/pagination.helper"));
-const sort_helper_1 = __importDefault(require("../../helpers/sort.helper"));
 const filter_helper_1 = __importDefault(require("../../helpers/filter.helper"));
-const account_model_1 = __importDefault(require("../../models/account.model"));
-const role_model_1 = __importDefault(require("../../models/role.model"));
+const sort_helper_1 = __importDefault(require("../../helpers/sort.helper"));
+const articleGroup_model_1 = __importDefault(require("../../models/articleGroup.model"));
 const slug_util_1 = __importDefault(require("../../utils/slug.util"));
 const find = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const pagination = (0, pagination_helper_1.default)(req);
@@ -27,98 +26,65 @@ const find = (req) => __awaiter(void 0, void 0, void 0, function* () {
     }
     const filter = (0, filter_helper_1.default)(req);
     const sort = (0, sort_helper_1.default)(req);
-    const accounts = yield account_model_1.default
+    const articleGroups = yield articleGroup_model_1.default
         .find(Object.assign(Object.assign({}, find), filter))
-        .select("-password")
         .sort(sort)
         .skip(pagination.skip)
         .limit(pagination.limit);
-    return accounts;
+    return articleGroups;
 });
 const findById = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const accountExists = yield account_model_1.default
-        .findOne({
+    const articleGroupExists = yield articleGroup_model_1.default.findOne({
         _id: id,
         deleted: false
-    })
-        .select("-password");
-    return accountExists;
+    });
+    return articleGroupExists;
 });
 const findBySlug = (slug) => __awaiter(void 0, void 0, void 0, function* () {
-    const roleExists = yield role_model_1.default
-        .findOne({
+    const articleGroupExists = yield articleGroup_model_1.default.findOne({
         slug,
         deleted: false
-    })
-        .select("-password");
-    return roleExists;
-});
-const findByEmail = (email) => __awaiter(void 0, void 0, void 0, function* () {
-    const accountExists = yield account_model_1.default
-        .findOne({
-        email,
-        deleted: false
-    })
-        .select("-password");
-    return accountExists;
-});
-const findByPhone = (phone) => __awaiter(void 0, void 0, void 0, function* () {
-    const accountExists = yield account_model_1.default
-        .findOne({
-        phone,
-        deleted: false
-    })
-        .select("-password");
-    return accountExists;
+    });
+    return articleGroupExists;
 });
 const calculateMaxPage = (limit) => __awaiter(void 0, void 0, void 0, function* () {
-    const quantity = yield account_model_1.default.countDocuments({ deleted: false });
+    const quantity = yield articleGroup_model_1.default.countDocuments({ deleted: false });
     return Math.ceil(quantity / limit);
 });
-const create = (account) => __awaiter(void 0, void 0, void 0, function* () {
-    const newAccount = new account_model_1.default(account);
-    yield newAccount.save();
-    const accountExists = yield account_model_1.default
-        .findOne({ _id: newAccount.id })
-        .select("-password");
-    return accountExists;
+const create = (articleGroup) => __awaiter(void 0, void 0, void 0, function* () {
+    const newArticleGroup = new articleGroup_model_1.default(articleGroup);
+    yield newArticleGroup.save();
+    return newArticleGroup;
 });
-const update = (id, account) => __awaiter(void 0, void 0, void 0, function* () {
-    const newAccount = yield account_model_1.default
-        .updateOne({
+const update = (id, articleGroup) => __awaiter(void 0, void 0, void 0, function* () {
+    const newArticleGroup = yield articleGroup_model_1.default.findByIdAndUpdate({
         _id: id,
         deleted: false
-    }, account, {
+    }, articleGroup, {
         new: true,
         runValidators: true
-    })
-        .select("-password");
-    return newAccount;
+    });
+    return newArticleGroup;
 });
-const del = (id, deletedBy) => __awaiter(void 0, void 0, void 0, function* () {
-    const newAccount = yield account_model_1.default
-        .findOneAndUpdate({
+const del = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const newArticleGroup = yield articleGroup_model_1.default.findOneAndUpdate({
         _id: id,
         deleted: false
     }, {
-        deleted: true,
-        deletedBy
+        deleted: true
     }, {
         new: true,
         runValidators: true
-    })
-        .select("-password");
-    return newAccount;
+    });
+    return newArticleGroup;
 });
-const accountService = {
+const articleGroupService = {
     find,
     findById,
     findBySlug,
-    findByEmail,
-    findByPhone,
     calculateMaxPage,
     create,
     update,
     del
 };
-exports.default = accountService;
+exports.default = articleGroupService;

@@ -18,6 +18,10 @@ const sort_helper_1 = __importDefault(require("../../helpers/sort.helper"));
 const group_model_1 = __importDefault(require("../../models/group.model"));
 const slug_util_1 = __importDefault(require("../../utils/slug.util"));
 const group_enum_1 = require("../../enums/group.enum");
+const findAll = () => __awaiter(void 0, void 0, void 0, function* () {
+    const groups = yield group_model_1.default.find({ deleted: false });
+    return groups;
+});
 const find = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const pagination = (0, pagination_helper_1.default)(req);
     const find = { deleted: false };
@@ -140,6 +144,7 @@ const del = (id) => __awaiter(void 0, void 0, void 0, function* () {
     return newGroup;
 });
 const groupService = {
+    findAll,
     find,
     findById,
     findBySlug,

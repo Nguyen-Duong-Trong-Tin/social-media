@@ -9,6 +9,10 @@ ul.menu
   if (myAccount.permissions.includes("groupView"))
     li
       a(class="btn btn-primary" href=`/${admin}/groups`) Cộng Đồng
+
+  if (myAccount.permissions.includes("articleGroupView"))
+    li
+      a(class="btn btn-primary" href=`/${admin}/articleGroups`) Bài Viết Cộng Đồng
   
   if (myAccount.permissions.includes("roomChatView"))
     li

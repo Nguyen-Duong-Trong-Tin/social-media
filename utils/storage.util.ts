@@ -10,8 +10,9 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: 'CloudinaryDemo',
-    allowedFormats: ['jpeg', 'png', 'jpg'],
+    folder: "CloudinaryDemo",
+    allowedFormats: ["jpeg", "png", "jpg", "mp4", "avi", "mov"],
+    resource_type: "auto" 
   }
 });
 

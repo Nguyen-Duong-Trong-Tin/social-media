@@ -1,0 +1,22 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const router = express_1.default.Router();
+const storage_util_1 = __importDefault(require("../../utils/storage.util"));
+const multer_util_1 = __importDefault(require("../../utils/multer.util"));
+const upload = (0, multer_util_1.default)({ storage: storage_util_1.default });
+const articleGroup_validate_1 = __importDefault(require("../../validates/admin/articleGroup.validate"));
+const articleGroup_controller_1 = __importDefault(require("../../controllers/admin/articleGroup.controller"));
+router.get("/", articleGroup_controller_1.default.get);
+router.get("/detail/:id", articleGroup_controller_1.default.getById);
+router.get("/create", articleGroup_controller_1.default.create);
+router.post("/create", upload.fields([{ name: "images", maxCount: 6 }, { name: "videos", maxCount: 6 }]), articleGroup_validate_1.default.createPost, articleGroup_controller_1.default.createPost);
+router.get("/update/:id", articleGroup_controller_1.default.update);
+router.post("/update/:id", upload.fields([{ name: "images", maxCount: 6 }, { name: "videos", maxCount: 6 }]), articleGroup_validate_1.default.updatePatch, articleGroup_controller_1.default.updatePatch);
+router.patch("/actions", articleGroup_validate_1.default.actions, articleGroup_controller_1.default.actions);
+router.patch("/updateStatus/:status/:id", articleGroup_validate_1.default.updateStatus, articleGroup_controller_1.default.updateStatus);
+router.delete("/delete/:id", articleGroup_controller_1.default.del);
+exports.default = router;

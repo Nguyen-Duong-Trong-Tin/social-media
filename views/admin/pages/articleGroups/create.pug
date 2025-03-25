@@ -4,13 +4,13 @@ include ../../mixins/boxGoBack
 include ../../mixins/boxTitle
 
 block main
-  +boxGoBack(`/${admin}/groups`)
+  +boxGoBack(`/${admin}/articleGroups`)
 
   +boxTitle(pageTitle)
 
   form(
     method="POST"
-    action=`/${admin}/groups/create`
+    action=`/${admin}/articleGroups/create`
     enctype="multipart/form-data"
   )
     .mb-3
@@ -27,22 +27,24 @@ block main
         tinymce
       )
     .mb-3
-      label.form-label Ảnh
+      label.form-label Các ảnh
       input(
         class="form-control"
         type="file"
-        name="avatar"
+        name="images"
         accept="image/*"
-        required
+        multiple
+        chooseMaxFileQuantity=6
       )
     .mb-3
-      label.form-label Ảnh bìa
+      label.form-label Các đoạn phim
       input(
         class="form-control"
         type="file"
-        name="coverPhoto"
-        accept="image/*"
-        required
+        name="videos"
+        accept="video/mp4,video/x-m4v,video/*"
+        multiple
+        chooseMaxFileQuantity=6
       )
     .mb-3
       label.form-label Trạng thái
@@ -54,7 +56,7 @@ block main
         option(value="active") Hoạt động
         option(value="inactive") Ngưng hoạt động
     .mb-3
-      label.form-label Chủ phòng
+      label.form-label Người tạo
       select(
         class="form-select"
         name="userId"
@@ -65,15 +67,15 @@ block main
           option(value=user.id) #{user.fullName} - #{user.phone}
 
     .mb-3
-      label.form-label Chủ đề
+      label.form-label Cộng đồng
       select(
         class="form-select"
-        name="groupTopicId"
+        name="groupId"
         required
       )
         option(value="") ---
-        each groupTopic in groupTopics
-          option(value=groupTopic.id) #{groupTopic.title}
+        each group in groups
+          option(value=group.id) #{group.title}
     
     .d-flex.justify-content-center.mb-3
       button.btn.btn-primary Thêm

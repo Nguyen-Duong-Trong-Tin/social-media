@@ -40,7 +40,7 @@ const find = async (req: Request) => {
     .select("-password")
     .sort(sort)
     .skip(pagination.skip)
-    .limit(pagination.limit);;
+    .limit(pagination.limit);
   return accounts;
 }
 
