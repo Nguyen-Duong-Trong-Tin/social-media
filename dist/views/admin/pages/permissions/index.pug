@@ -348,6 +348,54 @@ block main
               checked=role.permissions.includes("articleGroupDelete")
             )
 
+      //- ArticleUsers
+      tr.border-top
+        th(scope="row") Bài Viết Người Dùng
+      tr
+        td Xem
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="articleUserView"
+              checked=role.permissions.includes("articleUserView")
+            )
+      tr
+        td Thêm
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="articleUserCreate"
+              checked=role.permissions.includes("articleUserCreate")
+            )
+      tr
+        td Sửa
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="articleUserUpdate"
+              checked=role.permissions.includes("articleUserUpdate")
+            )
+      tr
+        td Xóa
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="articleUserDelete"
+              checked=role.permissions.includes("articleUserDelete")
+            )
+
   form(
     class="d-flex justify-content-center mb-3"
     method="POST"

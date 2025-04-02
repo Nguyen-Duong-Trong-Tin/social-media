@@ -10,7 +10,7 @@ block main
 
   form(
     method="POST"
-    action=`/${admin}/articleGroups/update/${articleGroup.id}`
+    action=`/${admin}/articleGroups/update/${articleGroup.id}?_method=PATCH`
     enctype="multipart/form-data"
   )
     .mb-3

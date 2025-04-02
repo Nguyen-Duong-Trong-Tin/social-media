@@ -1,0 +1,85 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxTitle
+include ../../mixins/boxCreate
+include ../../mixins/formSort
+include ../../mixins/formSearch
+include ../../mixins/formAction
+include ../../mixins/pagination
+
+block main
+  +boxTitle(pageTitle)
+
+  +boxCreate(`/${admin}/articleUsers/create`)
+
+  form(form-filter)
+    label.form-label Bộ lọc
+    .input-group.mb-3
+      select(
+        class="form-select"
+        name="filter"
+      )
+        each filterOption in filter.filterOptions
+          option(
+            value=filterOption.value 
+            selected=(filter.filter === filterOption.value)
+          ) #{filterOption.title}
+
+  +formSort(sort)
+
+  +formSearch(keyword, "Tìm kiếm theo tiêu đề bài viết cộng đồng...")
+
+  +formAction(`${url.base}/actions?_method=PATCH`, actionOptions)
+
+  table.table
+    thead
+      tr
+        th(scope="col")
+          input(
+            class="form-check-input"
+            type="checkbox"
+            name="checkbox-all"
+          )
+        th(scope="col") #
+        th(scope="col") Tiêu đề
+        th(scope="col") Người dùng
+        th(scope="col") Trạng thái
+        th(scope="col") Hành động
+    tbody
+      each articleUser, index in articleUsers
+        tr
+          th(scope="row")
+            input(
+              class="form-check-input"
+              type="checkbox"
+              name="checkbox"
+              value=articleUser.id
+            )
+          th(scope="row") #{((pagination.page - 1) * pagination.limit) + (index + 1)}
+          td #{articleUser.title}
+          td #{users[index].fullName}
+          td
+            form(
+              method="POST"
+              id=articleUser.id
+              form-update-status
+            )
+              select(
+                class="form-select"
+                name="status"
+                required
+              )
+                option(value="active" selected=(articleUser.status === "active")) Hoạt động
+                option(value="inactive" selected=(articleUser.status === "inactive")) Ngưng hoạt động
+          td
+            a(class="btn btn-primary" href=`/${admin}/articleUsers/detail/${articleUser.id}`) Xem 
+            a(class="btn btn-warning mx-1" href=`/${admin}/articleUsers/update/${articleUser.id}`) Sửa
+            form(
+              class="d-inline"
+              method="POST"
+              action=`/${admin}/articleUsers/delete/${articleUser.id}?_method=DELETE`
+              form-delete-item
+            )
+              button.btn.btn-danger Xóa
+  
+  +pagination(url, pagination.page, pagination.maxPage, pagination.limit)

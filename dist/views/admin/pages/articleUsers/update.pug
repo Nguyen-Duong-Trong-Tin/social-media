@@ -4,13 +4,13 @@ include ../../mixins/boxGoBack
 include ../../mixins/boxTitle
 
 block main
-  +boxGoBack(`/${admin}/articleGroups`)
+  +boxGoBack(`/${admin}/articleUsers`)
 
   +boxTitle(pageTitle)
 
   form(
     method="POST"
-    action=`/${admin}/articleGroups/update/${articleGroup.id}?_method=PATCH`
+    action=`/${admin}/articleUsers/update/${articleUser.id}?_method=PATCH`
     enctype="multipart/form-data"
   )
     .mb-3
@@ -18,7 +18,7 @@ block main
       input(
         class="form-control"
         name="title"
-        value=articleGroup.title
+        value=articleUser.title
         required
       )
     .mb-3
@@ -26,10 +26,10 @@ block main
       textarea(
         name="description"
         tinymce
-      ) #{articleGroup.description}
+      ) #{articleUser.description}
     .mb-3
       label.form-label Các ảnh
-      each image in articleGroup.images
+      each image in articleUser.images
         .w-50.mb-1
           img(
             class="img-thumbnail"
@@ -45,7 +45,7 @@ block main
       )
     .mb-3
       label.form-label Các đoạn phim
-      each video in articleGroup.videos
+      each video in articleUser.videos
         .w-50.mb-1
           video(
             width="100%"
@@ -70,8 +70,8 @@ block main
         name="status"
         required
       )
-        option(value="active" selected=(articleGroup.status === "active")) Hoạt động
-        option(value="inactive" selected=(articleGroup.status === "inactive")) Ngưng hoạt động
+        option(value="active" selected=(articleUser.status === "active")) Hoạt động
+        option(value="inactive" selected=(articleUser.status === "inactive")) Ngưng hoạt động
     .mb-3
       label.form-label Người tạo
       select(
@@ -81,18 +81,7 @@ block main
       )
         option(value="") ---
         each user in users
-          option(value=user.id selected=(user.id === articleGroup.createdBy.userId)) #{user.fullName} - #{user.phone}
-
-    .mb-3
-      label.form-label Cộng đồng
-      select(
-        class="form-select"
-        name="groupId"
-        required
-      )
-        option(value="") ---
-        each group in groups
-          option(value=group.id selected=(group.id === articleGroup.groupId)) #{group.title}
+          option(value=user.id selected=(user.id === articleUser.createdBy.userId)) #{user.fullName} - #{user.phone}
     
     .d-flex.justify-content-center.mb-3
       button.btn.btn-primary Cập nhật

@@ -1,35 +1,40 @@
 ul.menu
   li
-    a(class="btn btn-primary" href=`/${admin}/dashboard`) Tổng Quan
-
-  if (myAccount.permissions.includes("groupTopicView"))
-    li
-      a(class="btn btn-primary" href=`/${admin}/groupTopics`) Chủ Đề Cộng Đồng
+    a(class="btn btn-secondary" href=`/${admin}/dashboard`) Tổng Quan
+  hr
 
   if (myAccount.permissions.includes("groupView"))
     li
-      a(class="btn btn-primary" href=`/${admin}/groups`) Cộng Đồng
-
+      a(class="btn btn-secondary" href=`/${admin}/groups`) Cộng Đồng
+  if (myAccount.permissions.includes("groupTopicView"))
+    li
+      a(class="btn btn-secondary" href=`/${admin}/groupTopics`) Chủ Đề Cộng Đồng
   if (myAccount.permissions.includes("articleGroupView"))
     li
-      a(class="btn btn-primary" href=`/${admin}/articleGroups`) Bài Viết Cộng Đồng
-  
-  if (myAccount.permissions.includes("roomChatView"))
-    li
-      a(class="btn btn-primary" href=`/${admin}/roomChats`) Phòng Trò Chuyện
+      a(class="btn btn-secondary" href=`/${admin}/articleGroups`) Bài Viết Cộng Đồng
+  hr
 
   if (myAccount.permissions.includes("userView"))
     li
-      a(class="btn btn-primary" href=`/${admin}/users`) Người Dùng
+      a(class="btn btn-secondary" href=`/${admin}/users`) Người Dùng
+  if (myAccount.permissions.includes("articleUserView"))
+    li
+      a(class="btn btn-secondary" href=`/${admin}/articleUsers`) Bài Viết Người Dùng
+  hr
+
+  if (myAccount.permissions.includes("roomChatView"))
+    li
+      a(class="btn btn-secondary" href=`/${admin}/roomChats`) Phòng Trò Chuyện
+  hr
 
   if (myAccount.permissions.includes("accountView"))
     li
-      a(class="btn btn-primary" href=`/${admin}/accounts`) Tài Khoản
+      a(class="btn btn-secondary" href=`/${admin}/accounts`) Tài Khoản
 
   if (myAccount.permissions.includes("roleView")) 
     li
-      a(class="btn btn-primary" href=`/${admin}/roles`) Vai Trò
+      a(class="btn btn-secondary" href=`/${admin}/roles`) Vai Trò
       
   if (myAccount.permissions.includes("roleView")) 
     li
-      a(class="btn btn-primary" href=`/${admin}/permissions`) Phân Quyền
+      a(class="btn btn-secondary" href=`/${admin}/permissions`) Phân Quyền

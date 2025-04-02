@@ -47,6 +47,7 @@
 .menu li .btn {
   width: 100%;
   font-weight: bold;
+  text-align: start;
 }
 /* End Menu */
 

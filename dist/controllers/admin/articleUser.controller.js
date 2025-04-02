@@ -13,18 +13,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const index_config_1 = __importDefault(require("../../configs/index.config"));
-const articleGroup_enum_1 = require("../../enums/articleGroup.enum");
+const articleUser_enum_1 = require("../../enums/articleUser.enum");
 const getUrl_helper_1 = __importDefault(require("../../helpers/getUrl.helper"));
-const group_service_1 = __importDefault(require("../../services/admin/group.service"));
-const articleGroup_service_1 = __importDefault(require("../../services/admin/articleGroup.service"));
+const articleUser_service_1 = __importDefault(require("../../services/admin/articleUser.service"));
 const user_service_1 = __importDefault(require("../../services/admin/user.service"));
 const slug_util_1 = __importDefault(require("../../utils/slug.util"));
 const shortUniqueKey_util_1 = __importDefault(require("../../utils/shortUniqueKey.util"));
-// [GET] /admin/articleGroups?page=:page&limit=:limit&keyword=:keyword&sort=:sort&filter=:filter
+// [GET] /admin/articleUsers?page=:page&limit=:limit&keyword=:keyword&sort=:sort&filter=:filter
 const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
-        if (!myAccount.permissions.includes("articleGroupView")) {
+        if (!myAccount.permissions.includes("articleUserView")) {
             req.flash("error", "Bạn không có quyền!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
@@ -37,8 +36,8 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const sort = req.query.sort;
         const sortOptions = [
             { value: "", title: "---" },
-            { value: "title-asc", title: "Tiêu đề bài viết cộng đồng tăng dần" },
-            { value: "title-desc", title: "Tiêu đề bài viết cộng đồng giảm dần" }
+            { value: "title-asc", title: "Tiêu đề bài viết người dùng tăng dần" },
+            { value: "title-desc", title: "Tiêu đề bài viết người dùng giảm dần" }
         ];
         const keyword = req.query.keyword;
         const actionOptions = [
@@ -49,16 +48,16 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         ];
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
-        const [maxPage, articleGroups] = yield Promise.all([
-            articleGroup_service_1.default.calculateMaxPage(limit),
-            articleGroup_service_1.default.find(req)
+        const [maxPage, articleUsers] = yield Promise.all([
+            articleUser_service_1.default.calculateMaxPage(limit),
+            articleUser_service_1.default.find(req)
         ]);
-        const groups = yield Promise.all(articleGroups.map(articleGroup => group_service_1.default.findById(articleGroup.groupId)));
-        return res.render("admin/pages/articleGroups", {
-            pageTitle: "Danh Sách Bài Viết Cộng Đồng",
+        const users = yield Promise.all(articleUsers.map(articleUser => user_service_1.default.findById(articleUser.createdBy.userId)));
+        return res.render("admin/pages/articleUsers", {
+            pageTitle: "Danh Sách Bài Viết Người Dùng",
             url: (0, getUrl_helper_1.default)(req),
-            articleGroups,
-            groups,
+            articleUsers,
+            users,
             filter: {
                 filter,
                 filterOptions
@@ -81,28 +80,24 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res.redirect("back");
     }
 });
-// [GET] /admin/articleGroups/detail/:id
+// [GET] /admin/articleUsers/detail/:id
 const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
-        if (!myAccount.permissions.includes("articleGroupView")) {
+        if (!myAccount.permissions.includes("articleUserView")) {
             req.flash("error", "Bạn không có quyền!");
-            return res.redirect(`/${index_config_1.default.admin}/articleGroups`);
+            return res.redirect(`/${index_config_1.default.admin}/articleUsers`);
         }
         const id = req.params.id;
-        const articleGroupExists = yield articleGroup_service_1.default.findById(id);
-        if (!articleGroupExists) {
-            req.flash("error", "Bài viểt cộng đồng không tồn tại!");
+        const articleUserExists = yield articleUser_service_1.default.findById(id);
+        if (!articleUserExists) {
+            req.flash("error", "Bài viểt người dùng không tồn tại!");
             return res.redirect("back");
         }
-        const [users, groups] = yield Promise.all([
-            user_service_1.default.findAll(),
-            group_service_1.default.findAll()
-        ]);
-        return res.render("admin/pages/articleGroups/detail", {
-            pageTitle: "Chi Tiết Bài Viết Cộng Đồng",
-            articleGroup: articleGroupExists,
-            groups,
+        const users = yield user_service_1.default.findAll();
+        return res.render("admin/pages/articleUsers/detail", {
+            pageTitle: "Chi Tiết Bài Viết Người Dùng",
+            articleUser: articleUserExists,
             users
         });
     }
@@ -111,22 +106,18 @@ const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res.redirect("back");
     }
 });
-// [GET] /admin/articleGroups/create
+// [GET] /admin/articleUsers/create
 const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
-        if (!myAccount.permissions.includes("articleGroupCreate")) {
+        if (!myAccount.permissions.includes("articleUserCreate")) {
             req.flash("error", "Bạn không có quyền!");
-            return res.redirect(`/${index_config_1.default.admin}/articleGroups`);
+            return res.redirect(`/${index_config_1.default.admin}/articleUsers`);
         }
-        const [users, groups] = yield Promise.all([
-            user_service_1.default.findAll(),
-            group_service_1.default.findAll()
-        ]);
-        return res.render("admin/pages/articleGroups/create", {
-            pageTitle: "Tạo Mới Bài Viết Cộng Đồng",
-            users,
-            groups
+        const users = yield user_service_1.default.findAll();
+        return res.render("admin/pages/articleUsers/create", {
+            pageTitle: "Tạo Mới Bài Viết Người Dùng",
+            users
         });
     }
     catch (_a) {
@@ -134,13 +125,13 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res.redirect("back");
     }
 });
-// [POST] /admin/articleGroups/create
+// [POST] /admin/articleUsers/create
 const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
-        if (!myAccount.permissions.includes("articleGroupCreate")) {
+        if (!myAccount.permissions.includes("articleUserCreate")) {
             req.flash("error", "Bạn không có quyền!");
-            return res.redirect(`/${index_config_1.default.admin}/articleGroups`);
+            return res.redirect(`/${index_config_1.default.admin}/articleUsers`);
         }
         const title = req.body.title;
         const slug = slug_util_1.default.convert(title) + '-' + shortUniqueKey_util_1.default.generate();
@@ -149,22 +140,16 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const videos = req.files["videos"];
         const status = req.body.status;
         const userId = req.body.userId;
-        const groupId = req.body.groupId;
-        const [articleGroupSlugExists, userExists, groupExists] = yield Promise.all([
-            articleGroup_service_1.default.findBySlug(slug),
-            user_service_1.default.findById(userId),
-            group_service_1.default.findById(groupId)
+        const [articleUserSlugExists, userExists] = yield Promise.all([
+            articleUser_service_1.default.findBySlug(slug),
+            user_service_1.default.findById(userId)
         ]);
-        if (articleGroupSlugExists) {
+        if (articleUserSlugExists) {
             req.flash("error", "Có lỗi xảy ra!");
             return res.redirect("back");
         }
         if (!userExists) {
             req.flash("error", "Người dùng không tồn tại!");
-            return res.redirect("back");
-        }
-        if (!groupExists) {
-            req.flash("error", "Cộng đồng không tồn tại!");
             return res.redirect("back");
         }
         const createdBy = {
@@ -173,47 +158,42 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         };
         const imagePaths = (images || []).map(image => image.path);
         const videoPaths = (videos || []).map(video => video.path);
-        yield articleGroup_service_1.default.create({
+        yield articleUser_service_1.default.create({
             title,
             slug,
             description,
             images: imagePaths,
             videos: videoPaths,
             status,
-            groupId,
             createdBy,
             deleted: false
         });
-        req.flash("success", "Bài viết cộng đồng được tạo thành công!");
-        return res.redirect(`/${index_config_1.default.admin}/articleGroups`);
+        req.flash("success", "Bài viết người dùng được tạo thành công!");
+        return res.redirect(`/${index_config_1.default.admin}/articleUsers`);
     }
     catch (_a) {
         req.flash("error", "Có lỗi xảy ra!");
         return res.redirect("back");
     }
 });
-// [GET] /admin/articleGroups/update/:id
+// [GET] /admin/articleUsers/update/:id
 const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
-        if (!myAccount.permissions.includes("articleGroupUpdate")) {
+        if (!myAccount.permissions.includes("articleUserUpdate")) {
             req.flash("error", "Bạn không có quyền!");
-            return res.redirect(`/${index_config_1.default.admin}/articleGroups`);
+            return res.redirect(`/${index_config_1.default.admin}/articleUsers`);
         }
         const id = req.params.id;
-        const articleGroupExists = yield articleGroup_service_1.default.findById(id);
-        if (!articleGroupExists) {
-            req.flash("error", "Bài viểt cộng đồng không tồn tại!");
+        const articleUserExists = yield articleUser_service_1.default.findById(id);
+        if (!articleUserExists) {
+            req.flash("error", "Bài viểt người dùng không tồn tại!");
             return res.redirect("back");
         }
-        const [users, groups] = yield Promise.all([
-            user_service_1.default.findAll(),
-            group_service_1.default.findAll()
-        ]);
-        return res.render("admin/pages/articleGroups/update", {
-            pageTitle: "Cập Nhật Bài Viết Cộng Đồng",
-            articleGroup: articleGroupExists,
-            groups,
+        const users = yield user_service_1.default.findAll();
+        return res.render("admin/pages/articleUsers/update", {
+            pageTitle: "Cập Nhật Bài Viết Người Dùng",
+            articleUser: articleUserExists,
             users
         });
     }
@@ -222,13 +202,13 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res.redirect("back");
     }
 });
-// [PATCH] /admin/articleGroups/update/:id
+// [PATCH] /admin/articleUsers/update/:id
 const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
-        if (!myAccount.permissions.includes("articleGroupUpdate")) {
+        if (!myAccount.permissions.includes("articleUserUpdate")) {
             req.flash("error", "Bạn không có quyền!");
-            return res.redirect(`/${index_config_1.default.admin}/articleGroups`);
+            return res.redirect(`/${index_config_1.default.admin}/articleUsers`);
         }
         const id = req.params.id;
         const title = req.body.title;
@@ -238,27 +218,21 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const videos = req.files["videos"];
         const status = req.body.status;
         const userId = req.body.userId;
-        const groupId = req.body.groupId;
-        const [articleGroupExists, articleGroupSlugExists, userExists, groupExists] = yield Promise.all([
-            articleGroup_service_1.default.findById(id),
-            articleGroup_service_1.default.findBySlug(slug),
-            user_service_1.default.findById(userId),
-            group_service_1.default.findById(groupId)
+        const [articleUserExists, articleUserSlugExists, userExists] = yield Promise.all([
+            articleUser_service_1.default.findById(id),
+            articleUser_service_1.default.findBySlug(slug),
+            user_service_1.default.findById(userId)
         ]);
-        if (!articleGroupExists) {
-            req.flash("error", "Bài viết cộng đồng không tồn tại!");
+        if (!articleUserExists) {
+            req.flash("error", "Bài viết người dùng không tồn tại!");
             return res.redirect("back");
         }
-        if (articleGroupSlugExists) {
+        if (articleUserSlugExists) {
             req.flash("error", "Có lỗi xảy ra!");
             return res.redirect("back");
         }
         if (!userExists) {
             req.flash("error", "Người dùng không tồn tại!");
-            return res.redirect("back");
-        }
-        if (!groupExists) {
-            req.flash("error", "Cộng đồng không tồn tại!");
             return res.redirect("back");
         }
         const createdBy = {
@@ -267,25 +241,24 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         };
         const imagePaths = (images || []).map(image => image.path);
         const videoPaths = (videos || []).map(video => video.path);
-        yield articleGroup_service_1.default.update(id, {
+        yield articleUser_service_1.default.update(id, {
             title,
             slug,
             description,
             images: images ? imagePaths : undefined,
             videos: videos ? videoPaths : undefined,
             status,
-            groupId,
             createdBy,
             deleted: false
         });
-        req.flash("success", "Bài viết cộng đồng được cập nhật thành công!");
+        req.flash("success", "Bài viết người dùng được cập nhật thành công!");
     }
     catch (_a) {
         req.flash("error", "Có lỗi xảy ra!");
     }
     return res.redirect("back");
 });
-// [PATCH] /admin/articleGroups/actions
+// [PATCH] /admin/articleUsers/actions
 const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
@@ -293,27 +266,27 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const ids = req.body.ids.split(',');
         switch (action) {
             case "delete": {
-                if (!myAccount.permissions.includes("articleGroupDelete")) {
+                if (!myAccount.permissions.includes("articleUserDelete")) {
                     req.flash("error", "Bạn không có quyền!");
-                    return res.redirect(`/${index_config_1.default.admin}/articleGroups`);
+                    return res.redirect(`/${index_config_1.default.admin}/articleUsers`);
                 }
-                yield Promise.all(ids.map(id => articleGroup_service_1.default.del(id)));
+                yield Promise.all(ids.map(id => articleUser_service_1.default.del(id)));
                 break;
             }
             case "active": {
-                if (!myAccount.permissions.includes("articleGroupUpdate")) {
+                if (!myAccount.permissions.includes("articleUserUpdate")) {
                     req.flash("error", "Bạn không có quyền!");
-                    return res.redirect(`/${index_config_1.default.admin}/articleGroups`);
+                    return res.redirect(`/${index_config_1.default.admin}/articleUsers`);
                 }
-                yield Promise.all(ids.map(id => articleGroup_service_1.default.update(id, { status: articleGroup_enum_1.EArticleGroupStatus.active })));
+                yield Promise.all(ids.map(id => articleUser_service_1.default.update(id, { status: articleUser_enum_1.EArticleUserStatus.active })));
                 break;
             }
             case "inactive": {
-                if (!myAccount.permissions.includes("articleGroupUpdate")) {
+                if (!myAccount.permissions.includes("articleUserUpdate")) {
                     req.flash("error", "Bạn không có quyền!");
-                    return res.redirect(`/${index_config_1.default.admin}/articleGroups`);
+                    return res.redirect(`/${index_config_1.default.admin}/articleUsers`);
                 }
-                yield Promise.all(ids.map(id => articleGroup_service_1.default.update(id, { status: articleGroup_enum_1.EArticleGroupStatus.inactive })));
+                yield Promise.all(ids.map(id => articleUser_service_1.default.update(id, { status: articleUser_enum_1.EArticleUserStatus.inactive })));
                 break;
             }
             default: {
@@ -321,67 +294,67 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 return res.redirect("back");
             }
         }
-        req.flash("success", "Các bài viết cộng đồng được cập nhật thành công!");
+        req.flash("success", "Các bài viết người dùng được cập nhật thành công!");
     }
     catch (_a) {
         req.flash("error", "Có lỗi xảy ra!");
     }
     return res.redirect("back");
 });
-// [PATCH] /admin/articleGroups/updateStatus/:status/:id
+// [PATCH] /admin/articleUsers/updateStatus/:status/:id
 const updateStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
-        if (!myAccount.permissions.includes("articleGroupUpdate")) {
+        if (!myAccount.permissions.includes("articleUserUpdate")) {
             req.flash("error", "Bạn không có quyền!");
-            return res.redirect(`/${index_config_1.default.admin}/articleGroups`);
+            return res.redirect(`/${index_config_1.default.admin}/articleUsers`);
         }
         const id = req.params.id;
         const status = req.params.status;
-        const articleGroupExists = yield articleGroup_service_1.default.findById(id);
-        if (!articleGroupExists) {
-            req.flash("error", "Bài viết cộng đồng không tồn tại!");
+        const articleUserExists = yield articleUser_service_1.default.findById(id);
+        if (!articleUserExists) {
+            req.flash("error", "Bài viết người dùng không tồn tại!");
             return res.redirect("back");
         }
-        yield articleGroup_service_1.default.update(id, { status });
-        req.flash("success", "Bài viết cộng đồng được cập nhật thành công!");
+        yield articleUser_service_1.default.update(id, { status });
+        req.flash("success", "Bài viết người dùng được cập nhật thành công!");
     }
     catch (_a) {
         req.flash("error", "Có lỗi xảy ra!");
     }
     return res.redirect("back");
 });
-// [DELETE] /admin/articleGroups/delete/:id
+// [DELETE] /admin/articleUsers/delete/:id
 const del = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
-        if (!myAccount.permissions.includes("articleGroupDelete")) {
+        if (!myAccount.permissions.includes("articleUserDelete")) {
             req.flash("error", "Bạn không có quyền!");
-            return res.redirect(`/${index_config_1.default.admin}/articleGroups`);
+            return res.redirect(`/${index_config_1.default.admin}/articleUsers`);
         }
         const id = req.params.id;
-        const articleGroupExists = yield articleGroup_service_1.default.findById(id);
-        if (!articleGroupExists) {
-            req.flash("error", "Bài viết cộng đồng không tồn tại!");
+        const articleUserExists = yield articleUser_service_1.default.findById(id);
+        if (!articleUserExists) {
+            req.flash("error", "Bài viết người dùng không tồn tại!");
             return res.redirect("back");
         }
-        yield articleGroup_service_1.default.del(id);
-        req.flash("success", "Bài viết cộng đồng được xóa thành công!");
+        yield articleUser_service_1.default.del(id);
+        req.flash("success", "Bài viết người dùng được xóa thành công!");
     }
     catch (_a) {
         req.flash("error", "Có lỗi xảy ra!");
     }
     return res.redirect("back");
 });
-const articleGroupController = {
+const articleUserController = {
     get,
     getById,
     create,
     createPost,
     update,
-    updatePatch,
     actions,
+    updatePatch,
     updateStatus,
     del
 };
-exports.default = articleGroupController;
+exports.default = articleUserController;

@@ -1,0 +1,60 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/articleUsers`)
+
+  +boxTitle(pageTitle)
+
+  .mb-3
+    label.form-label Tiêu đề
+    input(
+      class="form-control"
+      value=articleUser.title
+      readonly
+    )
+  .mb-3
+    label.form-label Mô tả
+    textarea(
+      tinymce
+      readonly
+    ) #{articleUser.description}
+  .mb-3
+    label.form-label Các ảnh
+    each image in articleUser.images
+      .w-50.mb-1
+        img(
+          class="img-thumbnail"
+          src=image
+        )
+  .mb-3
+    label.form-label Các đoạn phim
+    each video in articleUser.videos
+      .w-50.mb-1
+        video(
+          width="100%"
+          controls
+        )
+          source(
+            type="video/mp4"
+            src=video
+        )
+  .mb-3
+    label.form-label Trạng thái
+    select(
+      class="form-select"
+      disabled
+    )
+      option(value="active" selected=(articleUser.status === "active")) Hoạt động
+      option(value="inactive" selected=(articleUser.status === "inactive")) Ngưng hoạt động
+  .mb-3
+    label.form-label Người tạo
+    select(
+      class="form-select"
+      disabled
+    )
+      option(value="") ---
+      each user in users
+        option(value=user.id selected=(user.id === articleUser.createdBy.userId)) #{user.fullName} - #{user.phone}

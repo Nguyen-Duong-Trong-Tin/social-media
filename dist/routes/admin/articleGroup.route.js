@@ -15,7 +15,7 @@ router.get("/detail/:id", articleGroup_controller_1.default.getById);
 router.get("/create", articleGroup_controller_1.default.create);
 router.post("/create", upload.fields([{ name: "images", maxCount: 6 }, { name: "videos", maxCount: 6 }]), articleGroup_validate_1.default.createPost, articleGroup_controller_1.default.createPost);
 router.get("/update/:id", articleGroup_controller_1.default.update);
-router.post("/update/:id", upload.fields([{ name: "images", maxCount: 6 }, { name: "videos", maxCount: 6 }]), articleGroup_validate_1.default.updatePatch, articleGroup_controller_1.default.updatePatch);
+router.patch("/update/:id", upload.fields([{ name: "images", maxCount: 6 }, { name: "videos", maxCount: 6 }]), articleGroup_validate_1.default.updatePatch, articleGroup_controller_1.default.updatePatch);
 router.patch("/actions", articleGroup_validate_1.default.actions, articleGroup_controller_1.default.actions);
 router.patch("/updateStatus/:status/:id", articleGroup_validate_1.default.updateStatus, articleGroup_controller_1.default.updateStatus);
 router.delete("/delete/:id", articleGroup_controller_1.default.del);

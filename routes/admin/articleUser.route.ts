@@ -5,8 +5,8 @@ import storage from "../../utils/storage.util";
 import multerUtil from "../../utils/multer.util";
 const upload = multerUtil({ storage });
 
-import validate from "../../validates/admin/articleGroup.validate";
-import controller from "../../controllers/admin/articleGroup.controller";
+import validate from "../../validates/admin/articleUser.validate";
+import controller from "../../controllers/admin/articleUser.controller";
 
 router.get("/", controller.get);
 router.get("/detail/:id", controller.getById);
