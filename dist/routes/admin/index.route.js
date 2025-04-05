@@ -17,6 +17,7 @@ const groupTopic_route_1 = __importDefault(require("./groupTopic.route"));
 const group_route_1 = __importDefault(require("./group.route"));
 const articleGroup_route_1 = __importDefault(require("./articleGroup.route"));
 const articleUser_route_1 = __importDefault(require("./articleUser.route"));
+const taskGroup_route_1 = __importDefault(require("./taskGroup.route"));
 const adminRoutes = (app) => {
     const prefixAdmin = `/${index_config_1.default.admin}`;
     app.use(admin_middleware_1.default.variable);
@@ -32,5 +33,6 @@ const adminRoutes = (app) => {
     app.use(`${prefixAdmin}/groups`, deserialize_middleware_1.default, group_route_1.default);
     app.use(`${prefixAdmin}/articleGroups`, deserialize_middleware_1.default, articleGroup_route_1.default);
     app.use(`${prefixAdmin}/articleUsers`, deserialize_middleware_1.default, articleUser_route_1.default);
+    app.use(`${prefixAdmin}/taskGroups`, deserialize_middleware_1.default, taskGroup_route_1.default);
 };
 exports.default = adminRoutes;

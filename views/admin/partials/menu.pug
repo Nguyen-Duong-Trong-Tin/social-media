@@ -12,6 +12,9 @@ ul.menu
   if (myAccount.permissions.includes("articleGroupView"))
     li
       a(class="btn btn-secondary" href=`/${admin}/articleGroups`) Bài Viết Cộng Đồng
+  if (myAccount.permissions.includes("taskGroupView"))
+    li
+      a(class="btn btn-secondary" href=`/${admin}/taskGroups`) Nhiệm Vụ Cộng Đồng
   hr
 
   if (myAccount.permissions.includes("userView"))

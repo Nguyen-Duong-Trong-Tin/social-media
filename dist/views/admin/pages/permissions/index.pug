@@ -395,6 +395,54 @@ block main
               value="articleUserDelete"
               checked=role.permissions.includes("articleUserDelete")
             )
+      
+      //- TaskGroups
+      tr.border-top
+        th(scope="row") Nhiệm Vụ Cộng đồng
+      tr
+        td Xem
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="taskGroupView"
+              checked=role.permissions.includes("taskGroupView")
+            )
+      tr
+        td Thêm
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="taskGroupCreate"
+              checked=role.permissions.includes("taskGroupCreate")
+            )
+      tr
+        td Sửa
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="taskGroupUpdate"
+              checked=role.permissions.includes("taskGroupUpdate")
+            )
+      tr
+        td Xóa
+        each role of roles
+          td
+            input(
+              class="form-check-input"
+              type="checkbox"
+              roleId=role.id
+              value="taskGroupDelete"
+              checked=role.permissions.includes("taskGroupDelete")
+            )
 
   form(
     class="d-flex justify-content-center mb-3"

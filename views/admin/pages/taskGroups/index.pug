@@ -1,0 +1,85 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxTitle
+include ../../mixins/boxCreate
+include ../../mixins/formSort
+include ../../mixins/formSearch
+include ../../mixins/formAction
+include ../../mixins/pagination
+
+block main
+  +boxTitle(pageTitle)
+
+  +boxCreate(`/${admin}/taskGroups/create`)
+
+  form(form-filter)
+    label.form-label Bộ lọc
+    .input-group.mb-3
+      select(
+        class="form-select"
+        name="filter"
+      )
+        each filterOption in filter.filterOptions
+          option(
+            value=filterOption.value 
+            selected=(filter.filter === filterOption.value)
+          ) #{filterOption.title}
+
+  +formSort(sort)
+
+  +formSearch(keyword, "Tìm kiếm theo tiêu đề nhiệm vụ cộng đồng...")
+
+  +formAction(`${url.base}/actions?_method=PATCH`, actionOptions)
+
+  table.table
+    thead
+      tr
+        th(scope="col")
+          input(
+            class="form-check-input"
+            type="checkbox"
+            name="checkbox-all"
+          )
+        th(scope="col") #
+        th(scope="col") Tiêu đề
+        th(scope="col") Nhóm
+        th(scope="col") Trạng thái
+        th(scope="col") Hành động
+    tbody
+      each taskGroup, index in taskGroups
+        tr
+          th(scope="row")
+            input(
+              class="form-check-input"
+              type="checkbox"
+              name="checkbox"
+              value=taskGroup.id
+            )
+          th(scope="row") #{((pagination.page - 1) * pagination.limit) + (index + 1)}
+          td #{taskGroup.title}
+          td #{groups[index].title}
+          td
+            form(
+              method="POST"
+              id=taskGroup.id
+              form-update-status
+            )
+              select(
+                class="form-select"
+                name="status"
+                required
+              )
+                option(value="active" selected=(taskGroup.status === "active")) Hoạt động
+                option(value="inactive" selected=(taskGroup.status === "inactive")) Ngưng hoạt động
+          td
+            a(class="btn btn-primary" href=`/${admin}/taskGroups/detail/${taskGroup.id}`) Xem 
+            a(class="btn btn-warning mx-1" href=`/${admin}/taskGroups/update/${taskGroup.id}`) Sửa
+            form(
+              class="d-inline"
+              method="POST"
+              action=`/${admin}/taskGroups/delete/${taskGroup.id}?_method=DELETE`
+              form-delete-item
+            )
+              button.btn.btn-danger Xóa
+  
+  +pagination(url, pagination.page, pagination.maxPage, pagination.limit)
