@@ -251,7 +251,7 @@ const update = async (req: any, res: Response): Promise<void> => {
 
     const taskGroupExists = await taskGroupService.findById(id);
     if (!taskGroupExists) {
-      req.flash("error", "Bài viểt cộng đồng không tồn tại!");
+      req.flash("error", "Nhiệm vụ cộng đồng không tồn tại!");
       return res.redirect("back");
     }
 

@@ -17,6 +17,7 @@ import groupRoutes from "./group.route";
 import articleGroupRoutes from "./articleGroup.route";
 import articleUserRoutes from "./articleUser.route";
 import taskGroupRoutes from "./taskGroup.route";
+import taskGroupSubmissionRoutes from "./taskGroupSubmission.route";
 
 const adminRoutes = (app: Express): void => {
   const prefixAdmin: string = `/${configs.admin}`;
@@ -36,6 +37,7 @@ const adminRoutes = (app: Express): void => {
   app.use(`${prefixAdmin}/articleGroups`, deserialize, articleGroupRoutes);
   app.use(`${prefixAdmin}/articleUsers`, deserialize, articleUserRoutes);
   app.use(`${prefixAdmin}/taskGroups`, deserialize, taskGroupRoutes);
+  app.use(`${prefixAdmin}/taskGroupSubmissions`, deserialize, taskGroupSubmissionRoutes);
 };
 
 export default adminRoutes;

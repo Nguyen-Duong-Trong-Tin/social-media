@@ -1,0 +1,77 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/taskGroupSubmissions`)
+
+  +boxTitle(pageTitle)
+
+  .mb-3
+    label.form-label Tiêu đề
+    input(
+      class="form-control"
+      value=taskGroupSubmission.title
+      readonly
+    )
+  .mb-3
+    label.form-label Mô tả
+    textarea(
+      tinymce
+      readonly
+    ) #{taskGroupSubmission.description}
+  .mb-3
+    label.form-label Các ảnh
+    each image in taskGroupSubmission.images
+      .w-50.mb-1
+        img(
+          class="img-thumbnail"
+          src=image
+        )
+  .mb-3
+    label.form-label Các đoạn phim
+    each video in taskGroupSubmission.videos
+      .w-50.mb-1
+        video(
+          width="100%"
+          controls
+        )
+          source(
+            type="video/mp4"
+            src=video
+        )
+  .mb-3
+    label.form-label Các tài liệu
+    div.mb-1
+      a(
+        class="btn btn-primary"
+        href=`/${admin}/taskGroupSubmissions/materials/${taskGroupSubmission.id}`
+      ) Xem
+  .mb-3
+    label.form-label Trạng thái
+    select(
+      class="form-select"
+      disabled
+    )
+      option(value="active" selected=(taskGroupSubmission.status === "active")) Hoạt động
+      option(value="inactive" selected=(taskGroupSubmission.status === "inactive")) Ngưng hoạt động
+  .mb-3
+    label.form-label Người tạo
+    select(
+      class="form-select"
+      disabled
+    )
+      option(value="") ---
+      each user in users
+        option(value=user.id selected=(user.id === taskGroupSubmission.createdBy.userId)) #{user.fullName} - #{user.phone}
+
+  .mb-3
+    label.form-label Nhiệm vụ cộng đồng
+    select(
+      class="form-select"
+      disabled
+    )
+      option(value="") ---
+      each taskGroup in taskGroups
+        option(value=taskGroup.id selected=(taskGroup.id === taskGroupSubmission.taskGroupId)) #{taskGroup.title}

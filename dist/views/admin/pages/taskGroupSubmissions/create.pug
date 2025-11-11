@@ -1,0 +1,91 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/taskGroupSubmissions`)
+
+  +boxTitle(pageTitle)
+
+  form(
+    method="POST"
+    action=`/${admin}/taskGroupSubmissions/create`
+    enctype="multipart/form-data"
+  )
+    .mb-3
+      label.form-label Tiêu đề
+      input(
+        class="form-control"
+        name="title"
+        required
+      )
+    .mb-3
+      label.form-label Mô tả
+      textarea(
+        name="description"
+        tinymce
+      )
+    .mb-3
+      label.form-label Các ảnh
+      input(
+        class="form-control"
+        type="file"
+        name="images"
+        accept="image/*"
+        multiple
+        chooseMaxFileQuantity=6
+      )
+    .mb-3
+      label.form-label Các đoạn phim
+      input(
+        class="form-control"
+        type="file"
+        name="videos"
+        accept="video/mp4,video/x-m4v,video/*"
+        multiple
+        chooseMaxFileQuantity=6
+      )
+    .mb-3
+      label.form-label Các tài liệu
+      input(
+        class="form-control"
+        type="file"
+        name="materials"
+        accept=".pdf,.doc,.docx"
+        multiple
+        chooseMaxFileQuantity=6
+      )
+    .mb-3
+      label.form-label Trạng thái
+      select(
+        class="form-select"
+        name="status"
+        required
+      )
+        option(value="active") Hoạt động
+        option(value="inactive") Ngưng hoạt động
+    .mb-3
+      label.form-label Người tạo
+      select(
+        class="form-select"
+        name="userId"
+        required
+      )
+        option(value="") ---
+        each user in users
+          option(value=user.id) #{user.fullName} - #{user.phone}
+
+    .mb-3
+      label.form-label Nhiệm vụ cộng đồng
+      select(
+        class="form-select"
+        name="taskGroupId"
+        required
+      )
+        option(value="") ---
+        each taskGroup in taskGroups
+          option(value=taskGroup.id) #{taskGroup.title}
+    
+    .d-flex.justify-content-center.mb-3
+      button.btn.btn-primary Thêm

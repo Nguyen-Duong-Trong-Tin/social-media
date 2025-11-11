@@ -203,7 +203,7 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const id = req.params.id;
         const taskGroupExists = yield taskGroup_service_1.default.findById(id);
         if (!taskGroupExists) {
-            req.flash("error", "Bài viểt cộng đồng không tồn tại!");
+            req.flash("error", "Nhiệm vụ cộng đồng không tồn tại!");
             return res.redirect("back");
         }
         const [users, groups] = yield Promise.all([

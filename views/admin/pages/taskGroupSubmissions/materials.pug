@@ -1,0 +1,31 @@
+extends ../../layouts/admin
+
+include ../../mixins/boxGoBack
+include ../../mixins/boxTitle
+
+block main
+  +boxGoBack(`/${admin}/taskGroupSubmissions`)
+
+  +boxTitle(pageTitle)
+
+  .mb-3
+    label.form-label Tiêu đề
+    input(
+      class="form-control"
+      value=taskGroupSubmission.title
+      readonly
+    )
+  
+  .mb-3
+    h3 Tài liệu PDF
+    each materialPDF of materialPDFs
+      button.btn
+        img(src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/PDF_file_icon.svg/250px-PDF_file_icon.svg.png" width="60px")
+        span #{materialPDF}
+
+  .mb-3
+    h3 Tài liệu DOC
+    each materialDOC of materialDOCs
+      button.btn
+        img(src="https://res.cdn.office.net/files/fabric-cdn-prod_20230815.002/assets/brand-icons/product/svg/word_32x1.svg" width="60px")
+        span #{materialDOC}

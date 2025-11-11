@@ -12,6 +12,12 @@ import TaskGroupModel from "../../models/taskGroup.model";
 
 import slugUtil from "../../utils/slug.util";
 
+
+const findAll = async () => {
+  const taskGroups = await TaskGroupModel.find({ deleted: false });
+  return taskGroups;
+}
+
 const find = async (req: Request) => {
   const pagination: {
     limit: number;
@@ -104,6 +110,7 @@ const del = async (id: string) => {
 };
 
 const taskGroupService = {
+  findAll,
   find,
   findById,
   findBySlug,

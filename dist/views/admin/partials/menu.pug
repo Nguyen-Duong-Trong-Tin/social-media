@@ -15,6 +15,9 @@ ul.menu
   if (myAccount.permissions.includes("taskGroupView"))
     li
       a(class="btn btn-secondary" href=`/${admin}/taskGroups`) Nhiệm Vụ Cộng Đồng
+  if (myAccount.permissions.includes("taskGroupSubmissionView"))
+    li
+      a(class="btn btn-secondary" href=`/${admin}/taskGroupSubmissions`) Nộp Bài Nhiệm Vụ Cộng Đồng
   hr
 
   if (myAccount.permissions.includes("userView"))

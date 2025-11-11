@@ -12,6 +12,7 @@ interface IGroup {
     role: EGroupRole;
   }[];
   userRequests: string[];
+  usersInvited: string[];
   groupTopicId: string;
   deleted: boolean;
 };

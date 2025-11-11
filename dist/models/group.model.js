@@ -8,55 +8,65 @@ const group_enum_1 = require("../enums/group.enum");
 const GroupSchema = new mongoose_1.default.Schema({
     title: {
         type: String,
-        required: true
+        required: true,
     },
     slug: {
         type: String,
         unique: true,
-        required: true
+        required: true,
     },
     description: {
         type: String,
-        required: true
+        required: true,
+    },
+    invitation: {
+        type: String,
+        default: ""
     },
     avatar: {
         type: String,
-        required: true
+        required: true,
     },
     coverPhoto: {
         type: String,
-        required: true
+        required: true,
     },
     status: {
         type: String,
         enum: Object.values(group_enum_1.EGroupStatus),
-        required: true
+        required: true,
     },
     users: {
-        type: [{
+        type: [
+            {
                 userId: String,
                 role: {
                     type: String,
                     enum: Object.values(group_enum_1.EGroupRole),
-                    required: true
-                }
-            }],
-        required: true
+                    required: true,
+                },
+            },
+        ],
+        required: true,
     },
     userRequests: {
         type: Array,
-        required: true
+        required: true,
+    },
+    usersInvited: {
+        type: Array,
+        default: [],
     },
     groupTopicId: {
         type: String,
-        required: true
+        required: true,
     },
     deleted: {
         type: Boolean,
-        required: true
-    }
+        required: true,
+    },
 }, {
-    timestamps: true
+    timestamps: true,
 });
 const GroupModel = mongoose_1.default.model("GroupModel", GroupSchema, "groups");
 exports.default = GroupModel;

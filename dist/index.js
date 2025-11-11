@@ -19,16 +19,22 @@ app.use(flash());
 const moment = require("moment");
 global.moment = moment;
 const bodyParser = require("body-parser");
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 const methodOverride = require("method-override");
 app.use(methodOverride("_method"));
 app.use(express_1.default.static(path_1.default.join(__dirname, "public")));
 app.set("views", path_1.default.join(__dirname, "views"));
 app.set("view engine", "pug");
+// cors
+const cors_1 = __importDefault(require("cors"));
+app.use((0, cors_1.default)());
 // Routes
 const index_route_1 = __importDefault(require("./routes/admin/index.route"));
 (0, index_route_1.default)(app);
+const index_route_2 = __importDefault(require("./routes/client/index.route"));
+(0, index_route_2.default)(app);
 const port = process.env.PORT;
 app.listen(port, () => {
-    console.log(`App listening on port http://localhost:${port}`);
+    console.log(`App listening on port http://localhost:${port}/admin`);
 });

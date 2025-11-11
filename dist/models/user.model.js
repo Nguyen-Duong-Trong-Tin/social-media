@@ -8,12 +8,12 @@ const user_enum_1 = require("../enums/user.enum");
 const UserSchema = new mongoose_1.default.Schema({
     fullName: {
         type: String,
-        required: true
+        required: true,
     },
     slug: {
         type: String,
         unique: true,
-        required: true
+        required: true,
     },
     email: {
         type: String,
@@ -21,55 +21,60 @@ const UserSchema = new mongoose_1.default.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: true,
     },
     phone: {
         type: String,
-        required: true
+        required: true,
     },
     avatar: {
         type: String,
-        required: true
+        default: "",
     },
     status: {
         type: String,
         enum: Object.values(user_enum_1.EUserStatus),
-        required: true
+        required: true,
     },
     coverPhoto: {
         type: String,
-        required: true
+        default: "",
     },
     bio: {
         type: String,
-        required: true
+        default: "",
     },
     friends: {
-        type: [{
+        type: [
+            {
                 userId: String,
-                roomChatId: String
-            }],
-        required: true
+                roomChatId: String,
+            },
+        ],
+        required: true,
     },
     friendAccepts: {
         type: Array,
-        required: true
+        required: true,
     },
     friendRequests: {
         type: Array,
-        required: true
+        required: true,
     },
     online: {
         type: String,
         enum: Object.values(user_enum_1.EUserOnline),
-        required: true
+        required: true,
     },
     deleted: {
         type: Boolean,
-        required: true
-    }
+        required: true,
+    },
+    refreshToken: {
+        type: String,
+    },
 }, {
-    timestamps: true
+    timestamps: true,
 });
 const UserModel = mongoose_1.default.model("UserModel", UserSchema, "users");
 exports.default = UserModel;

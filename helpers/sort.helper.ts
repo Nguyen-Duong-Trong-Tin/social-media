@@ -11,7 +11,9 @@ const sortHelper = (req: Request) => {
     sort[sortKey] = sortValue as SortOrder;
   }
 
-  sort["createdAt"] = "desc";
+  if (!sort.createdAt) {
+    sort["createdAt"] = "desc";
+  }
 
   return sort;
 }

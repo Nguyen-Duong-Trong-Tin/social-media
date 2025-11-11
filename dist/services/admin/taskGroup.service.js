@@ -17,6 +17,10 @@ const filter_helper_1 = __importDefault(require("../../helpers/filter.helper"));
 const sort_helper_1 = __importDefault(require("../../helpers/sort.helper"));
 const taskGroup_model_1 = __importDefault(require("../../models/taskGroup.model"));
 const slug_util_1 = __importDefault(require("../../utils/slug.util"));
+const findAll = () => __awaiter(void 0, void 0, void 0, function* () {
+    const taskGroups = yield taskGroup_model_1.default.find({ deleted: false });
+    return taskGroups;
+});
 const find = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const pagination = (0, pagination_helper_1.default)(req);
     const find = { deleted: false };
@@ -80,6 +84,7 @@ const del = (id) => __awaiter(void 0, void 0, void 0, function* () {
     return newTaskGroup;
 });
 const taskGroupService = {
+    findAll,
     find,
     findById,
     findBySlug,

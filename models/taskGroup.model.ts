@@ -54,6 +54,6 @@ const TaskGroupSchema = new mongoose.Schema(
 const TaskGroupModel = mongoose.model(
   "TaskGroupModel",
   TaskGroupSchema,
-  "Groups"
+  "taskGroups"
 );
 export default TaskGroupModel;

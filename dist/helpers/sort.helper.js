@@ -8,7 +8,9 @@ const sortHelper = (req) => {
         const sortValue = token[1];
         sort[sortKey] = sortValue;
     }
-    sort["createdAt"] = "desc";
+    if (!sort.createdAt) {
+        sort["createdAt"] = "desc";
+    }
     return sort;
 };
 exports.default = sortHelper;

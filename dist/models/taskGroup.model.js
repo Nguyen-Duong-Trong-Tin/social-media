@@ -50,5 +50,5 @@ const TaskGroupSchema = new mongoose_1.default.Schema({
 }, {
     timestamps: true,
 });
-const TaskGroupModel = mongoose_1.default.model("TaskGroupModel", TaskGroupSchema, "Groups");
+const TaskGroupModel = mongoose_1.default.model("TaskGroupModel", TaskGroupSchema, "taskGroups");
 exports.default = TaskGroupModel;
