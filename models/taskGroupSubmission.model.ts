@@ -15,7 +15,7 @@ const TaskGroupSubmissionSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: true,
+      default: "",
     },
     images: {
       type: Array,

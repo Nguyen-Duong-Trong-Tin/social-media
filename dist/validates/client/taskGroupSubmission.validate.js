@@ -9,44 +9,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const group_enum_1 = require("../../enums/group.enum");
-// PATCH /v1/groups/description/:id
-const updateDescription = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { description } = req.body;
-    if (!description) {
-        return res.status(400).json({
-            status: false,
-            message: "Input required",
-        });
-    }
-    return next();
-});
-// PATCH /v1/groups/invitation/:id
-const updateInvitation = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { invitation } = req.body;
-    if (!invitation) {
-        return res.status(400).json({
-            status: false,
-            message: "Input required",
-        });
-    }
-    return next();
-});
-// POST /v1/groups
-const create = (req, res, next) => {
+const taskGroupSubmission_enum_1 = require("../../enums/taskGroupSubmission.enum");
+// POST /v1/taskGroupSubmissions/submit
+const submit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const title = req.body.title;
-        const avatar = req.files["avatar"];
-        const coverPhoto = req.files["coverPhoto"];
+        const images = req.files["images"];
+        const videos = req.files["videos"];
+        const materials = req.files["materials"];
         const status = req.body.status;
         const userId = req.body.userId;
-        const groupTopicId = req.body.groupTopicId;
-        if (!title ||
-            !avatar ||
-            !coverPhoto ||
-            !status ||
-            !userId ||
-            !groupTopicId) {
+        const taskGroupId = req.body.taskGroupId;
+        if (!title || !status || !userId || !taskGroupId) {
             return res.status(400).json({
                 status: false,
                 message: "Input required",
@@ -55,13 +29,31 @@ const create = (req, res, next) => {
         if (typeof title !== "string" ||
             typeof status !== "string" ||
             typeof userId !== "string" ||
-            typeof groupTopicId !== "string") {
+            typeof taskGroupId !== "string") {
             return res.status(400).json({
                 status: false,
                 message: "Datatype wrong",
             });
         }
-        if (!Object.values(group_enum_1.EGroupStatus).includes(status)) {
+        if (images && images.length > 6) {
+            return res.status(400).json({
+                status: false,
+                message: "Max 6 images",
+            });
+        }
+        if (videos && videos.length > 6) {
+            return res.status(400).json({
+                status: false,
+                message: "Max 6 videos",
+            });
+        }
+        if (materials && materials.length > 6) {
+            return res.status(400).json({
+                status: false,
+                message: "Max 6 materials",
+            });
+        }
+        if (!Object.values(taskGroupSubmission_enum_1.ETaskGroupSubmissionStatus).includes(status)) {
             return res.status(400).json({
                 status: false,
                 message: "Status wrong",
@@ -70,13 +62,13 @@ const create = (req, res, next) => {
         return next();
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
-        return res.redirect("back");
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong",
+        });
     }
+});
+const taskGroupSubmissionValidate = {
+    submit,
 };
-const groupValidate = {
-    updateDescription,
-    updateInvitation,
-    create,
-};
-exports.default = groupValidate;
+exports.default = taskGroupSubmissionValidate;

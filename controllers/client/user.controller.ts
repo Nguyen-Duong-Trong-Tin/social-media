@@ -5,6 +5,7 @@ import sortHelper from "../../helpers/sort.helper";
 import paginationHelper from "../../helpers/pagination.helper";
 import { RootFilterQuery } from "mongoose";
 import UserModel from "../../models/user.model";
+import IUser from "../../interfaces/user.interface";
 
 // POST /v1/users/check-exists/email
 const checkExistsEmail = async (req: Request, res: Response) => {
@@ -73,7 +74,13 @@ const findUsersByIds = async (req: Request, res: Response) => {
       filter: { _id: { $in: ids } },
       select: "-password",
     });
-    if (users.length !== ids.length) {
+    const map = new Map<string, IUser>();
+    for (const user of users) {
+      map.set(user.id, user as IUser);
+    }
+    const usersOrdered: IUser[] = ids.map((id: string) => map.get(id) ?? null);
+
+    if (usersOrdered.some(userOrdered => !userOrdered)) {
       return res.status(404).json({
         status: false,
         message: "Some user ids not found",
@@ -83,9 +90,9 @@ const findUsersByIds = async (req: Request, res: Response) => {
     return res.status(200).json({
       status: true,
       message: "Users found",
-      data: users,
+      data: usersOrdered,
     });
-  } catch (error) {
+  } catch {
     return res.status(500).json({
       status: false,
       message: "Something went wrong",

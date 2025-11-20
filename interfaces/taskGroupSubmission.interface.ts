@@ -3,7 +3,7 @@ import { ETaskGroupSubmissionStatus } from "../enums/taskGroupSubmission.enum";
 interface ITaskGroupSubmission {
   title: string;
   slug: string;
-  description: string;
+  description?: string;
   images: string[];
   videos: string[];
   materials: string[];

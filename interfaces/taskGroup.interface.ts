@@ -12,6 +12,7 @@ interface ITaskGroup {
     userId: string;
     createdAt: Date;
   };
+  deadline: Date;
   deleted: boolean;
 }
 

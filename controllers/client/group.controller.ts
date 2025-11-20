@@ -7,7 +7,10 @@ import groupService from "../../services/client/group.service";
 import paginationHelper from "../../helpers/pagination.helper";
 import sendMailHelper from "../../helpers/sendMail.helper";
 import userService from "../../services/client/user.service";
-import { EGroupRole } from "../../enums/group.enum";
+import { EGroupRole, EGroupStatus } from "../../enums/group.enum";
+import slugUtil from "../../utils/slug.util";
+import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
+import groupTopicService from "../../services/client/groupTopic.service";
 
 // GET /v1/groups?sort&page&limit&filter
 const find = async (req: Request, res: Response) => {
@@ -156,6 +159,122 @@ const updateInvitation = async (req: Request, res: Response) => {
       data: groupExists,
     });
   } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+// PATCH /v1/groups/change-user-role/:role/:userId/:id
+const changeUserRole = async (req: Request, res: Response) => {
+  try {
+    const { role, userId, id } = req.params;
+
+    const [groupExists, userExists] = await Promise.all([
+      groupService.findOne({ filter: { _id: id } }),
+      userService.findOne({ filter: { _id: userId } }),
+    ]);
+    if (!groupExists) {
+      return res.status(404).json({
+        status: false,
+        message: "Group id not found",
+      });
+    }
+    if (!userExists) {
+      return res.status(404).json({
+        status: false,
+        message: "User id not found",
+      });
+    }
+
+    if (!groupExists.users.some((user) => user.userId === userId)) {
+      return res.status(400).json({
+        status: false,
+        message: "User not in this group",
+      });
+    }
+
+    const newGroup = await groupService.findOneAndUpdate({
+      filter: { _id: id, "users.userId": userId },
+      update: { $set: { "users.$.role": role } },
+    });
+
+    return res.status(200).json({
+      status: true,
+      message: "Update successfully",
+      data: newGroup,
+    });
+  } catch {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+// POST /v1/groups
+const create = async (req: any, res: Response) => {
+  try {
+    const title: string = req.body.title;
+    const slug: string =
+      slugUtil.convert(title) + "-" + shortUniqueKeyUtil.generate();
+    const description: string = req.body.description;
+    const avatar: string = req.files["avatar"][0].path;
+    const coverPhoto: string = req.files["coverPhoto"][0].path;
+    const status: EGroupStatus = req.body.status;
+    const userId: string = req.body.userId;
+    const groupTopicId: string = req.body.groupTopicId;
+
+    const [groupSlugExists, userExists, groupTopicExists] = await Promise.all([
+      groupService.findOne({ filter: { slug } }),
+      userService.findOne({ filter: { _id: userId } }),
+      groupTopicService.findOne({ filter: { _id: groupTopicId } }),
+    ]);
+    if (groupSlugExists) {
+      return res.status(500).json({
+        status: false,
+        message: "Something went wrong. Please try again!",
+      });
+    }
+    if (!userExists) {
+      return res.status(404).json({
+        status: false,
+        message: "User id not found",
+      });
+    }
+    if (!groupTopicExists) {
+      return res.status(404).json({
+        status: false,
+        message: "Group topic id not found",
+      });
+    }
+
+    const users: {
+      userId: string;
+      role: EGroupRole;
+    }[] = [{ userId, role: EGroupRole.superAdmin }];
+    const newGroup = await groupService.create({
+      doc: {
+        title,
+        slug,
+        description,
+        avatar,
+        coverPhoto,
+        status,
+        users,
+        userRequests: [],
+        groupTopicId,
+        deleted: false,
+      },
+    });
+    return res.status(200).json({
+      status: true,
+      message: "Create successfully",
+      data: newGroup,
+    });
+  } catch(error) {
+    console.log(error);
     return res.status(500).json({
       status: false,
       message: "Something went wrong",
@@ -338,13 +457,54 @@ const inviteMemberReject = async (req: Request, res: Response) => {
   }
 };
 
+// DELETE /v1/groups/leave/:userId/:id
+const leaveGroup = async (req: Request, res: Response) => {
+  try {
+    console.log("ok");
+    const { userId, id } = req.params;
+
+    const userExists = await userService.findOne({ filter: { _id: userId } });
+    if (!userExists) {
+      return res.status(404).json({
+        status: false,
+        message: "User id not found",
+      });
+    }
+
+    const groupExists = await groupService.findOneAndUpdate({
+      filter: { _id: id, "users.userId": userId },
+      update: { $pull: { users: { userId } } },
+    });
+    if (!groupExists) {
+      return res.status(400).json({
+        status: false,
+        message: "Group id not found or user not in this group",
+      });
+    }
+
+    return res.status(200).json({
+      status: false,
+      message: "Leave successfully",
+      data: groupExists,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
 const groupController = {
   find,
   findBySlug,
   updateDescription,
   updateInvitation,
+  changeUserRole,
+  create,
   inviteMember,
   inviteMemberAccept,
   inviteMemberReject,
+  leaveGroup,
 };
 export default groupController;

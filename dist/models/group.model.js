@@ -17,11 +17,11 @@ const GroupSchema = new mongoose_1.default.Schema({
     },
     description: {
         type: String,
-        required: true,
+        default: "",
     },
     invitation: {
         type: String,
-        default: ""
+        default: "",
     },
     avatar: {
         type: String,

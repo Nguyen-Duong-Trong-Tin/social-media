@@ -29,7 +29,7 @@ const UserSchema = new mongoose_1.default.Schema({
     },
     avatar: {
         type: String,
-        default: "",
+        default: "https://aic.com.vn/wp-content/uploads/2024/10/avatar-fb-mac-dinh-2.jpg",
     },
     status: {
         type: String,
@@ -38,7 +38,7 @@ const UserSchema = new mongoose_1.default.Schema({
     },
     coverPhoto: {
         type: String,
-        default: "",
+        default: "https://cellphones.com.vn/sforum/wp-content/uploads/2024/04/anh-bia-facebook-3.jpg",
     },
     bio: {
         type: String,

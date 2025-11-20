@@ -18,6 +18,9 @@ const pagination_helper_1 = __importDefault(require("../../helpers/pagination.he
 const sendMail_helper_1 = __importDefault(require("../../helpers/sendMail.helper"));
 const user_service_1 = __importDefault(require("../../services/client/user.service"));
 const group_enum_1 = require("../../enums/group.enum");
+const slug_util_1 = __importDefault(require("../../utils/slug.util"));
+const shortUniqueKey_util_1 = __importDefault(require("../../utils/shortUniqueKey.util"));
+const groupTopic_service_1 = __importDefault(require("../../services/client/groupTopic.service"));
 // GET /v1/groups?sort&page&limit&filter
 const find = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -149,6 +152,112 @@ const updateInvitation = (req, res) => __awaiter(void 0, void 0, void 0, functio
         });
     }
     catch (error) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong",
+        });
+    }
+});
+// PATCH /v1/groups/change-user-role/:role/:userId/:id
+const changeUserRole = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { role, userId, id } = req.params;
+        const [groupExists, userExists] = yield Promise.all([
+            group_service_1.default.findOne({ filter: { _id: id } }),
+            user_service_1.default.findOne({ filter: { _id: userId } }),
+        ]);
+        if (!groupExists) {
+            return res.status(404).json({
+                status: false,
+                message: "Group id not found",
+            });
+        }
+        if (!userExists) {
+            return res.status(404).json({
+                status: false,
+                message: "User id not found",
+            });
+        }
+        if (!groupExists.users.some((user) => user.userId === userId)) {
+            return res.status(400).json({
+                status: false,
+                message: "User not in this group",
+            });
+        }
+        const newGroup = yield group_service_1.default.findOneAndUpdate({
+            filter: { _id: id, "users.userId": userId },
+            update: { $set: { "users.$.role": role } },
+        });
+        return res.status(200).json({
+            status: true,
+            message: "Update successfully",
+            data: newGroup,
+        });
+    }
+    catch (_a) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong",
+        });
+    }
+});
+// POST /v1/groups
+const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const title = req.body.title;
+        const slug = slug_util_1.default.convert(title) + "-" + shortUniqueKey_util_1.default.generate();
+        const description = req.body.description;
+        const avatar = req.files["avatar"][0].path;
+        const coverPhoto = req.files["coverPhoto"][0].path;
+        const status = req.body.status;
+        const userId = req.body.userId;
+        const groupTopicId = req.body.groupTopicId;
+        const [groupSlugExists, userExists, groupTopicExists] = yield Promise.all([
+            group_service_1.default.findOne({ filter: { slug } }),
+            user_service_1.default.findOne({ filter: { _id: userId } }),
+            groupTopic_service_1.default.findOne({ filter: { _id: groupTopicId } }),
+        ]);
+        if (groupSlugExists) {
+            return res.status(500).json({
+                status: false,
+                message: "Something went wrong. Please try again!",
+            });
+        }
+        if (!userExists) {
+            return res.status(404).json({
+                status: false,
+                message: "User id not found",
+            });
+        }
+        if (!groupTopicExists) {
+            return res.status(404).json({
+                status: false,
+                message: "Group topic id not found",
+            });
+        }
+        const users = [{ userId, role: group_enum_1.EGroupRole.superAdmin }];
+        const newGroup = yield group_service_1.default.create({
+            doc: {
+                title,
+                slug,
+                description,
+                avatar,
+                coverPhoto,
+                status,
+                users,
+                userRequests: [],
+                groupTopicId,
+                deleted: false,
+            },
+        });
+        return res.status(200).json({
+            status: true,
+            message: "Create successfully",
+            data: newGroup,
+        });
+    }
+    catch (error) {
+        console.log(error);
         return res.status(500).json({
             status: false,
             message: "Something went wrong",
@@ -318,13 +427,51 @@ const inviteMemberReject = (req, res) => __awaiter(void 0, void 0, void 0, funct
         });
     }
 });
+// DELETE /v1/groups/leave/:userId/:id
+const leaveGroup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log("ok");
+        const { userId, id } = req.params;
+        const userExists = yield user_service_1.default.findOne({ filter: { _id: userId } });
+        if (!userExists) {
+            return res.status(404).json({
+                status: false,
+                message: "User id not found",
+            });
+        }
+        const groupExists = yield group_service_1.default.findOneAndUpdate({
+            filter: { _id: id, "users.userId": userId },
+            update: { $pull: { users: { userId } } },
+        });
+        if (!groupExists) {
+            return res.status(400).json({
+                status: false,
+                message: "Group id not found or user not in this group",
+            });
+        }
+        return res.status(200).json({
+            status: false,
+            message: "Leave successfully",
+            data: groupExists,
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong",
+        });
+    }
+});
 const groupController = {
     find,
     findBySlug,
     updateDescription,
     updateInvitation,
+    changeUserRole,
+    create,
     inviteMember,
     inviteMemberAccept,
     inviteMemberReject,
+    leaveGroup,
 };
 exports.default = groupController;

@@ -15,7 +15,7 @@ const TaskGroupSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: true,
+      default: "",
     },
     images: {
       type: Array,
@@ -40,6 +40,11 @@ const TaskGroupSchema = new mongoose.Schema(
         createdAt: Date,
       },
       required: true,
+    },
+    deadline: {
+      type: Date,
+      // +1 day from now
+      default: () => Date.now() + 24 * 60 * 60 * 1000,
     },
     deleted: {
       type: Boolean,

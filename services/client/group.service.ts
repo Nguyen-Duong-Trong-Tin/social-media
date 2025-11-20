@@ -3,6 +3,12 @@ import { RootFilterQuery, SortOrder, UpdateQuery } from "mongoose";
 import GroupModel from "../../models/group.model";
 import IGroup from "../../interfaces/group.interface";
 
+const create = async ({ doc }: { doc: Partial<IGroup>}) => {
+  const newGroup = new GroupModel(doc);
+  await newGroup.save();
+  return newGroup;
+};
+
 const countDocuments = async ({
   filter,
 }: {
@@ -58,6 +64,7 @@ const findOneAndUpdate = async ({
 };
 
 const groupService = {
+  create,
   countDocuments,
   find,
   findOne,

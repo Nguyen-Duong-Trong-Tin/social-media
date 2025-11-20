@@ -4,10 +4,24 @@ const router: Router = express.Router();
 import groupValidate from "../../validates/client/group.validate";
 import groupController from "../../controllers/client/group.controller";
 import deserialize from "../../middlewares/client/deserialize.middleware";
+import multerUtil from "../../utils/multer.util";
+import storage from "../../utils/storage.util";
+
+const upload = multerUtil({ storage });
 
 router.get("/", deserialize, groupController.find);
 router.get("/slug/:slug", deserialize, groupController.findBySlug);
 
+router.post(
+  "/",
+  deserialize,
+  upload.fields([
+    { name: "avatar", maxCount: 1 },
+    { name: "coverPhoto", maxCount: 1 },
+  ]),
+  groupValidate.create,
+  groupController.create
+);
 router.post(
   "/invite-member/:userId/:id",
   deserialize,
@@ -36,5 +50,12 @@ router.patch(
   groupValidate.updateInvitation,
   groupController.updateInvitation
 );
+router.patch(
+  "/change-user-role/:role/:userId/:id",
+  deserialize,
+  groupController.changeUserRole
+);
+
+router.delete("/leave/:userId/:id", deserialize, groupController.leaveGroup);
 
 export default router;
