@@ -1,4 +1,4 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { ETaskGroupSubmissionStatus } from "../../enums/taskGroupSubmission.enum";
 
 // POST /v1/taskGroupSubmissions/submit
@@ -72,7 +72,43 @@ const submit = async (req: any, res: Response, next: NextFunction) => {
   }
 };
 
+// PATCH /v1/taskGroupSubmission/scoring/:id
+const scoring = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { score, comment, scoredBy, scoredAt } = req.body;
+
+    if (
+      score === undefined ||
+      scoredBy === undefined ||
+      scoredAt === undefined
+    ) {
+      return res.status(400).json({
+        status: false,
+        message: "Input required",
+      });
+    }
+
+    if (
+      typeof score !== "number" ||
+      (comment !== undefined && typeof comment !== "string")
+    ) {
+      return res.status(400).json({
+        status: false,
+        message: "Datatype wrong",
+      });
+    }
+
+    return next();
+  } catch {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
 const taskGroupSubmissionValidate = {
   submit,
+  scoring,
 };
 export default taskGroupSubmissionValidate;

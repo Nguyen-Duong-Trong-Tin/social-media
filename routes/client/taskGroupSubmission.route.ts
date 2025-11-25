@@ -9,6 +9,13 @@ import taskGroupSubmissionController from "../../controllers/client/taskGroupSub
 const router: Router = express.Router();
 const upload = multerUtil({ storage });
 
+router.get("/", deserialize, taskGroupSubmissionController.find);
+router.get(
+  "/slug/:slug",
+  deserialize,
+  taskGroupSubmissionController.findBySlug
+);
+
 router.post(
   "/find-by-user-id-and-task-group-ids",
   deserialize,
@@ -25,6 +32,13 @@ router.post(
   ]),
   taskGroupSubmissionValidate.submit,
   taskGroupSubmissionController.submit
+);
+
+router.patch(
+  "/scoring/:id",
+  deserialize,
+  taskGroupSubmissionValidate.scoring,
+  taskGroupSubmissionController.scoring
 );
 
 export default router;

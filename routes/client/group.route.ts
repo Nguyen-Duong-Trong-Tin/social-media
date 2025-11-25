@@ -10,6 +10,8 @@ import storage from "../../utils/storage.util";
 const upload = multerUtil({ storage });
 
 router.get("/", deserialize, groupController.find);
+router.get("/:id", deserialize, groupController.findById);
+router.get("/suggest/:userId", deserialize, groupController.findSuggest);
 router.get("/slug/:slug", deserialize, groupController.findBySlug);
 
 router.post(

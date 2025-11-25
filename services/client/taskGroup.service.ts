@@ -1,4 +1,4 @@
-import { RootFilterQuery, SortOrder } from "mongoose";
+import { RootFilterQuery, SortOrder, UpdateQuery } from "mongoose";
 
 import TaskGroupModel from "../../models/taskGroup.model";
 import ITaskGroup from "../../interfaces/taskGroup.interface";
@@ -39,6 +39,26 @@ const findOne = async ({
   return await TaskGroupModel.findOne({ deleted: false, ...filter });
 };
 
+const findOneAndUpdate = ({
+  filter,
+  update,
+}: {
+  filter: RootFilterQuery<typeof TaskGroupModel>;
+  update: UpdateQuery<ITaskGroup>;
+}) => {
+  return TaskGroupModel.findOneAndUpdate(
+    {
+      deleted: false,
+      ...filter,
+    },
+    update,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+}
+
 const create = async ({ doc }: { doc: Partial<ITaskGroup> }) => {
   const newtaskGroup = new TaskGroupModel(doc);
   await newtaskGroup.save();
@@ -49,6 +69,7 @@ const taskGroupService = {
   countDocuments,
   find,
   findOne,
+  findOneAndUpdate,
   create
 };
 export default taskGroupService;

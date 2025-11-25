@@ -40,6 +40,22 @@ const TaskGroupSubmissionSchema = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
+    score: {
+        type: Number,
+        default: -1,
+    },
+    comment: {
+        type: String,
+        default: "",
+    },
+    scoredBy: {
+        type: String,
+        default: "",
+    },
+    scoredAt: {
+        type: Date,
+        default: null,
+    },
     createdBy: {
         type: {
             userId: String,

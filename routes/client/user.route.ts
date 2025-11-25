@@ -19,6 +19,7 @@ router.post(
 router.post("/ids", deserialize, userController.findUsersByIds);
 
 router.get("/", deserialize, userController.findUsers);
+router.get("/:id", deserialize, userController.findUserById);
 router.get("/slug/:slug", deserialize, userController.findUserBySlug);
 
 router.patch(

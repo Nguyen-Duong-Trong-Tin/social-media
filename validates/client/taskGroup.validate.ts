@@ -1,7 +1,7 @@
 import { NextFunction, Response } from "express";
 import { ETaskGroupStatus } from "../../enums/taskGroup.enum";
 
-// POST /admin/taskGroups
+// POST /v1/taskGroups
 const create = (req: any, res: Response, next: NextFunction) => {
   try {
     const title = req.body.title;
@@ -68,7 +68,75 @@ const create = (req: any, res: Response, next: NextFunction) => {
   }
 };
 
+// PATCH /v1/taskGroups
+const update = (req: any, res: Response, next: NextFunction) => {
+  try {
+    const title = req.body.title;
+    const description = req.body.description;
+    const images = req.files["images"];
+    const videos = req.files["videos"];
+    const status = req.body.status;
+    const userId = req.body.userId;
+    const groupId = req.body.groupId;
+    const deadline = req.body.deadline;
+
+    if (!title && !description && !status && !userId && !groupId && !deadline) {
+      return res.status(400).json({
+        status: false,
+        message: "Input required",
+      });
+    }
+
+    if (
+      (title && typeof title !== "string") ||
+      (description && typeof description !== "string") ||
+      (status && typeof status !== "string") ||
+      (userId && typeof userId !== "string") ||
+      (groupId && typeof groupId !== "string") ||
+      (deadline &&
+        (typeof deadline !== "string" || isNaN(new Date(deadline).getTime())))
+    ) {
+      return res.status(400).json({
+        status: false,
+        message: "Datatype wrong",
+      });
+    }
+
+    if (images && images.length > 6) {
+      return res.status(400).json({
+        status: false,
+        messag: "Max 6 images",
+      });
+    }
+
+    if (videos && videos.length > 6) {
+      return res.status(400).json({
+        status: false,
+        message: "Max 6 videos",
+      });
+    }
+
+    if (
+      status &&
+      !Object.values(ETaskGroupStatus).includes(status as ETaskGroupStatus)
+    ) {
+      return res.status(400).json({
+        status: false,
+        message: "Status wrong",
+      });
+    }
+
+    return next();
+  } catch {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
 const taskGroupValidate = {
   create,
+  update
 };
 export default taskGroupValidate;

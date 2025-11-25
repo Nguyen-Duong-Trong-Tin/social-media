@@ -8,6 +8,9 @@ interface ITaskGroup {
   videos: string[];
   status: ETaskGroupStatus;
   groupId: string;
+  score?: number;
+  comment?: string;
+  scoredBy: string;
   createdBy: {
     userId: string;
     createdAt: Date;

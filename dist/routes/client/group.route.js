@@ -12,6 +12,8 @@ const multer_util_1 = __importDefault(require("../../utils/multer.util"));
 const storage_util_1 = __importDefault(require("../../utils/storage.util"));
 const upload = (0, multer_util_1.default)({ storage: storage_util_1.default });
 router.get("/", deserialize_middleware_1.default, group_controller_1.default.find);
+router.get("/:id", deserialize_middleware_1.default, group_controller_1.default.findById);
+router.get("/suggest/:userId", deserialize_middleware_1.default, group_controller_1.default.findSuggest);
 router.get("/slug/:slug", deserialize_middleware_1.default, group_controller_1.default.findBySlug);
 router.post("/", deserialize_middleware_1.default, upload.fields([
     { name: "avatar", maxCount: 1 },

@@ -12,13 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const slug_util_1 = __importDefault(require("../../utils/slug.util"));
 const sort_helper_1 = __importDefault(require("../../helpers/sort.helper"));
-const group_service_1 = __importDefault(require("../../services/client/group.service"));
-const pagination_helper_1 = __importDefault(require("../../helpers/pagination.helper"));
 const sendMail_helper_1 = __importDefault(require("../../helpers/sendMail.helper"));
 const user_service_1 = __importDefault(require("../../services/client/user.service"));
+const pagination_helper_1 = __importDefault(require("../../helpers/pagination.helper"));
+const group_service_1 = __importDefault(require("../../services/client/group.service"));
 const group_enum_1 = require("../../enums/group.enum");
-const slug_util_1 = __importDefault(require("../../utils/slug.util"));
 const shortUniqueKey_util_1 = __importDefault(require("../../utils/shortUniqueKey.util"));
 const groupTopic_service_1 = __importDefault(require("../../services/client/groupTopic.service"));
 // GET /v1/groups?sort&page&limit&filter
@@ -78,6 +78,30 @@ const find = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
 });
+// GET /v1/groups/:id
+const findById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const groupExists = yield group_service_1.default.findOne({ filter: { _id: id } });
+        if (!groupExists) {
+            return res.status(404).json({
+                status: false,
+                message: "Group id not found",
+            });
+        }
+        return res.status(200).json({
+            status: true,
+            message: "Group found",
+            data: groupExists,
+        });
+    }
+    catch (_a) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong",
+        });
+    }
+});
 // GET /v1/groups/slug/:slug
 const findBySlug = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -93,6 +117,90 @@ const findBySlug = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             status: true,
             message: "Groups found",
             data: groupExists,
+        });
+    }
+    catch (_a) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong",
+        });
+    }
+});
+// GET /v1/groups/suggesst/:userId
+const findSuggest = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { userId } = req.params;
+        const userExists = yield user_service_1.default.findOne({ filter: { _id: userId } });
+        if (!userExists) {
+            return res.status(404).json({
+                status: false,
+                message: "User id not found",
+            });
+        }
+        const w1 = 0.7;
+        const w2 = 0.3;
+        const userGroups = yield group_service_1.default.find({
+            filter: { "users.userId": userId },
+        });
+        const userGroupIds = new Set(userGroups.map((userGroup) => userGroup.id));
+        const userTopicIds = new Set(userGroups.map((userGroup) => userGroup.groupTopicId));
+        const allGroups = yield group_service_1.default.find({ filter: {} });
+        const groupIdToMemberCount = new Map();
+        for (const allGroup of allGroups) {
+            const usersArray = Array.isArray(allGroup.users) ? allGroup.users : [];
+            groupIdToMemberCount.set(allGroup.id, usersArray.length);
+        }
+        const maxMember = Math.max(0, ...Array.from(groupIdToMemberCount.values()));
+        const norm = (x, max) => (max > 0 ? x / max : 0);
+        const suggestions = allGroups
+            .map((group) => {
+            var _a;
+            const groupId = group.id;
+            if (userGroupIds.has(groupId))
+                return null;
+            const memberCount = (_a = groupIdToMemberCount.get(groupId)) !== null && _a !== void 0 ? _a : 0;
+            const topicMatchFlag = group.groupTopicId && userTopicIds.has(group.groupTopicId) ? 1 : 0;
+            const normMember = norm(memberCount, maxMember);
+            const score = w1 * topicMatchFlag + w2 * normMember;
+            const reason = topicMatchFlag
+                ? "Same topic as groups you joined"
+                : memberCount > 0
+                    ? "Popular group"
+                    : "Small / new group";
+            return {
+                groupId,
+                title: group.title,
+                slug: group.slug,
+                description: group.description,
+                avatar: group.avatar,
+                coverPhoto: group.coverPhoto,
+                groupTopicId: group.groupTopicId,
+                status: group.status,
+                memberCount,
+                topicMatchFlag,
+                normMember,
+                score,
+                reason,
+                createdAt: group.createdAt,
+            };
+        })
+            .filter(Boolean);
+        suggestions.sort((a, b) => {
+            var _a, _b, _c, _d;
+            if (b.score !== a.score)
+                return b.score - a.score;
+            if (((_a = b.memberCount) !== null && _a !== void 0 ? _a : 0) !== ((_b = a.memberCount) !== null && _b !== void 0 ? _b : 0))
+                return ((_c = b.memberCount) !== null && _c !== void 0 ? _c : 0) - ((_d = a.memberCount) !== null && _d !== void 0 ? _d : 0);
+            const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return bTime - aTime;
+        });
+        return res.status(200).json({
+            status: true,
+            message: "Group suggesstion found",
+            userId,
+            weights: { w1, w2 },
+            suggestions,
         });
     }
     catch (_a) {
@@ -464,7 +572,9 @@ const leaveGroup = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 const groupController = {
     find,
+    findById,
     findBySlug,
+    findSuggest,
     updateDescription,
     updateInvitation,
     changeUserRole,

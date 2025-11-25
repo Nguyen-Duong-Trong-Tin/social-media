@@ -1,14 +1,14 @@
 import { RootFilterQuery } from "mongoose";
 import { Request, Response } from "express";
 
+import slugUtil from "../../utils/slug.util";
 import GroupModel from "../../models/group.model";
 import sortHelper from "../../helpers/sort.helper";
-import groupService from "../../services/client/group.service";
-import paginationHelper from "../../helpers/pagination.helper";
 import sendMailHelper from "../../helpers/sendMail.helper";
 import userService from "../../services/client/user.service";
+import paginationHelper from "../../helpers/pagination.helper";
+import groupService from "../../services/client/group.service";
 import { EGroupRole, EGroupStatus } from "../../enums/group.enum";
-import slugUtil from "../../utils/slug.util";
 import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
 import groupTopicService from "../../services/client/groupTopic.service";
 
@@ -80,6 +80,32 @@ const find = async (req: Request, res: Response) => {
   }
 };
 
+// GET /v1/groups/:id
+const findById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const groupExists = await groupService.findOne({ filter: { _id: id } });
+    if (!groupExists) {
+      return res.status(404).json({
+        status: false,
+        message: "Group id not found",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: "Group found",
+      data: groupExists,
+    });
+  } catch {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
 // GET /v1/groups/slug/:slug
 const findBySlug = async (req: Request, res: Response) => {
   try {
@@ -97,6 +123,104 @@ const findBySlug = async (req: Request, res: Response) => {
       status: true,
       message: "Groups found",
       data: groupExists,
+    });
+  } catch {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+// GET /v1/groups/suggesst/:userId
+const findSuggest = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    const userExists = await userService.findOne({ filter: { _id: userId } });
+    if (!userExists) {
+      return res.status(404).json({
+        status: false,
+        message: "User id not found",
+      });
+    }
+
+    const w1 = 0.7;
+    const w2 = 0.3;
+
+    const userGroups = await groupService.find({
+      filter: { "users.userId": userId },
+    });
+
+    const userGroupIds = new Set(userGroups.map((userGroup) => userGroup.id));
+    const userTopicIds = new Set(
+      userGroups.map((userGroup) => userGroup.groupTopicId)
+    );
+
+    const allGroups = await groupService.find({ filter: {} });
+
+    const groupIdToMemberCount = new Map<string, number>();
+    for (const allGroup of allGroups) {
+      const usersArray = Array.isArray(allGroup.users) ? allGroup.users : [];
+      groupIdToMemberCount.set(allGroup.id, usersArray.length);
+    }
+
+    const maxMember = Math.max(0, ...Array.from(groupIdToMemberCount.values()));
+
+    const norm = (x: number, max: number) => (max > 0 ? x / max : 0);
+
+    const suggestions = allGroups
+      .map((group) => {
+        const groupId = group.id;
+        if (userGroupIds.has(groupId)) return null;
+
+        const memberCount = groupIdToMemberCount.get(groupId) ?? 0;
+        const topicMatchFlag =
+          group.groupTopicId && userTopicIds.has(group.groupTopicId) ? 1 : 0;
+        const normMember = norm(memberCount, maxMember);
+
+        const score = w1 * topicMatchFlag + w2 * normMember;
+
+        const reason = topicMatchFlag
+          ? "Same topic as groups you joined"
+          : memberCount > 0
+          ? "Popular group"
+          : "Small / new group";
+
+        return {
+          groupId,
+          title: group.title,
+          slug: group.slug,
+          description: group.description,
+          avatar: group.avatar,
+          coverPhoto: group.coverPhoto,
+          groupTopicId: group.groupTopicId,
+          status: group.status,
+          memberCount,
+          topicMatchFlag,
+          normMember,
+          score,
+          reason,
+          createdAt: group.createdAt,
+        };
+      })
+      .filter(Boolean) as Array<any>;
+
+    suggestions.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if ((b.memberCount ?? 0) !== (a.memberCount ?? 0))
+        return (b.memberCount ?? 0) - (a.memberCount ?? 0);
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
+
+    return res.status(200).json({
+      status: true,
+      message: "Group suggesstion found",
+      userId,
+      weights: { w1, w2 },
+      suggestions,
     });
   } catch {
     return res.status(500).json({
@@ -273,7 +397,7 @@ const create = async (req: any, res: Response) => {
       message: "Create successfully",
       data: newGroup,
     });
-  } catch(error) {
+  } catch (error) {
     console.log(error);
     return res.status(500).json({
       status: false,
@@ -497,7 +621,9 @@ const leaveGroup = async (req: Request, res: Response) => {
 
 const groupController = {
   find,
+  findById,
   findBySlug,
+  findSuggest,
   updateDescription,
   updateInvitation,
   changeUserRole,

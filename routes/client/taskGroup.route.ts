@@ -21,6 +21,20 @@ router.post(
   taskGroupController.create
 );
 
+router.patch(
+  "/:id",
+  deserialize,
+  upload.fields([
+    { name: "images", maxCount: 6 },
+    { name: "videos", maxCount: 6 },
+  ]),
+  taskGroupValidate.update,
+  taskGroupController.update
+);
+
+router.delete("/:id", deserialize, taskGroupController.del);
+
 router.get("/", deserialize, taskGroupController.find);
+router.get("/:id", deserialize, taskGroupController.findById);
 
 export default router;

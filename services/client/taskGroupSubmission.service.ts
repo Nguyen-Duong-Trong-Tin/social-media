@@ -1,14 +1,42 @@
-import { RootFilterQuery, UpdateQuery } from "mongoose";
+import {
+  QueryOptions,
+  RootFilterQuery,
+  SortOrder,
+  UpdateQuery,
+} from "mongoose";
 
 import TaskGroupSubmissionModel from "../../models/taskGroupSubmission.model";
 import ITaskGroupSubmission from "../../interfaces/taskGroupSubmission.interface";
 
-const find = async ({
+const countDocuments = async ({
   filter,
 }: {
   filter: RootFilterQuery<typeof TaskGroupSubmissionModel>;
 }) => {
-  return await TaskGroupSubmissionModel.find({ deleted: false, ...filter });
+  return await TaskGroupSubmissionModel.countDocuments({
+    deleted: false,
+    ...filter,
+  });
+};
+
+const find = async ({
+  filter,
+  select,
+  sort,
+  skip,
+  limit,
+}: {
+  filter: RootFilterQuery<typeof TaskGroupSubmissionModel>;
+  select?: string;
+  sort?: { [key: string]: SortOrder };
+  skip?: number;
+  limit?: number;
+}) => {
+  return await TaskGroupSubmissionModel.find({ deleted: false, ...filter })
+    .select(select || "")
+    .sort(sort)
+    .skip(skip || 0)
+    .limit(limit || 20);
 };
 
 const findOne = async ({
@@ -22,9 +50,11 @@ const findOne = async ({
 const findOneAndUpdate = async ({
   filter,
   update,
+  options,
 }: {
   filter: RootFilterQuery<typeof TaskGroupSubmissionModel>;
   update: UpdateQuery<ITaskGroupSubmission>;
+  options?: QueryOptions;
 }) => {
   return await TaskGroupSubmissionModel.findOneAndUpdate(
     {
@@ -35,6 +65,7 @@ const findOneAndUpdate = async ({
     {
       new: true,
       runValidators: true,
+      ...options,
     }
   );
 };
@@ -45,10 +76,26 @@ const create = async ({ doc }: { doc: ITaskGroupSubmission }) => {
   return newTaskGroupSubmission;
 };
 
+const updateMany = async ({
+  filter,
+  update,
+}: {
+  filter: RootFilterQuery<typeof TaskGroupSubmissionModel>;
+  update: UpdateQuery<ITaskGroupSubmission>;
+}) => {
+  const newTaskGroupSubmission = await TaskGroupSubmissionModel.updateMany(
+    { deleted: false, ...filter },
+    update
+  );
+  return newTaskGroupSubmission;
+};
+
 const taskGroupSubmissionService = {
+  countDocuments,
   find,
   findOne,
   findOneAndUpdate,
   create,
+  updateMany,
 };
 export default taskGroupSubmissionService;

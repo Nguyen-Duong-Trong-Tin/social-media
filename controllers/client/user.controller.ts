@@ -80,7 +80,7 @@ const findUsersByIds = async (req: Request, res: Response) => {
     }
     const usersOrdered: IUser[] = ids.map((id: string) => map.get(id) ?? null);
 
-    if (usersOrdered.some(userOrdered => !userOrdered)) {
+    if (usersOrdered.some((userOrdered) => !userOrdered)) {
       return res.status(404).json({
         status: false,
         message: "Some user ids not found",
@@ -157,6 +157,32 @@ const findUsers = async (req: Request, res: Response) => {
   }
 };
 
+// GET /v1/users/:id
+const findUserById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const userExists = await userService.findOne({ filter: { _id: id } });
+    if (!userExists) {
+      return res.status(404).json({
+        status: false,
+        message: "User id not found",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: "User found",
+      data: userExists,
+    });
+  } catch {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
 // GET /v1/users/slug/:slug
 const findUserBySlug = async (req: Request, res: Response) => {
   try {
@@ -222,6 +248,7 @@ const userController = {
   checkExistsEmail,
   checkExistsPhone,
   findUsers,
+  findUserById,
   findUsersByIds,
   findUserBySlug,
   updateBio,

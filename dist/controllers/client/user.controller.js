@@ -82,7 +82,7 @@ const findUsersByIds = (req, res) => __awaiter(void 0, void 0, void 0, function*
             map.set(user.id, user);
         }
         const usersOrdered = ids.map((id) => { var _a; return (_a = map.get(id)) !== null && _a !== void 0 ? _a : null; });
-        if (usersOrdered.some(userOrdered => !userOrdered)) {
+        if (usersOrdered.some((userOrdered) => !userOrdered)) {
             return res.status(404).json({
                 status: false,
                 message: "Some user ids not found",
@@ -141,6 +141,30 @@ const findUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     items,
                 },
             },
+        });
+    }
+    catch (_a) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong",
+        });
+    }
+});
+// GET /v1/users/:id
+const findUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const userExists = yield user_service_1.default.findOne({ filter: { _id: id } });
+        if (!userExists) {
+            return res.status(404).json({
+                status: false,
+                message: "User id not found",
+            });
+        }
+        return res.status(200).json({
+            status: true,
+            message: "User found",
+            data: userExists,
         });
     }
     catch (_a) {
@@ -210,6 +234,7 @@ const userController = {
     checkExistsEmail,
     checkExistsPhone,
     findUsers,
+    findUserById,
     findUsersByIds,
     findUserBySlug,
     updateBio,

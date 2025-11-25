@@ -68,7 +68,36 @@ const submit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
         });
     }
 });
+// PATCH /v1/taskGroupSubmission/scoring/:id
+const scoring = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { score, comment, scoredBy, scoredAt } = req.body;
+        if (score === undefined ||
+            scoredBy === undefined ||
+            scoredAt === undefined) {
+            return res.status(400).json({
+                status: false,
+                message: "Input required",
+            });
+        }
+        if (typeof score !== "number" ||
+            (comment !== undefined && typeof comment !== "string")) {
+            return res.status(400).json({
+                status: false,
+                message: "Datatype wrong",
+            });
+        }
+        return next();
+    }
+    catch (_a) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong",
+        });
+    }
+});
 const taskGroupSubmissionValidate = {
     submit,
+    scoring,
 };
 exports.default = taskGroupSubmissionValidate;

@@ -15,5 +15,11 @@ router.post("/", deserialize_middleware_1.default, upload.fields([
     { name: "images", maxCount: 6 },
     { name: "videos", maxCount: 6 },
 ]), taskGroup_validate_1.default.create, taskGroup_controller_1.default.create);
+router.patch("/:id", deserialize_middleware_1.default, upload.fields([
+    { name: "images", maxCount: 6 },
+    { name: "videos", maxCount: 6 },
+]), taskGroup_validate_1.default.update, taskGroup_controller_1.default.update);
+router.delete("/:id", deserialize_middleware_1.default, taskGroup_controller_1.default.del);
 router.get("/", deserialize_middleware_1.default, taskGroup_controller_1.default.find);
+router.get("/:id", deserialize_middleware_1.default, taskGroup_controller_1.default.findById);
 exports.default = router;

@@ -26,6 +26,12 @@ const find = (_a) => __awaiter(void 0, [_a], void 0, function* ({ filter, select
 const findOne = (_a) => __awaiter(void 0, [_a], void 0, function* ({ filter, }) {
     return yield taskGroup_model_1.default.findOne(Object.assign({ deleted: false }, filter));
 });
+const findOneAndUpdate = ({ filter, update, }) => {
+    return taskGroup_model_1.default.findOneAndUpdate(Object.assign({ deleted: false }, filter), update, {
+        new: true,
+        runValidators: true,
+    });
+};
 const create = (_a) => __awaiter(void 0, [_a], void 0, function* ({ doc }) {
     const newtaskGroup = new taskGroup_model_1.default(doc);
     yield newtaskGroup.save();
@@ -35,6 +41,7 @@ const taskGroupService = {
     countDocuments,
     find,
     findOne,
+    findOneAndUpdate,
     create
 };
 exports.default = taskGroupService;
