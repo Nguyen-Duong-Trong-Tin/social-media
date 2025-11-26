@@ -23,7 +23,7 @@ const MessageSchema = new mongoose_1.default.Schema({
     },
     userId: {
         type: String,
-        required: true
+        default: "",
     },
     roomChatId: {
         type: String,
@@ -36,5 +36,5 @@ const MessageSchema = new mongoose_1.default.Schema({
 }, {
     timestamps: true
 });
-const MessageChatModel = mongoose_1.default.model("MessageChatModel", MessageSchema, "messages");
-exports.default = MessageChatModel;
+const MessageModel = mongoose_1.default.model("MessageModel", MessageSchema, "messages");
+exports.default = MessageModel;

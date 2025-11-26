@@ -28,7 +28,10 @@ const RoomChatSchema = new mongoose.Schema({
   },
   users: {
     type: [{
-      userId: String,
+      userId: {
+        type: String,
+        default: "",
+      },
       role: {
         type: String,
         enum: Object.values(ERoomChatRole),
@@ -43,7 +46,7 @@ const RoomChatSchema = new mongoose.Schema({
   },
   deleted: {
     type: Boolean,
-    required: true
+    default: false
   }
 }, {
   timestamps: true

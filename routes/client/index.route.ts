@@ -6,6 +6,8 @@ import groupTopicRoutes from "./groupTopic.route";
 import groupRoutes from "./group.route";
 import taskGroupRoute from "./taskGroup.route";
 import taskGroupSubmission from "./taskGroupSubmission.route";
+import roomChatRoutes from './roomChat.route';
+import messageRoutes from "./message.route";
 
 const clientRoutes = (app: Express): void => {
   app.use(`/v1/auth`, authRoutes);
@@ -14,6 +16,8 @@ const clientRoutes = (app: Express): void => {
   app.use(`/v1/groups`, groupRoutes);
   app.use(`/v1/taskGroups`, taskGroupRoute);
   app.use(`/v1/taskGroupSubmissions`, taskGroupSubmission);
+  app.use(`/v1/roomChats`, roomChatRoutes);
+  app.use(`/v1/messages`, messageRoutes);
 };
 
 export default clientRoutes;

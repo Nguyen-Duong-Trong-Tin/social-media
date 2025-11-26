@@ -19,7 +19,7 @@ const MessageSchema = new mongoose.Schema({
   },
   userId: {
     type: String,
-    required: true
+    default: "",
   },
   roomChatId: {
     type: String,
@@ -33,5 +33,5 @@ const MessageSchema = new mongoose.Schema({
   timestamps: true
 });
 
-const MessageChatModel = mongoose.model("MessageChatModel", MessageSchema, "messages");
-export default MessageChatModel;
+const MessageModel = mongoose.model("MessageModel", MessageSchema, "messages");
+export default MessageModel;

@@ -23,7 +23,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 const methodOverride = require("method-override");
-app.use(methodOverride("_method"))
+app.use(methodOverride("_method"));
 
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -34,13 +34,30 @@ app.set("view engine", "pug");
 import cors from "cors";
 app.use(cors());
 
-// Routes
+// routes
 import adminRoutes from "./routes/admin/index.route";
 adminRoutes(app);
 import clientRoutes from "./routes/client/index.route";
 clientRoutes(app);
 
+// socket
+import { createServer } from "http";
+import { Server } from "socket.io";
+import clientSocket from "./sockets/clients";
+const httpServer = createServer(app);
+const io = new Server(httpServer);
+
+io.on("connection", (socket) => {
+  try {
+    clientSocket.register(socket, io);
+  } catch (error) {
+    console.log("Socket Error", socket);
+  }
+});
+
 const port = process.env.PORT as string;
-app.listen(port, () => {
-  console.log(`App listening on port http://localhost:${port}/admin`);
+httpServer.listen(port, () => {
+  console.log(
+    `Http service is listening on port http://localhost:${port}/admin`
+  );
 });
