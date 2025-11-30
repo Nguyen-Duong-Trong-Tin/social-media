@@ -3,17 +3,17 @@ import { Request, Response } from "express";
 import { ERoomChatType } from "../../enums/roomChat.enum";
 import roomChatService from "../../services/client/roomChat.service";
 
-// GET /v1/roomChats/ai-assistant/:userId
+// GET /v1/roomChats/ai-assistant/:groupId/:userId
 const findByAiAssistantAndUserId = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const { groupId, userId } = req.params;
 
     const roomChatExists = await roomChatService.findOne({
       filter: {
         users: {
           $all: [
             { $elemMatch: { userId: userId } },
-            { $elemMatch: { userId: "" } },
+            { $elemMatch: { userId: groupId } },
           ],
         },
         type: ERoomChatType.friend,

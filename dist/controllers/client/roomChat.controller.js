@@ -14,16 +14,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const roomChat_enum_1 = require("../../enums/roomChat.enum");
 const roomChat_service_1 = __importDefault(require("../../services/client/roomChat.service"));
-// GET /v1/roomChats/ai-assistant/:userId
+// GET /v1/roomChats/ai-assistant/:groupId/:userId
 const findByAiAssistantAndUserId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { userId } = req.params;
+        const { groupId, userId } = req.params;
         const roomChatExists = yield roomChat_service_1.default.findOne({
             filter: {
                 users: {
                     $all: [
                         { $elemMatch: { userId: userId } },
-                        { $elemMatch: { userId: "" } },
+                        { $elemMatch: { userId: groupId } },
                     ],
                 },
                 type: roomChat_enum_1.ERoomChatType.friend,

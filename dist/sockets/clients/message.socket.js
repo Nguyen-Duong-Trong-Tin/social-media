@@ -32,7 +32,7 @@ const sendMessageToAiAssistant = (socket, io) => {
                     users: {
                         $all: [
                             { $elemMatch: { userId: userId } },
-                            { $elemMatch: { userId: "" } },
+                            { $elemMatch: { userId: groupId } },
                         ],
                     },
                     type: roomChat_enum_1.ERoomChatType.friend,
@@ -49,7 +49,7 @@ const sendMessageToAiAssistant = (socket, io) => {
         }
         const historyContents = [];
         if (!roomChatExists) {
-            const title = `${userId}-""`;
+            const title = `${userId}-${groupId}`;
             const slug = slug_util_1.default.convert(title) + "-" + shortUniqueKey_util_1.default.generate();
             roomChatExists = yield roomChat_service_1.default.create({
                 doc: {
@@ -64,7 +64,7 @@ const sendMessageToAiAssistant = (socket, io) => {
                             role: roomChat_enum_1.ERoomChatRole.user,
                         },
                         {
-                            userId: "",
+                            userId: groupId,
                             role: roomChat_enum_1.ERoomChatRole.user,
                         },
                     ],
@@ -116,7 +116,7 @@ const sendMessageToAiAssistant = (socket, io) => {
                 },
                 {
                     content: response.text,
-                    userId: "",
+                    userId: groupId,
                     roomChatId: roomChatExists.id,
                 },
             ],

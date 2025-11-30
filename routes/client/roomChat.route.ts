@@ -5,7 +5,7 @@ import deserialize from "../../middlewares/client/deserialize.middleware";
 import roomChatController from "../../controllers/client/roomChat.controller";
 
 router.get(
-  "/ai-assistant/:userId",
+  "/ai-assistant/:groupId/:userId",
   deserialize,
   roomChatController.findByAiAssistantAndUserId
 );

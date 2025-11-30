@@ -7,5 +7,5 @@ const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const deserialize_middleware_1 = __importDefault(require("../../middlewares/client/deserialize.middleware"));
 const roomChat_controller_1 = __importDefault(require("../../controllers/client/roomChat.controller"));
-router.get("/ai-assistant/:userId", deserialize_middleware_1.default, roomChat_controller_1.default.findByAiAssistantAndUserId);
+router.get("/ai-assistant/:groupId/:userId", deserialize_middleware_1.default, roomChat_controller_1.default.findByAiAssistantAndUserId);
 exports.default = router;
