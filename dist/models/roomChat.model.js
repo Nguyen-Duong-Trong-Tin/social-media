@@ -8,29 +8,29 @@ const roomChat_enum_1 = require("../enums/roomChat.enum");
 const RoomChatSchema = new mongoose_1.default.Schema({
     title: {
         type: String,
-        required: true
+        default: "",
     },
     slug: {
         type: String,
         unique: true,
-        required: true
     },
     type: {
         type: String,
         enum: Object.values(roomChat_enum_1.ERoomChatType),
-        required: true
+        required: true,
     },
     avatar: {
         type: String,
-        required: true
+        default: "",
     },
     status: {
         type: String,
         enum: Object.values(roomChat_enum_1.ERoomChatStatus),
-        required: true
+        required: true,
     },
     users: {
-        type: [{
+        type: [
+            {
                 userId: {
                     type: String,
                     default: "",
@@ -38,21 +38,22 @@ const RoomChatSchema = new mongoose_1.default.Schema({
                 role: {
                     type: String,
                     enum: Object.values(roomChat_enum_1.ERoomChatRole),
-                    required: true
-                }
-            }],
-        required: true
+                    required: true,
+                },
+            },
+        ],
+        required: true,
     },
     userRequests: {
         type: Array,
-        required: true
+        default: [],
     },
     deleted: {
         type: Boolean,
-        default: false
-    }
+        default: false,
+    },
 }, {
-    timestamps: true
+    timestamps: true,
 });
 const RoomChatModel = mongoose_1.default.model("RoomChatModel", RoomChatSchema, "roomChats");
 exports.default = RoomChatModel;

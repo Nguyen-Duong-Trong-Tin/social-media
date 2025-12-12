@@ -244,6 +244,23 @@ const updateBio = async (req: Request, res: Response) => {
   }
 };
 
+// PATCH /v1/users/accept-friend
+const acceptFriend = async (req: Request, res: Response) => {
+  try {
+    const { id, userRequestId } = req.body;
+
+    // const userExists = await userService.findOneAndUpdate({
+    //   filter: { _id: id, "friendRequests.userId": userRequestId},
+    //   update: { $push: { friends: { userId: userRequestId, roomChatId } } },
+    // });
+  } catch {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
 const userController = {
   checkExistsEmail,
   checkExistsPhone,

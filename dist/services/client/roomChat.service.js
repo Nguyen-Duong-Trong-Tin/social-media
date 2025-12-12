@@ -18,11 +18,15 @@ const create = (_a) => __awaiter(void 0, [_a], void 0, function* ({ doc }) {
     yield newRoomChat.save();
     return newRoomChat;
 });
+const deleteOne = (_a) => __awaiter(void 0, [_a], void 0, function* ({ filter, }) {
+    return yield roomChat_model_1.default.deleteOne(filter);
+});
 const findOne = (_a) => __awaiter(void 0, [_a], void 0, function* ({ filter, }) {
     return yield roomChat_model_1.default.findOne(Object.assign({ deleted: false }, filter));
 });
 const roomChatService = {
     create,
+    deleteOne,
     findOne,
 };
 exports.default = roomChatService;

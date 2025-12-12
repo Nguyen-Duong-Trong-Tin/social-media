@@ -3,10 +3,18 @@ import { RootFilterQuery } from "mongoose";
 import RoomChatModel from "../../models/roomChat.model";
 import IRoomChat from "../../interfaces/roomChat.interface";
 
-const create = async ({ doc }: { doc: Partial<IRoomChat>}) => {
+const create = async ({ doc }: { doc: Partial<IRoomChat> }) => {
   const newRoomChat = new RoomChatModel(doc);
   await newRoomChat.save();
   return newRoomChat;
+};
+
+const deleteOne = async ({
+  filter,
+}: {
+  filter: RootFilterQuery<typeof RoomChatModel>;
+}) => {
+  return await RoomChatModel.deleteOne(filter);
 };
 
 const findOne = async ({
@@ -19,6 +27,7 @@ const findOne = async ({
 
 const roomChatService = {
   create,
+  deleteOne,
   findOne,
 };
 export default roomChatService;
