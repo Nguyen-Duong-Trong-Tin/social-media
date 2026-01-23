@@ -24,7 +24,7 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         const roles = yield role_service_1.default.findAll();
         return res.render("admin/pages/permissions", {
-            pageTitle: "Permission Management",
+            pageTitle: "Permission management",
             roles
         });
     }

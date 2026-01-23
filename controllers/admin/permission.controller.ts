@@ -19,7 +19,7 @@ const get = async (req: any, res: Response): Promise<void> => {
 
     const roles = await roleService.findAll();
     return res.render("admin/pages/permissions", {
-      pageTitle: "Permission Management",
+      pageTitle: "Permission management",
       roles
     });
   } catch {
