@@ -57,7 +57,7 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       });
     }));
 
-    req.flash("success", "Quyền được cập nhật thành công!");
+    req.flash("success", "Permissions were updated successfully!");
   } catch {
     req.flash("error", "Something went wrong!");
   }

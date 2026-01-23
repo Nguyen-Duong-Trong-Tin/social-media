@@ -55,7 +55,7 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 }
             });
         }));
-        req.flash("success", "Quyền được cập nhật thành công!");
+        req.flash("success", "Permissions were updated successfully!");
     }
     catch (_a) {
         req.flash("error", "Something went wrong!");

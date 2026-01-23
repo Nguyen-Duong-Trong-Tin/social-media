@@ -167,7 +167,7 @@ const create = async (req: any, res: Response): Promise<void> => {
 
     const roles = await roleService.findAll();
     return res.render("admin/pages/accounts/create", {
-      pageTitle: "Tạo Mới Tài Khoản",
+      pageTitle: "Create new account",
       roles
     });
   } catch {
