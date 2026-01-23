@@ -19,17 +19,17 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roleUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
         const roles = yield role_service_1.default.findAll();
         return res.render("admin/pages/permissions", {
-            pageTitle: "Phân Quyền",
+            pageTitle: "Permission Management",
             roles
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -38,7 +38,7 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roleUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
         const roles = yield role_service_1.default.findAll();
@@ -58,7 +58,7 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         req.flash("success", "Quyền được cập nhật thành công!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });

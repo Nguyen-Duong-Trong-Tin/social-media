@@ -16,13 +16,20 @@ const roomChat_enum_1 = require("../../enums/roomChat.enum");
 const socketEvent_enum_1 = __importDefault(require("../../enums/socketEvent.enum"));
 const user_service_1 = __importDefault(require("../../services/client/user.service"));
 const roomChat_service_1 = __importDefault(require("../../services/client/roomChat.service"));
+const slug_util_1 = __importDefault(require("../../utils/slug.util"));
+const shortUniqueKey_util_1 = __importDefault(require("../../utils/shortUniqueKey.util"));
 const acceptFriendRequest = (socket, io) => {
     socket.on(socketEvent_enum_1.default.CLIENT_ACCEPT_FRIEND_REQUEST, (data) => __awaiter(void 0, void 0, void 0, function* () {
         const { userId, userRequestId } = data;
+        const title = `${userRequestId}-${userId}`;
+        const slug = slug_util_1.default.convert(title) + "-" + shortUniqueKey_util_1.default.generate();
         const newRoomChat = yield roomChat_service_1.default.create({
             doc: {
+                title: `${userRequestId}-${userId}`,
+                slug,
+                avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQU7ipaznyPz6nmwqsZOursrDCUDeOOYkd0IQ&s",
                 type: roomChat_enum_1.ERoomChatType.friend,
-                avatar: roomChat_enum_1.ERoomChatStatus.active,
+                status: roomChat_enum_1.ERoomChatStatus.active,
                 users: [
                     { userId, role: roomChat_enum_1.ERoomChatRole.user },
                     { userId: userRequestId, role: roomChat_enum_1.ERoomChatRole.user },
@@ -38,6 +45,15 @@ const acceptFriendRequest = (socket, io) => {
                 },
             },
         });
+        const userRequestExists = yield user_service_1.default.findOneAndUpdate({
+            filter: { _id: userRequestId, friendAccepts: userId },
+            update: {
+                $pull: { friendAccepts: userId },
+                $push: {
+                    friends: { userId: userId, roomChatId: newRoomChat.id },
+                },
+            },
+        });
         if (!userExists) {
             console.log({
                 _id: userId,
@@ -47,7 +63,16 @@ const acceptFriendRequest = (socket, io) => {
             yield roomChat_service_1.default.deleteOne({ filter: { _id: newRoomChat.id } });
             return;
         }
-        socket.emit(socketEvent_enum_1.default.SERVER_RESPONSE_ACCEPT_FRIEND_REQUEST, {
+        if (!userRequestExists) {
+            console.log({
+                _id: userRequestId,
+                friendAccepts: userId,
+                error: "User request id not found",
+            });
+            yield roomChat_service_1.default.deleteOne({ filter: { _id: newRoomChat.id } });
+            return;
+        }
+        io.emit(socketEvent_enum_1.default.SERVER_RESPONSE_ACCEPT_FRIEND_REQUEST, {
             userId,
             userRequestId,
             roomChatId: newRoomChat.id,

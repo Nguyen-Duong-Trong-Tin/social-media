@@ -18,7 +18,7 @@ const createPost = (req, res, next) => {
             !status ||
             !userId ||
             !groupTopicId) {
-            req.flash("error", "Thông tin không đầy đủ!");
+            req.flash("error", "Input required!");
             return res.redirect("back");
         }
         if (typeof title !== "string" ||
@@ -26,17 +26,17 @@ const createPost = (req, res, next) => {
             typeof status !== "string" ||
             typeof userId !== "string" ||
             typeof groupTopicId !== "string") {
-            req.flash("error", "Kiểu dữ liệu không chính xác!");
+            req.flash("error", "Datatype wrong!");
             return res.redirect("back");
         }
         if (!Object.values(group_enum_1.EGroupStatus).includes(status)) {
-            req.flash("error", "Trạng thái không chính xác!");
+            req.flash("error", "Status wrong!");
             return res.redirect("back");
         }
         return next();
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };
@@ -51,25 +51,25 @@ const updatePatch = (req, res, next) => {
             !description ||
             !status ||
             !groupTopicId) {
-            req.flash("error", "Có lỗi xảy ra!");
+            req.flash("error", "Something went wrong!");
             return res.redirect("back");
         }
         if (typeof title !== "string" ||
             typeof description !== "string" ||
             typeof status !== "string" ||
             typeof groupTopicId !== "string") {
-            req.flash("error", "Kiểu dữ liệu không chính xác!");
+            req.flash("error", "Datatype wrong!");
             return res.redirect("back");
         }
         if (status &&
             !Object.values(group_enum_1.EGroupStatus).includes(status)) {
-            req.flash("error", "Trạng thái không chính xác!");
+            req.flash("error", "Status wrong!");
             return res.redirect("back");
         }
         return next();
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };
@@ -78,13 +78,13 @@ const changeUserRole = (req, res, next) => {
     try {
         const role = req.params.role;
         if (!Object.values(group_enum_1.EGroupRole).includes(role)) {
-            req.flash("error", "Vai trò người dùng không chính xác!");
+            req.flash("error", "User role wrong!");
             return res.redirect("back");
         }
         return next();
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };
@@ -95,18 +95,18 @@ const actions = (req, res, next) => {
         const ids = req.body.ids;
         if (!action ||
             !ids) {
-            req.flash("error", "Thiếu thông tin cần thiết!");
+            req.flash("error", "Input required!");
             return res.redirect("back");
         }
         if (typeof action !== "string" ||
             typeof ids !== "string") {
-            req.flash("error", "Kiểu dữ liệu không chính xác!");
+            req.flash("error", "Datatype wrong!");
             return res.redirect("back");
         }
         return next();
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };
@@ -115,13 +115,13 @@ const updateStatus = (req, res, next) => {
     try {
         const status = req.params.status;
         if (!Object.values(group_enum_1.EGroupStatus).includes(status)) {
-            req.flash("error", "Trạng thái không chính xác!");
+            req.flash("error", "Status wrong!");
             return res.redirect("back");
         }
         return next();
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };

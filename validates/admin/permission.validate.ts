@@ -5,7 +5,7 @@ const updatePatch = (req: any, res: Response, next: NextFunction): void => {
   try {
     return next();
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
 }
 

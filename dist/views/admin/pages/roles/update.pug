@@ -13,7 +13,7 @@ block main
     action=`/${admin}/roles/update/${role.id}?_method=PATCH`
   )
     .mb-3
-      label.form-label Tiêu đề
+      label.form-label Title
       input(
         class="form-control"
         name="title"
@@ -21,10 +21,10 @@ block main
         required
       )
     .mb-3
-      label.form-label Mô tả
+      label.form-label Description
       textarea(
         name="description"
         tinymce
       ) #{role.description}
     .d-flex.justify-content-center.mb-3
-      button.btn.btn-primary Cập nhật
+      button.btn.btn-primary Update

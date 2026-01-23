@@ -14,7 +14,7 @@ block main
 
   +formSort(sort)
 
-  +formSearch(keyword, "Tìm kiếm theo tên...")
+  +formSearch(keyword, "Search by title...")
 
   +formAction(`${url.base}/actions?_method=PATCH`, actionOptions)
 
@@ -28,8 +28,8 @@ block main
             name="checkbox-all"
           )
         th(scope="col") #
-        th(scope="col") Tiêu đề
-        th(scope="col") Hành động
+        th(scope="col") Title
+        th(scope="col") Actions
     tbody
       each role, index in roles
         tr
@@ -43,14 +43,14 @@ block main
           th(scope="row") #{((pagination.page - 1) * pagination.limit) + (index + 1)}
           td #{role.title}
           td
-            a(class="btn btn-primary" href=`/${admin}/roles/detail/${role.id}`) Xem 
-            a(class="btn btn-warning mx-1" href=`/${admin}/roles/update/${role.id}`) Sửa
+            a(class="btn btn-primary" href=`/${admin}/roles/detail/${role.id}`) Detail 
+            a(class="btn btn-warning mx-1" href=`/${admin}/roles/update/${role.id}`) Edit
             form(
               class="d-inline"
               method="POST"
               action=`/${admin}/roles/delete/${role.id}?_method=DELETE`
               form-delete-item
             )
-              button.btn.btn-danger Xóa
+              button.btn.btn-danger Delete
 
   +pagination(url, pagination.page, pagination.maxPage, pagination.limit)

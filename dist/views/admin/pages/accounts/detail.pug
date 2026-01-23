@@ -9,7 +9,7 @@ block main
   +boxTitle(pageTitle)
 
   .mb-3
-    label.form-label Họ và tên
+    label.form-label Title
     input(
       class="form-control"
       value=account.fullName
@@ -24,29 +24,29 @@ block main
       readonly
     )
   .mb-3
-    label.form-label Số điện thoại
+    label.form-label Phone
     input(
       class="form-control"
       value=account.phone
       readonly
     )
   .mb-3
-    label.form-label Ảnh
+    label.form-label Image
     .w-25.mb-1
       img(
         class="img-thumbnail"
         src=account.avatar
       )
   .mb-3
-    label.form-label Trạng thái
+    label.form-label Status
     select(
       class="form-select"
       disabled
     )
-      option(value="active" selected=(account.status === "active")) Hoạt động
-      option(value="inactive" selected=(account.status === "inactive")) Ngưng hoạt động
+      option(value="active" selected=(account.status === "active")) Active
+      option(value="inactive" selected=(account.status === "inactive")) Inactive
   .mb-3
-    label.form-label Vai trò
+    label.form-label Role
     select(
       class="form-select"
       disabled
@@ -54,7 +54,7 @@ block main
       each role in roles
         option(value=role.id selected=(account.roleId = role.id)) #{role.title}
   .mb-3
-    label.form-label Thêm bởi
+    label.form-label Created by
     input(
       class="form-control"
       value=createdBy.account.fullName
@@ -66,7 +66,7 @@ block main
       readonly
     )
   .mb-3
-    label.form-label Cập nhật bởi
+    label.form-label Updated by
     each item in updatedBy
       .mb-1
         input(

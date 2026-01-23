@@ -10,7 +10,7 @@ const loginPost = (req: any, res: Response, next: NextFunction): void => {
       !email ||
       !password
     ) {
-      req.flash("error", "Thông tin không đầy đủ!");
+      req.flash("error", "Input required!");
       return res.redirect("back");
     }
 
@@ -18,13 +18,13 @@ const loginPost = (req: any, res: Response, next: NextFunction): void => {
       typeof email !== "string" ||
       typeof password !== "string"
     ) {
-      req.flash("error", "Kiểu dữ liệu không chính xác");
+      req.flash("error", "Datatype wrong!");
       return res.redirect("back");
     }
 
     return next();
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }

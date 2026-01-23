@@ -5,7 +5,7 @@ const register = (req, res, next) => {
     if (!fullName || !email || !password || !confirmPassword || !phone) {
         return res.status(400).json({
             status: false,
-            message: "Input required",
+            message: "Input required!",
         });
     }
     if (password !== confirmPassword) {
@@ -21,7 +21,7 @@ const login = (req, res, next) => {
     if (!email || !password) {
         return res.status(400).json({
             status: false,
-            message: "Input required",
+            message: "Input required!",
         });
     }
     return next();
@@ -31,7 +31,7 @@ const verifyAccessToken = (req, res, next) => {
     if (!accessToken) {
         return res.status(400).json({
             status: false,
-            message: "Input required",
+            message: "Input required!",
         });
     }
     return next();
@@ -41,7 +41,7 @@ const refreshToken = (req, res, next) => {
     if (!refreshToken) {
         return res.status(400).json({
             status: false,
-            message: "Input required",
+            message: "Input required!",
         });
     }
     return next();

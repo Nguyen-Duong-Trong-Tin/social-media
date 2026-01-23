@@ -8,7 +8,7 @@ const deserialize = (req: any, res: Response, next: NextFunction) => {
     const token: string = req.cookies.token;
 
     if (!token) {
-      req.flash("error", "Đăng nhập để tiếp tục!");
+      req.flash("error", "Login to continue!");
       return res.redirect(`/${configs.admin}/auth/login`);
     }
 
@@ -20,14 +20,14 @@ const deserialize = (req: any, res: Response, next: NextFunction) => {
       };
     } = jwtUtil.accountVerify(token);
     if (!verify.success) {
-      req.flash("error", "Đăng nhập để tiếp tục!");
+      req.flash("error", "Login to continue!");
       return res.redirect(`/${configs.admin}/auth/login`);
     }
 
     res.locals.myAccount = verify.account;
     return next();
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }

@@ -23,7 +23,7 @@ const submit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
         if (!title || !status || !userId || !taskGroupId) {
             return res.status(400).json({
                 status: false,
-                message: "Input required",
+                message: "Input required!",
             });
         }
         if (typeof title !== "string" ||
@@ -77,7 +77,7 @@ const scoring = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
             scoredAt === undefined) {
             return res.status(400).json({
                 status: false,
-                message: "Input required",
+                message: "Input required!",
             });
         }
         if (typeof score !== "number" ||

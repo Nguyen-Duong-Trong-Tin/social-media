@@ -21,7 +21,7 @@ const get = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("articleUserView")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
 
@@ -31,8 +31,8 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string
     }[] = [
         { value: "", title: "---" },
-        { value: "status-active", title: "Trạng thái hoạt động" },
-        { value: "status-inactive", title: "Trạng thái ngưng hoạt động" },
+        { value: "status-active", title: "Active status" },
+        { value: "status-inactive", title: "Inative status" },
       ];
 
     const sort: string = req.query.sort;
@@ -41,8 +41,8 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string
     }[] = [
         { value: "", title: "---" },
-        { value: "title-asc", title: "Tiêu đề bài viết người dùng tăng dần" },
-        { value: "title-desc", title: "Tiêu đề bài viết người dùng giảm dần" }
+        { value: "title-asc", title: "Title (A - Z)" },
+        { value: "title-desc", title: "Title (Z - A)" }
       ];
 
     const keyword: string = req.query.keyword;
@@ -52,9 +52,9 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string
     }[] = [
         { value: "", title: "---" },
-        { value: "delete", title: "Xóa" },
-        { value: "active", title: "Hoạt động" },
-        { value: "inactive", title: "Ngưng hoạt động" }
+        { value: "delete", title: "Delete" },
+        { value: "active", title: "Active" },
+        { value: "inactive", title: "Inactive" }
       ];
 
     const page: number = parseInt(req.query.page as string) || 1;
@@ -67,7 +67,7 @@ const get = async (req: any, res: Response): Promise<void> => {
     const users = await Promise.all(articleUsers.map(articleUser => userService.findById(articleUser.createdBy.userId as string)));
 
     return res.render("admin/pages/articleUsers", {
-      pageTitle: "Danh Sách Bài Viết Người Dùng",
+      pageTitle: "List of user articles",
       url: getUrlHelper(req),
       articleUsers,
       users,
@@ -88,7 +88,7 @@ const get = async (req: any, res: Response): Promise<void> => {
       }
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -102,7 +102,7 @@ const getById = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("articleUserView")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/articleUsers`);
     }
 
@@ -110,19 +110,19 @@ const getById = async (req: any, res: Response): Promise<void> => {
 
     const articleUserExists = await articleUserService.findById(id);
     if (!articleUserExists) {
-      req.flash("error", "Bài viểt người dùng không tồn tại!");
+      req.flash("error", "User article not found!");
       return res.redirect("back");
     }
 
     const users = await userService.findAll();
 
     return res.render("admin/pages/articleUsers/detail", {
-      pageTitle: "Chi Tiết Bài Viết Người Dùng",
+      pageTitle: "User article details",
       articleUser: articleUserExists,
       users
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -136,17 +136,17 @@ const create = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("articleUserCreate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/articleUsers`);
     }
 
     const users = await userService.findAll();
     return res.render("admin/pages/articleUsers/create", {
-      pageTitle: "Tạo Mới Bài Viết Người Dùng",
+      pageTitle: "Create new user article",
       users
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -160,7 +160,7 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("articleUserCreate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/articleUsers`);
     }
 
@@ -181,11 +181,11 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       userService.findById(userId)
     ]);
     if (articleUserSlugExists) {
-      req.flash("error", "Có lỗi xảy ra!");
+      req.flash("error", "Something went wrong!");
       return res.redirect("back");
     }
     if (!userExists) {
-      req.flash("error", "Người dùng không tồn tại!");
+      req.flash("error", "User not found!");
       return res.redirect("back");
     }
 
@@ -209,10 +209,10 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       createdBy,
       deleted: false
     });
-    req.flash("success", "Bài viết người dùng được tạo thành công!");
+    req.flash("success", "User article was created successfully!");
     return res.redirect(`/${configs.admin}/articleUsers`);
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -226,7 +226,7 @@ const update = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("articleUserUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/articleUsers`);
     }
 
@@ -234,18 +234,18 @@ const update = async (req: any, res: Response): Promise<void> => {
 
     const articleUserExists = await articleUserService.findById(id);
     if (!articleUserExists) {
-      req.flash("error", "Bài viểt người dùng không tồn tại!");
+      req.flash("error", "User article not found!");
       return res.redirect("back");
     }
 
     const users = await userService.findAll();
     return res.render("admin/pages/articleUsers/update", {
-      pageTitle: "Cập Nhật Bài Viết Người Dùng",
+      pageTitle: "Update user article",
       articleUser: articleUserExists,
       users
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -259,7 +259,7 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("articleUserUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/articleUsers`);
     }
 
@@ -284,15 +284,15 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       userService.findById(userId)
     ]);
     if (!articleUserExists) {
-      req.flash("error", "Bài viết người dùng không tồn tại!");
+      req.flash("error", "User article not found!");
       return res.redirect("back");
     }
     if (articleUserSlugExists) {
-      req.flash("error", "Có lỗi xảy ra!");
+      req.flash("error", "Something went wrong!");
       return res.redirect("back");
     }
     if (!userExists) {
-      req.flash("error", "Người dùng không tồn tại!");
+      req.flash("error", "User not found!");
       return res.redirect("back");
     }
 
@@ -316,9 +316,9 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       createdBy,
       deleted: false
     });
-    req.flash("success", "Bài viết người dùng được cập nhật thành công!");
+    req.flash("success", "User article was updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 }
@@ -337,7 +337,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
     switch (action) {
       case "delete": {
         if (!myAccount.permissions.includes("articleUserDelete")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/articleUsers`);
         }
 
@@ -348,7 +348,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
 
       case "active": {
         if (!myAccount.permissions.includes("articleUserUpdate")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/articleUsers`);
         }
 
@@ -359,7 +359,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
 
       case "inactive": {
         if (!myAccount.permissions.includes("articleUserUpdate")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/articleUsers`);
         }
 
@@ -369,14 +369,14 @@ const actions = async (req: any, res: Response): Promise<void> => {
       }
 
       default: {
-        req.flash("error", "Hành động không chính xác!");
+        req.flash("error", "Action wrong!");
         return res.redirect("back");
       }
     }
 
-    req.flash("success", "Các bài viết người dùng được cập nhật thành công!");
+    req.flash("success", "User articles were updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 }
@@ -390,7 +390,7 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("articleUserUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/articleUsers`);
     }
 
@@ -399,14 +399,14 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
 
     const articleUserExists = await articleUserService.findById(id);
     if (!articleUserExists) {
-      req.flash("error", "Bài viết người dùng không tồn tại!");
+      req.flash("error", "User article not found!");
       return res.redirect("back");
     }
 
     await articleUserService.update(id, { status });
-    req.flash("success", "Bài viết người dùng được cập nhật thành công!");
+    req.flash("success", "User article was updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 }
@@ -420,7 +420,7 @@ const del = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("articleUserDelete")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/articleUsers`);
     }
 
@@ -428,14 +428,14 @@ const del = async (req: any, res: Response): Promise<void> => {
 
     const articleUserExists = await articleUserService.findById(id);
     if (!articleUserExists) {
-      req.flash("error", "Bài viết người dùng không tồn tại!");
+      req.flash("error", "User article not found!");
       return res.redirect("back");
     }
 
     await articleUserService.del(id);
-    req.flash("success", "Bài viết người dùng được xóa thành công!");
+    req.flash("success", "User article was deleted successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 }

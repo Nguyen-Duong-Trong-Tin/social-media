@@ -20,7 +20,7 @@ const createPost = (req: any, res: Response, next: NextFunction): void => {
       !userId ||
       !groupId
     ) {
-      req.flash("error", "Thông tin không đầy đủ!");
+      req.flash("error", "Input required!");
       return res.redirect("back");
     }
 
@@ -31,7 +31,7 @@ const createPost = (req: any, res: Response, next: NextFunction): void => {
       typeof userId !== "string" ||
       typeof groupId !== "string"
     ) {
-      req.flash("error", "Kiểu dữ liệu không chính xác!");
+      req.flash("error", "Datatype wrong!");
       return res.redirect("back");
     }
 
@@ -39,7 +39,7 @@ const createPost = (req: any, res: Response, next: NextFunction): void => {
       images &&
       images.length > 6
     ) {
-      req.flash("error", "Chỉ chọn tối đa 6 ảnh!");
+      req.flash("error", "Maximum 6 images allowed!");
       return res.redirect("back");
     }
 
@@ -47,18 +47,18 @@ const createPost = (req: any, res: Response, next: NextFunction): void => {
       videos &&
       videos.length > 6
     ) {
-      req.flash("error", "Chỉ chọn tối đa 6 đoạn phim!");
+      req.flash("error", "Maximum 6 videos allowed!");
       return res.redirect("back");
     }
 
     if (!Object.values(EArticleGroupStatus).includes(status as EArticleGroupStatus)) {
-      req.flash("error", "Trạng thái không chính xác!");
+      req.flash("error", "Status wrong!");
       return res.redirect("back");
     }
 
     return next();
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -81,7 +81,7 @@ const updatePatch = (req: any, res: Response, next: NextFunction): void => {
       !userId ||
       !groupId
     ) {
-      req.flash("error", "Thông tin không đầy đủ!");
+      req.flash("error", "Input required!");
       return res.redirect("back");
     }
 
@@ -92,7 +92,7 @@ const updatePatch = (req: any, res: Response, next: NextFunction): void => {
       typeof userId !== "string" ||
       typeof groupId !== "string"
     ) {
-      req.flash("error", "Kiểu dữ liệu không chính xác!");
+      req.flash("error", "Datatype wrong!");
       return res.redirect("back");
     }
 
@@ -100,7 +100,7 @@ const updatePatch = (req: any, res: Response, next: NextFunction): void => {
       images &&
       images.length > 6
     ) {
-      req.flash("error", "Chỉ chọn tối đa 6 ảnh!");
+      req.flash("error", "Maximum 6 images allowed!");
       return res.redirect("back");
     }
 
@@ -108,18 +108,18 @@ const updatePatch = (req: any, res: Response, next: NextFunction): void => {
       videos &&
       videos.length > 6
     ) {
-      req.flash("error", "Chỉ chọn tối đa 6 đoạn phim!");
+      req.flash("error", "Maximum 6 videos allowed!");
       return res.redirect("back");
     }
 
     if (!Object.values(EArticleGroupStatus).includes(status as EArticleGroupStatus)) {
-      req.flash("error", "Trạng thái không chính xác!");
+      req.flash("error", "Status wrong!");
       return res.redirect("back");
     }
 
     return next();
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -134,7 +134,7 @@ const actions = (req: any, res: Response, next: NextFunction): void => {
       !action ||
       !ids
     ) {
-      req.flash("error", "Thiếu thông tin cần thiết!");
+      req.flash("error", "Input required!");
       return res.redirect("back");
     }
 
@@ -142,13 +142,13 @@ const actions = (req: any, res: Response, next: NextFunction): void => {
       typeof action !== "string" ||
       typeof ids !== "string"
     ) {
-      req.flash("error", "Kiểu dữ liệu không chính xác!");
+      req.flash("error", "Datatype wrong!");
       return res.redirect("back");
     }
 
     return next();
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -159,13 +159,13 @@ const updateStatus = (req: any, res: Response, next: NextFunction): void => {
     const status: string = req.params.status;
 
     if (!Object.values(EArticleGroupStatus).includes(status as EArticleGroupStatus)) {
-      req.flash("error", "Trạng thái không chính xác!");
+      req.flash("error", "Status wrong!");
       return res.redirect("back");
     }
 
     return next();
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }

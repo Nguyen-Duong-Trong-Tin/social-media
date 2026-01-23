@@ -24,29 +24,29 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("userView")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
         const filter = req.query.filter;
         const filterOptions = [
             { value: "", title: "---" },
-            { value: "status-active", title: "Trạng thái hoạt động" },
-            { value: "status-inactive", title: "Trạng thái ngưng hoạt động" },
+            { value: "status-active", title: "Active status" },
+            { value: "status-inactive", title: "Inative status" },
         ];
         const sort = req.query.sort;
         const sortOptions = [
             { value: "", title: "---" },
-            { value: "fullName-asc", title: "Họ tên tăng dần" },
-            { value: "fullName-desc", title: "Họ tên giảm dần" },
-            { value: "email-asc", title: "Email tăng dần" },
-            { value: "email-desc", title: "Email giảm dần" }
+            { value: "fullName-asc", title: "Full name (A - Z)" },
+            { value: "fullName-desc", title: "Full name (Z - A)" },
+            { value: "email-asc", title: "Email (A - Z)" },
+            { value: "email-desc", title: "Email (Z - A)" }
         ];
         const keyword = req.query.keyword;
         const actionOptions = [
             { value: "", title: "---" },
-            { value: "delete", title: "Xóa" },
-            { value: "active", title: "Hoạt động" },
-            { value: "inactive", title: "Ngưng hoạt động" }
+            { value: "delete", title: "Delete" },
+            { value: "active", title: "Active" },
+            { value: "inactive", title: "Inactive" }
         ];
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -55,7 +55,7 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             user_service_1.default.find(req)
         ]);
         return res.render("admin/pages/users", {
-            pageTitle: "Danh Sách Người Dùng",
+            pageTitle: "List of users",
             url: (0, getUrl_helper_1.default)(req),
             users,
             filter: {
@@ -76,7 +76,7 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -85,22 +85,22 @@ const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("userView")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
         const id = req.params.id;
         const userExists = yield user_service_1.default.findById(id);
         if (!userExists) {
-            req.flash("error", "Người dùng không tồn tại!");
+            req.flash("error", "User not found!");
             return res.redirect("back");
         }
         return res.render("admin/pages/users/detail", {
-            pageTitle: "Chi Tiết Người Dùng",
+            pageTitle: "User details",
             user: userExists
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -109,15 +109,15 @@ const create = (req, res) => {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("userCreate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/users`);
         }
         return res.render("admin/pages/users/create", {
-            pageTitle: "Tạo Mới Người Dùng",
+            pageTitle: "Create new user",
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };
@@ -126,7 +126,7 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("userCreate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/users`);
         }
         const fullName = req.body.fullName;
@@ -144,15 +144,15 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             user_service_1.default.findByPhone(phone)
         ]);
         if (userSlugExists) {
-            req.flash("error", "Có lỗi xảy ra!");
+            req.flash("error", "Something went wrong!");
             return res.redirect("back");
         }
         if (userEmailExists) {
-            req.flash("error", "Email đã tồn tại!");
+            req.flash("error", "Email already exists!");
             return res.redirect("back");
         }
         if (userPhoneExists) {
-            req.flash("error", "Số điện thoại đã tồn tại!");
+            req.flash("error", "Phone already exists!");
             return res.redirect("back");
         }
         yield user_service_1.default.create({
@@ -171,11 +171,11 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             online: user_enum_1.EUserOnline.offline,
             deleted: false
         });
-        req.flash("success", "Người dùng được tạo thành công!");
+        req.flash("success", "User was created successfully!");
         return res.redirect(`/${index_config_1.default.admin}/users`);
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -184,22 +184,22 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("userUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/users`);
         }
         const id = req.params.id;
         const userExists = yield user_service_1.default.findById(id);
         if (!userExists) {
-            req.flash("error", "Người dùng không tồn tại!");
+            req.flash("error", "User not found!");
             return res.redirect("back");
         }
         return res.render("admin/pages/users/update", {
-            pageTitle: "Cập Nhật Người Dùng",
+            pageTitle: "Update user",
             user: userExists
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -208,7 +208,7 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("userUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/users`);
         }
         const id = req.params.id;
@@ -233,21 +233,21 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             user_service_1.default.findByPhone(phone),
         ]);
         if (!userIdExists) {
-            req.flash("error", "Người dùng không tồn tại!");
+            req.flash("error", "User not found!");
             return res.redirect("back");
         }
         if (userSlugExists) {
-            req.flash("error", "Có lỗi xảy ra!");
+            req.flash("error", "Something went wrong!");
             return res.redirect("back");
         }
         if (userEmailExists &&
             userEmailExists.id !== id) {
-            req.flash("error", "Email đã tồn tại!");
+            req.flash("error", "Email already exists!");
             return res.redirect("back");
         }
         if (userPhoneExists &&
             userPhoneExists.id !== id) {
-            req.flash("error", "Số điện thoại đã tồn tại!");
+            req.flash("error", "Phone already exists!");
             return res.redirect("back");
         }
         yield user_service_1.default.update(id, {
@@ -260,10 +260,10 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             bio,
             status: status
         });
-        req.flash("success", "Người dùng được cập nhật thành công!");
+        req.flash("success", "User was updated successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -276,7 +276,7 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         switch (action) {
             case "delete": {
                 if (!myAccount.permissions.includes("userDelete")) {
-                    req.flash("error", "Bạn không có quyền!");
+                    req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/users`);
                 }
                 yield Promise.all(ids.map(id => user_service_1.default.del(id)));
@@ -284,7 +284,7 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }
             case "active": {
                 if (!myAccount.permissions.includes("userUpdate")) {
-                    req.flash("error", "Bạn không có quyền!");
+                    req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/users`);
                 }
                 yield Promise.all(ids.map(id => user_service_1.default.update(id, { status: user_enum_1.EUserStatus.active })));
@@ -292,21 +292,21 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }
             case "inactive": {
                 if (!myAccount.permissions.includes("userUpdate")) {
-                    req.flash("error", "Bạn không có quyền!");
+                    req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/users`);
                 }
                 yield Promise.all(ids.map(id => user_service_1.default.update(id, { status: user_enum_1.EUserStatus.inactive })));
                 break;
             }
             default: {
-                req.flash("error", "Hành động không chính xác!");
+                req.flash("error", "Action wrong!");
                 return res.redirect("back");
             }
         }
-        req.flash("success", "Các người dùng được cập nhật thành công!");
+        req.flash("success", "Users were updated successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -315,21 +315,21 @@ const updateStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("userUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/users`);
         }
         const id = req.params.id;
         const status = req.params.status;
         const userExists = yield user_service_1.default.findById(id);
         if (!userExists) {
-            req.flash("error", "Người dùng không tồn tại!");
+            req.flash("error", "User not found!");
             return res.redirect("back");
         }
         yield user_service_1.default.update(id, { status });
-        req.flash("success", "Người dùng được cập nhật thành công!");
+        req.flash("success", "User was updated successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -338,20 +338,20 @@ const del = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("userDelete")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/users`);
         }
         const id = req.params.id;
         const userExists = yield user_service_1.default.findById(id);
         if (!userExists) {
-            req.flash("error", "Người dùng không tồn tại!");
+            req.flash("error", "User not found!");
             return res.redirect("back");
         }
         yield user_service_1.default.del(id);
-        req.flash("success", "Người dùng được xóa thành công!");
+        req.flash("success", "User was deleted successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });

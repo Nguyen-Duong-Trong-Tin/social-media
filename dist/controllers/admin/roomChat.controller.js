@@ -24,29 +24,29 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roomChatView")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
         const filter = req.query.filter;
         const filterOptions = [
             { value: "", title: "---" },
-            { value: "type-group", title: "Kiểu phòng trò chuyện nhóm" },
-            { value: "type-friend", title: "Kiểu phòng trò chuyện bạn bè" },
-            { value: "status-active", title: "Trạng thái hoạt động" },
-            { value: "status-inactive", title: "Trạng thái ngưng hoạt động" },
+            { value: "type-group", title: "Group type" },
+            { value: "type-friend", title: "Friend type" },
+            { value: "status-active", title: "Active status" },
+            { value: "status-inactive", title: "Inative status" },
         ];
         const sort = req.query.sort;
         const sortOptions = [
             { value: "", title: "---" },
-            { value: "title-asc", title: "Tiêu đề phòng trò chuyện tăng dần" },
-            { value: "title-desc", title: "Tiêu đề phòng trò chuyện giảm dần" }
+            { value: "title-asc", title: "Title (A - Z)" },
+            { value: "title-desc", title: "Title (Z - A)" }
         ];
         const keyword = req.query.keyword;
         const actionOptions = [
             { value: "", title: "---" },
-            { value: "delete", title: "Xóa" },
-            { value: "active", title: "Hoạt động" },
-            { value: "inactive", title: "Ngưng hoạt động" }
+            { value: "delete", title: "Delete" },
+            { value: "active", title: "Active" },
+            { value: "inactive", title: "Inactive" }
         ];
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -55,7 +55,7 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             roomChat_service_1.default.find(req)
         ]);
         return res.render("admin/pages/roomChats", {
-            pageTitle: "Danh Sách Phòng Trò Chuyện",
+            pageTitle: "List of room chats",
             url: (0, getUrl_helper_1.default)(req),
             roomChats,
             filter: {
@@ -76,7 +76,7 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -85,13 +85,13 @@ const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roomChatView")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
         const id = req.params.id;
         const roomChatExists = yield roomChat_service_1.default.findById(id);
         if (!roomChatExists) {
-            req.flash("error", "Phòng trò chuyện không tồn tại!");
+            req.flash("error", "Room chat not found!");
             return res.redirect("back");
         }
         const [users, userRequests] = yield Promise.all([
@@ -102,14 +102,14 @@ const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             Promise.all(roomChatExists.userRequests.map(userRequest => user_service_1.default.findById(userRequest)))
         ]);
         return res.render("admin/pages/roomChats/detail", {
-            pageTitle: "Chi Tiết Phòng Trò Chuyện",
+            pageTitle: "Room chat details",
             roomChat: roomChatExists,
             users,
             userRequests
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -118,17 +118,17 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roomChatCreate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/roomChats`);
         }
         const users = yield user_service_1.default.findAll();
         return res.render("admin/pages/roomChats/create", {
-            pageTitle: "Tạo Mới Phòng Trò Chuyện",
+            pageTitle: "Create new room chat",
             users
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -137,7 +137,7 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roomChatCreate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/roomChats`);
         }
         const title = req.body.title;
@@ -151,11 +151,11 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             user_service_1.default.findById(userId)
         ]);
         if (roomChatSlugExists) {
-            req.flash("error", "Có lỗi xảy ra!");
+            req.flash("error", "Something went wrong!");
             return res.redirect("back");
         }
         if (!userExists) {
-            req.flash("error", "Người dùng không tồn tại!");
+            req.flash("error", "User not found!");
             return res.redirect("back");
         }
         const users = [{ userId, role: roomChat_enum_1.ERoomChatRole.superAdmin }];
@@ -169,11 +169,11 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             userRequests: [],
             deleted: false
         });
-        req.flash("success", "Phòng trò chuyện được tạo thành công!");
+        req.flash("success", "Room chat was created successfully!");
         return res.redirect(`/${index_config_1.default.admin}/roomChats`);
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -182,17 +182,17 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roomChatUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/roomChats`);
         }
         const id = req.params.id;
         const roomChatExists = yield roomChat_service_1.default.findById(id);
         if (!roomChatExists) {
-            req.flash("error", "Phòng trò chuyện không tồn tại!");
+            req.flash("error", "Room chat not found!");
             return res.redirect("back");
         }
         if (roomChatExists.type === "friend") {
-            req.flash("error", "Phòng trò chuyện kiểu bạn bè không thể chỉnh sửa!");
+            req.flash("error", "Room chat of friend type cannot modified!");
             return res.redirect("back");
         }
         const [users, userRequests] = yield Promise.all([
@@ -203,14 +203,14 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             Promise.all(roomChatExists.userRequests.map(userRequest => user_service_1.default.findById(userRequest)))
         ]);
         return res.render("admin/pages/roomChats/update", {
-            pageTitle: "Cập Nhật Phòng Trò Chuyện",
+            pageTitle: "Update new room chat",
             roomChat: roomChatExists,
             users,
             userRequests
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -219,7 +219,7 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roomChatUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/roomChats`);
         }
         const id = req.params.id;
@@ -235,15 +235,15 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             roomChat_service_1.default.findBySlug(slug)
         ]);
         if (!roomChatExists) {
-            req.flash("error", "Phòng trò chuyện không tồn tại!");
+            req.flash("error", "Room chat not found");
             return res.redirect("back");
         }
         if (roomChatExists.type === "friend") {
-            req.flash("error", "Phòng trò chuyện kiểu bạn bè không thể chỉnh sửa!");
+            req.flash("error", "Room chat of friend type cannot modified!");
             return res.redirect("back");
         }
         if (roomChatSlugExists) {
-            req.flash("error", "Có lỗi xảy ra!");
+            req.flash("error", "Something went wrong!");
             return req.redirect("back");
         }
         yield roomChat_service_1.default.update(id, {
@@ -252,10 +252,10 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             avatar,
             status
         });
-        req.flash("success", "Phòng trò chuyện được cập nhật thành công!");
+        req.flash("success", "Room chat was updated successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -264,7 +264,7 @@ const changeUserRole = (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roomChatUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
         const id = req.params.id;
@@ -275,18 +275,18 @@ const changeUserRole = (req, res) => __awaiter(void 0, void 0, void 0, function*
             user_service_1.default.findById(userId)
         ]);
         if (!roomChatExists) {
-            req.flash("error", "Phòng trò chuyện không tồn tại!");
+            req.flash("error", "Room chat not found");
             return res.redirect("back");
         }
         if (!userExists) {
-            req.flash("error", "Người dùng không tồn tại!");
+            req.flash("error", "User not found!");
             return res.redirect("back");
         }
         yield roomChat_service_1.default.changeUserRole(id, userId, role);
-        req.flash("success", "Vai trò người dùng được cập nhật thành công!");
+        req.flash("success", "User role was updated successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -295,7 +295,7 @@ const acceptUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roomChatUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
         const id = req.params.id;
@@ -306,23 +306,23 @@ const acceptUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             roomChat_service_1.default.findUserInRoomChat(id, userId)
         ]);
         if (!roomChatExists) {
-            req.flash("error", "Phòng trò chuyện không tồn tại!");
+            req.flash("error", "Room chat not found");
             return res.redirect("back");
         }
         if (!userExists) {
-            req.flash("error", "Người dùng không tồn tại!");
+            req.flash("error", "User not found!");
             return res.redirect("back");
         }
         if (roomChatUserExists) {
-            req.flash("error", "Người dùng đã tồn tại trong phòng trò chuyện!");
+            req.flash("error", "User is already in the room chat!");
             return res.redirect("back");
         }
         yield roomChat_service_1.default.acceptUser(id, userId);
         yield roomChat_service_1.default.delUserRequest(id, userId);
-        req.flash("success", "Người dùng được thêm vào phòng trò chuyện thành công!");
+        req.flash("success", "User was added to the room chat successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -335,7 +335,7 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         switch (action) {
             case "delete": {
                 if (!myAccount.permissions.includes("roomChatDelete")) {
-                    req.flash("error", "Bạn không có quyền!");
+                    req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/roomChats`);
                 }
                 yield Promise.all(ids.map(id => roomChat_service_1.default.del(id)));
@@ -343,7 +343,7 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }
             case "active": {
                 if (!myAccount.permissions.includes("roomChatUpdate")) {
-                    req.flash("error", "Bạn không có quyền!");
+                    req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/roomChats`);
                 }
                 yield Promise.all(ids.map(id => roomChat_service_1.default.update(id, { status: roomChat_enum_1.ERoomChatStatus.active })));
@@ -351,21 +351,21 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }
             case "inactive": {
                 if (!myAccount.permissions.includes("roomChatUpdate")) {
-                    req.flash("error", "Bạn không có quyền!");
+                    req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/roomChats`);
                 }
                 yield Promise.all(ids.map(id => roomChat_service_1.default.update(id, { status: roomChat_enum_1.ERoomChatStatus.inactive })));
                 break;
             }
             default: {
-                req.flash("error", "Hành động không chính xác!");
+                req.flash("error", "Action wrong!");
                 return res.redirect("back");
             }
         }
-        req.flash("success", "Các phòng trò chuyện được cập nhật thành công!");
+        req.flash("success", "Room chats were updated successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -374,21 +374,21 @@ const updateStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roomChatUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/roomChats`);
         }
         const id = req.params.id;
         const status = req.params.status;
         const roomChatExists = yield roomChat_service_1.default.findById(id);
         if (!roomChatExists) {
-            req.flash("error", "Phòng trò chuyện không tồn tại!");
+            req.flash("error", "Room chat not found");
             return res.redirect("back");
         }
         yield roomChat_service_1.default.update(id, { status });
-        req.flash("success", "Phòng trò chuyện được cập nhật thành công!");
+        req.flash("success", "Room chat was updated successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -397,7 +397,7 @@ const delUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roomChatUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
         const id = req.params.id;
@@ -407,18 +407,18 @@ const delUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             user_service_1.default.findById(userId)
         ]);
         if (!roomChatExists) {
-            req.flash("error", "Phòng trò chuyện không tồn tại!");
+            req.flash("error", "Room chat not found");
             return res.redirect("back");
         }
         if (!userExists) {
-            req.flash("error", "Người dùng không tồn tại!");
+            req.flash("error", "User not found!");
             return res.redirect("back");
         }
         yield roomChat_service_1.default.delUser(id, userId);
-        req.flash("success", "Người dùng được xóa thành công!");
+        req.flash("success", "User was deleted successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -427,7 +427,7 @@ const delUserRequest = (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roomChatUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
         const id = req.params.id;
@@ -437,18 +437,18 @@ const delUserRequest = (req, res) => __awaiter(void 0, void 0, void 0, function*
             user_service_1.default.findById(userId)
         ]);
         if (!roomChatExists) {
-            req.flash("error", "Phòng trò chuyện không tồn tại!");
+            req.flash("error", "Room chat not found");
             return res.redirect("back");
         }
         if (!userExists) {
-            req.flash("error", "Người dùng không tồn tại!");
+            req.flash("error", "User not found!");
             return res.redirect("back");
         }
         yield roomChat_service_1.default.delUserRequest(id, userId);
-        req.flash("success", "Yêu cầu người dùng được xóa thành công!");
+        req.flash("success", "User request was deleted successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -457,20 +457,20 @@ const del = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roomChatDelete")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/roomChats`);
         }
         const id = req.params.id;
         const roomChatExists = yield roomChat_service_1.default.findById(id);
         if (!roomChatExists) {
-            req.flash("error", "Phòng trò chuyện không tồn tại!");
+            req.flash("error", "Room chat not found");
             return res.redirect("back");
         }
         yield roomChat_service_1.default.del(id);
-        req.flash("success", "Phòng trò chuyện được xóa thành công!");
+        req.flash("success", "Room chat was deleted successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });

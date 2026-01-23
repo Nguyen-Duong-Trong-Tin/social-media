@@ -15,7 +15,7 @@ const checkExistsEmail = (req, res, next) => {
     if (!email) {
         return res.status(400).json({
             status: false,
-            message: "Input required",
+            message: "Input required!",
         });
     }
     return next();
@@ -26,7 +26,7 @@ const checkExistsPhone = (req, res, next) => {
     if (!phone) {
         return res.status(400).json({
             status: false,
-            message: "Input required",
+            message: "Input required!",
         });
     }
     return next();
@@ -37,7 +37,7 @@ const updateBio = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     if (!bio) {
         return res.status(400).json({
             status: false,
-            message: "Input required",
+            message: "Input required!",
         });
     }
     return next();

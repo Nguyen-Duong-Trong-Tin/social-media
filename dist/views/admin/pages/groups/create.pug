@@ -14,20 +14,20 @@ block main
     enctype="multipart/form-data"
   )
     .mb-3
-      label.form-label Tiêu đề
+      label.form-label Title
       input(
         class="form-control"
         name="title"
         required
       )
     .mb-3
-      label.form-label Mô tả
+      label.form-label Description
       textarea(
         name="description"
         tinymce
       )
     .mb-3
-      label.form-label Ảnh
+      label.form-label Avatar
       input(
         class="form-control"
         type="file"
@@ -36,7 +36,7 @@ block main
         required
       )
     .mb-3
-      label.form-label Ảnh bìa
+      label.form-label Cover photo
       input(
         class="form-control"
         type="file"
@@ -45,16 +45,16 @@ block main
         required
       )
     .mb-3
-      label.form-label Trạng thái
+      label.form-label Status
       select(
         class="form-select"
         name="status"
         required
       )
-        option(value="active") Hoạt động
-        option(value="inactive") Ngưng hoạt động
+        option(value="active") Active
+        option(value="inactive") Inactive
     .mb-3
-      label.form-label Chủ phòng
+      label.form-label Owner
       select(
         class="form-select"
         name="userId"
@@ -65,7 +65,7 @@ block main
           option(value=user.id) #{user.fullName} - #{user.phone}
 
     .mb-3
-      label.form-label Chủ đề
+      label.form-label Group topic
       select(
         class="form-select"
         name="groupTopicId"
@@ -76,4 +76,4 @@ block main
           option(value=groupTopic.id) #{groupTopic.title}
     
     .d-flex.justify-content-center.mb-3
-      button.btn.btn-primary Thêm
+      button.btn.btn-primary Add

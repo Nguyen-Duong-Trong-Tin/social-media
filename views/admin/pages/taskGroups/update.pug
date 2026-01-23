@@ -14,7 +14,7 @@ block main
     enctype="multipart/form-data"
   )
     .mb-3
-      label.form-label Tiêu đề
+      label.form-label Title
       input(
         class="form-control"
         name="title"
@@ -22,13 +22,13 @@ block main
         required
       )
     .mb-3
-      label.form-label Mô tả
+      label.form-label Description
       textarea(
         name="description"
         tinymce
       ) #{taskGroup.description}
     .mb-3
-      label.form-label Các ảnh
+      label.form-label Images
       each image in taskGroup.images
         .w-50.mb-1
           img(
@@ -44,7 +44,7 @@ block main
         chooseMaxFileQuantity=6
       )
     .mb-3
-      label.form-label Các đoạn phim
+      label.form-label Videos
       each video in taskGroup.videos
         .w-50.mb-1
           video(
@@ -64,16 +64,16 @@ block main
         chooseMaxFileQuantity=6
       )
     .mb-3
-      label.form-label Trạng thái
+      label.form-label Status
       select(
         class="form-select"
         name="status"
         required
       )
-        option(value="active" selected=(taskGroup.status === "active")) Hoạt động
-        option(value="inactive" selected=(taskGroup.status === "inactive")) Ngưng hoạt động
+        option(value="active" selected=(taskGroup.status === "active")) Active
+        option(value="inactive" selected=(taskGroup.status === "inactive")) Inactive
     .mb-3
-      label.form-label Người tạo
+      label.form-label Onwer
       select(
         class="form-select"
         name="userId"
@@ -84,7 +84,7 @@ block main
           option(value=user.id selected=(user.id === taskGroup.createdBy.userId)) #{user.fullName} - #{user.phone}
 
     .mb-3
-      label.form-label Cộng đồng
+      label.form-label Group
       select(
         class="form-select"
         name="groupId"
@@ -95,4 +95,4 @@ block main
           option(value=group.id selected=(group.id === taskGroup.groupId)) #{group.title}
     
     .d-flex.justify-content-center.mb-3
-      button.btn.btn-primary Cập nhật
+      button.btn.btn-primary Update

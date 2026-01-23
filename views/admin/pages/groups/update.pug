@@ -14,7 +14,7 @@ block main
     enctype="multipart/form-data"
   )
     .mb-3
-      label.form-label Tiêu đề
+      label.form-label Title
       input(
         class="form-control"
         name="title"
@@ -22,13 +22,13 @@ block main
         required
       )
     .mb-3
-      label.form-label Mô tả
+      label.form-label Description
       textarea(
         name="description"
         tinymce
       ) #{group.description}
     .mb-3
-      label.form-label Ảnh
+      label.form-label Avatar
       .w-25.mb-1
         img(
           class="img-thumbnail"
@@ -42,7 +42,7 @@ block main
         value=group.avatar
       )
     .mb-3
-      label.form-label Ảnh bìa
+      label.form-label Cover photo
       .w-25.mb-1
         img(
           class="img-thumbnail"
@@ -56,16 +56,16 @@ block main
         value=group.coverPhoto
       )
     .mb-3
-      label.form-label Trạng thái
+      label.form-label Status
       select(
         class="form-select"
         name="status"
         required
       )
-        option(value="active" selected=(group.status === "active")) Hoạt động
-        option(value="inactive" selected=(group.status === "inactive")) Ngưng hoạt động
+        option(value="active" selected=(group.status === "active")) Active
+        option(value="inactive" selected=(group.status === "inactive")) Inactive
     .mb-3
-      label.form-label Chủ đề
+      label.form-label Group topic
       select(
         class="form-select"
         name="groupTopicId"
@@ -75,10 +75,10 @@ block main
           option(value=groupTopic.id selected=(groupTopic.id === group.groupTopicId)) #{groupTopic.title}
     
     .d-flex.justify-content-center.mb-3
-      button.btn.btn-primary Cập nhật
+      button.btn.btn-primary Update
       
   .mb-3
-    label.form-label Danh sách người tham gia
+    label.form-label List of participants
     .row
       each item in users
         .col-3
@@ -99,18 +99,18 @@ block main
                 form-change-group-user-role
               )
                 .mb-3
-                  label.form-label Vai trò
+                  label.form-label Role
                   select.form-select
-                    option(value="superAdmin" selected=(item.role === "superAdmin")) Chủ phòng 
-                    option(value="admin" selected=(item.role === "admin")) Quản trị
-                    option(value="user" selected=(item.role === "user")) Người dùng
+                    option(value="superAdmin" selected=(item.role === "superAdmin")) Owner
+                    option(value="admin" selected=(item.role === "admin")) Admin
+                    option(value="user" selected=(item.role === "user")) User
               
               p.card-text #{item.user.phone}
               .d-flex
                 a(
                   class="btn btn-primary me-1"
                   href=`/${admin}/users/detail/${item.user.id}`
-                ) Chi tiết
+                ) Detail
 
                 form(
                   method="POST"
@@ -119,11 +119,11 @@ block main
                   userId=item.user.id
                   form-delete-group-user
                 )
-                  button.btn.btn-danger Xóa
+                  button.btn.btn-danger Delete
 
 
   .mb-3
-    label.form-label Danh sách người yêu cầu
+    label.form-label List of user requests
     .row
       each user in userRequests
         .col-3
@@ -139,7 +139,7 @@ block main
               a(
                 class="btn btn-primary"
                 href=`/${admin}/users/detail/${user.id}`
-              ) Chi tiết
+              ) Detail
 
               .mt-1.d-flex
                 form(
@@ -149,7 +149,7 @@ block main
                   userId=user.id
                   form-accept-group-user
                 )
-                  button.btn.btn-primary Chấp nhận
+                  button.btn.btn-primary Accept
 
                 form(
                   class="ms-1"
@@ -159,4 +159,4 @@ block main
                   userId=user.id
                   form-delete-group-user-request
                 )
-                  button.btn.btn-danger Xóa
+                  button.btn.btn-danger Delete

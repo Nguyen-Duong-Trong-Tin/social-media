@@ -10,7 +10,7 @@ const variable = (req, res, next) => {
         return next();
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };
@@ -19,7 +19,7 @@ const redirect = (req, res) => {
         return res.redirect(`/${index_config_1.default.admin}/auth/login`);
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };

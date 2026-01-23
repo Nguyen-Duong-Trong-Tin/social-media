@@ -20,10 +20,10 @@ const role_service_1 = __importDefault(require("../../services/admin/role.servic
 // [GET] /admin/auth/login
 const login = (req, res) => {
     try {
-        return res.render("admin/pages/auth/login", { pageTitle: "Đăng Nhập" });
+        return res.render("admin/pages/auth/login", { pageTitle: "Login page" });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };
@@ -34,12 +34,12 @@ const loginPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const password = md5_util_1.default.encode(req.body.password);
         const accountExists = yield auth_service_1.default.login(email, password);
         if (!accountExists) {
-            req.flash("error", "Đăng nhập không thành công!");
+            req.flash("error", "Login failed!");
             return res.redirect("back");
         }
         const roleExists = yield role_service_1.default.findById(accountExists.roleId);
         if (!roleExists) {
-            req.flash("error", "Vai trò không tồn tại!");
+            req.flash("error", "Role not found!");
             return res.redirect("back");
         }
         const token = jwt_util_1.default.accountGenerate(accountExists.id, roleExists.permissions, "1d");
@@ -50,8 +50,9 @@ const loginPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
         return res.redirect(`/${index_config_1.default.admin}/dashboard`);
     }
-    catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+    catch (e) {
+        console.log(e);
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -61,7 +62,7 @@ const logoutPost = (req, res) => {
         res.clearCookie("token");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 };

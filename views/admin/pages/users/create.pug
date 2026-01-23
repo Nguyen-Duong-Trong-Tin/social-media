@@ -14,7 +14,7 @@ block main
     enctype="multipart/form-data"
   )
     .mb-3
-      label.form-label Họ và tên
+      label.form-label Full name
       input(
         class="form-control"
         name="fullName"
@@ -37,14 +37,14 @@ block main
         required
       )
     .mb-3
-      label.form-label Số điện thoại
+      label.form-label Phone
       input(
         class="form-control"
         name="phone"
         required
       )
     .mb-3
-      label.form-label Ảnh
+      label.form-label Image
       input(
         class="form-control"
         type="file"
@@ -53,7 +53,7 @@ block main
         required
       )
     .mb-3
-      label.form-label Ảnh bìa
+      label.form-label Cover photo
       input(
         class="form-control"
         type="file"
@@ -62,20 +62,20 @@ block main
         required
       )
     .mb-3
-      label.form-label Tiểu sử
+      label.form-label Bio
       textarea(
         name="bio"
         tinymce
       )
     .mb-3
-      label.form-label Trạng thái
+      label.form-label Status
       select(
         class="form-select"
         name="status"
         required
       )
-        option(value="active") Hoạt động
-        option(value="inactive") Ngưng hoạt động
+        option(value="active") Active
+        option(value="inactive") Inactive
     
     .d-flex.justify-content-center.mb-3
-      button.btn.btn-primary Thêm
+      button.btn.btn-primary Add

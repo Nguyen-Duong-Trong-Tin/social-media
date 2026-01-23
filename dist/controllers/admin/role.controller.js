@@ -23,19 +23,19 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roleView")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
         const sort = req.query.sort;
         const sortOptions = [
             { value: "", title: "---" },
-            { value: "title-asc", title: "Tiêu đề tăng dần" },
-            { value: "title-desc", title: "Tiêu đề giảm dần" }
+            { value: "title-asc", title: "Title (A - Z)" },
+            { value: "title-desc", title: "Title (Z - A)" }
         ];
         const keyword = req.query.keyword;
         const actionOptions = [
             { value: "", title: "---" },
-            { value: "delete", title: "Xóa" }
+            { value: "delete", title: "Delete" }
         ];
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -44,7 +44,7 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             role_service_1.default.find(req)
         ]);
         return res.render("admin/pages/roles", {
-            pageTitle: "Danh Sách Vai Trò",
+            pageTitle: "List of roles",
             url: (0, getUrl_helper_1.default)(req),
             roles,
             sort: {
@@ -61,7 +61,7 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra");
+        req.flash("error", "Something went wrong");
         return res.redirect("back");
     }
 });
@@ -70,13 +70,13 @@ const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roleView")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
         const id = req.params.id;
         const roleExists = yield role_service_1.default.findById(id);
         if (!roleExists) {
-            req.flash("error", "Vai trò không tồn tại!");
+            req.flash("error", "Role not found!");
             return res.redirect("back");
         }
         const [createdBy, updatedBy] = yield Promise.all([
@@ -90,14 +90,14 @@ const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }))))
         ]);
         return res.render("admin/pages/roles/detail", {
-            pageTitle: "Chi Tiết Vai Trò",
+            pageTitle: "Role details",
             role: roleExists,
             createdBy,
             updatedBy
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -106,15 +106,15 @@ const create = (req, res) => {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roleCreate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/roles`);
         }
         return res.render("admin/pages/roles/create", {
-            pageTitle: "Thêm Mới Vai Trò"
+            pageTitle: "Create new role"
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };
@@ -123,7 +123,7 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roleCreate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/roles`);
         }
         const title = req.body.title;
@@ -131,7 +131,7 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const description = req.body.description;
         const roleSlugExists = yield role_service_1.default.findBySlug(slug);
         if (roleSlugExists) {
-            req.flash("error", "Có lỗi xảy ra!");
+            req.flash("error", "Something went wrong!");
             return res.redirect("back");
         }
         yield role_service_1.default.create({
@@ -145,11 +145,11 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             },
             deleted: false
         });
-        req.flash("success", "Vai trò được tạo thành công!");
+        req.flash("success", "Role was updated successfully!");
         return res.redirect(`/${index_config_1.default.admin}/roles`);
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -158,22 +158,22 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roleUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/roles`);
         }
         const id = req.params.id;
         const roleExists = yield role_service_1.default.findById(id);
         if (!roleExists) {
-            req.flash("error", "Vai trò không tồn tại!");
+            req.flash("error", "Role not found!");
             return res.redirect("back");
         }
         return res.render("admin/pages/roles/update", {
-            pageTitle: "Cập Nhật Vai Trò",
+            pageTitle: "Update role",
             role: roleExists
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -182,7 +182,7 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roleUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/roles`);
         }
         const id = req.params.id;
@@ -194,11 +194,11 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             role_service_1.default.findBySlug(slug)
         ]);
         if (!roleExists) {
-            req.flash("error", "Vai trò không tồn tại!");
+            req.flash("error", "Role not found!");
             return req.redirect("back");
         }
         if (roleSlugExists) {
-            req.flash("error", "Có lỗi xảy ra!");
+            req.flash("error", "Something went wrong!");
             return res.redirect("back");
         }
         yield role_service_1.default.update(id, {
@@ -212,10 +212,10 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 }
             }
         });
-        req.flash("success", "Vai trò được cập nhật thành công!");
+        req.flash("success", "Role was updated successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -228,7 +228,7 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         switch (action) {
             case "delete": {
                 if (!myAccount.permissions.includes("roleDelete")) {
-                    req.flash("error", "Bạn không có quyền!");
+                    req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/roles`);
                 }
                 yield Promise.all(ids.map(id => role_service_1.default.del(id, {
@@ -238,14 +238,14 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 break;
             }
             default: {
-                req.flash("error", "Hành động không chính xác!");
+                req.flash("error", "Action wrong!");
                 return res.redirect("back");
             }
         }
-        req.flash("success", "Các vai trò được cập nhật thành công!");
+        req.flash("success", "Roles were updated successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -254,23 +254,23 @@ const del = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("roleDelete")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/roles`);
         }
         const id = req.params.id;
         const roleExists = yield role_service_1.default.findById(id);
         if (!roleExists) {
-            req.flash("error", "Vai trò không tồn tại!");
+            req.flash("error", "Role not found!");
             return res.redirect("back");
         }
         yield role_service_1.default.del(id, {
             accountId: myAccount.accountId,
             deletedAt: new Date()
         });
-        req.flash("success", "Vai trò được xóa thành công!");
+        req.flash("success", "Role was deleted successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });

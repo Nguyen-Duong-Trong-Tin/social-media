@@ -21,7 +21,7 @@ const createPost = (req, res, next) => {
             !req.file ||
             !status ||
             !roleId) {
-            req.flash("error", "Thông tin không đầy đủ!");
+            req.flash("error", "Input required!");
             return res.redirect("back");
         }
         if (typeof fullName !== "string" ||
@@ -30,25 +30,25 @@ const createPost = (req, res, next) => {
             typeof phone !== "string" ||
             typeof status !== "string" ||
             typeof roleId !== "string") {
-            req.flash("error", "Kiểu dữ liệu không chính xác!");
+            req.flash("error", "Datatype wrong!");
             return res.redirect("back");
         }
         if (!validate_helper_1.default.email(email)) {
-            req.flash("error", "Email không chính xác!");
+            req.flash("error", "Email wrong!");
             return res.redirect("back");
         }
         if (!validate_helper_1.default.password(password)) {
-            req.flash("error", "Mật khẩu phải có độ dài từ 8 kí tự, có kí tự in hoa, in thường, số và kí tự đặc biệt.");
+            req.flash("error", "Passwords must be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and special characters.!");
             return res.redirect("back");
         }
         if (!Object.values(account_enum_1.EAccountStatus).includes(status)) {
-            req.flash("error", "Trạng thái không chính xác!");
+            req.flash("error", "Status wrong!");
             return res.redirect("back");
         }
         return next();
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };
@@ -65,7 +65,7 @@ const updatePatch = (req, res, next) => {
             !phone ||
             !status ||
             !roleId) {
-            req.flash("error", "Thông tin không đầy đủ!");
+            req.flash("error", "Input required!");
             return res.redirect("back");
         }
         if (typeof fullName !== "string" ||
@@ -73,21 +73,21 @@ const updatePatch = (req, res, next) => {
             typeof phone !== "string" ||
             typeof status !== "string" ||
             typeof roleId !== "string") {
-            req.flash("error", "Kiểu dữ liệu không chính xác!");
+            req.flash("error", "Datatype wrong!");
             return res.redirect("back");
         }
         if (!validate_helper_1.default.email(email)) {
-            req.flash("error", "Email không chính xác!");
+            req.flash("error", "Email wrong!");
             return res.redirect("back");
         }
         if (!Object.values(account_enum_1.EAccountStatus).includes(status)) {
-            req.flash("error", "Trạng thái không chính xác!");
+            req.flash("error", "Status wrong!");
             return res.redirect("back");
         }
         return next();
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };
@@ -96,13 +96,13 @@ const updateStatus = (req, res, next) => {
     try {
         const status = req.params.status;
         if (!Object.values(account_enum_1.EAccountStatus).includes(status)) {
-            req.flash("error", "Trạng thái không chính xác!");
+            req.flash("error", "Status wrong!");
             return res.redirect("back");
         }
         return next();
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };
@@ -113,18 +113,18 @@ const actions = (req, res, next) => {
         const ids = req.body.ids;
         if (!action ||
             !ids) {
-            req.flash("error", "Thiếu thông tin cần thiết!");
+            req.flash("error", "Input required!");
             return res.redirect("back");
         }
         if (typeof action !== "string" ||
             typeof ids !== "string") {
-            req.flash("error", "Kiểu dữ liệu không chính xác!");
+            req.flash("error", "Datatype wrong!");
             return res.redirect("back");
         }
         return next();
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };

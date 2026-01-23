@@ -22,19 +22,19 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("groupTopicView")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
         const sort = req.query.sort;
         const sortOptions = [
             { value: "", title: "---" },
-            { value: "title-asc", title: "Tiêu đề tăng dần" },
-            { value: "title-desc", title: "Tiêu đề giảm dần" }
+            { value: "title-asc", title: "Title (A - Z)" },
+            { value: "title-desc", title: "Title (Z - A)" }
         ];
         const keyword = req.query.keyword;
         const actionOptions = [
             { value: "", title: "---" },
-            { value: "delete", title: "Xóa" }
+            { value: "delete", title: "Delete" }
         ];
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -43,7 +43,7 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             groupTopic_service_1.default.find(req)
         ]);
         return res.render("admin/pages/groupTopics", {
-            pageTitle: "Danh Sách Chủ Đề Cộng Đồng",
+            pageTitle: "List of group topics",
             url: (0, getUrl_helper_1.default)(req),
             groupTopics,
             sort: {
@@ -60,7 +60,7 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -69,22 +69,22 @@ const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("groupTopicView")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
         const id = req.params.id;
         const groupTopicExists = yield groupTopic_service_1.default.findById(id);
         if (!groupTopicExists) {
-            req.flash("error", "Chủ đề cộng đồng không tồn tại!");
+            req.flash("error", "Group topic not found!");
             return res.redirect("back");
         }
         return res.render("admin/pages/groupTopics/detail", {
-            pageTitle: "Chi Tiết Chủ Đề Cộng Đồng",
+            pageTitle: "Group topic details",
             groupTopic: groupTopicExists
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -93,15 +93,15 @@ const create = (req, res) => {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("groupTopicCreate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/groupTopics`);
         }
         return res.render("admin/pages/groupTopics/create", {
-            pageTitle: "Tạo Mới Chủ Đề Cộng Đồng",
+            pageTitle: "Create new group topic",
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };
@@ -110,7 +110,7 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("groupTopicCreate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/groupTopics`);
         }
         const title = req.body.title;
@@ -118,7 +118,7 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const description = req.body.description;
         const groupTopicSlugExists = yield groupTopic_service_1.default.findBySlug(slug);
         if (groupTopicSlugExists) {
-            req.flash("error", "Có lỗi xảy ra!");
+            req.flash("error", "Something went wrong!");
             return res.redirect("back");
         }
         yield groupTopic_service_1.default.create({
@@ -127,11 +127,11 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             description,
             deleted: false
         });
-        req.flash("success", "Chủ đề cộng đồng được tạo thành công!");
+        req.flash("success", "Group topic was created successfully!");
         return res.redirect(`/${index_config_1.default.admin}/groupTopics`);
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -140,22 +140,22 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("groupTopicUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/groupTopics`);
         }
         const id = req.params.id;
         const groupTopicExists = yield groupTopic_service_1.default.findById(id);
         if (!groupTopicExists) {
-            req.flash("error", "Chủ đề cộng đồng không tồn tại!");
+            req.flash("error", "Group topic not found!");
             return res.redirect("back");
         }
         return res.render("admin/pages/groupTopics/update", {
-            pageTitle: "Cập Nhật Chủ Đề Cộng Đồng",
+            pageTitle: "Update group topic",
             groupTopic: groupTopicExists
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -164,7 +164,7 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("groupTopicUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/groupTopics`);
         }
         const id = req.params.id;
@@ -176,11 +176,11 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             groupTopic_service_1.default.findBySlug(slug),
         ]);
         if (!groupTopicIdExists) {
-            req.flash("error", "Chủ đề cộng đồng không tồn tại!");
+            req.flash("error", "Group topic not found!");
             return res.redirect("back");
         }
         if (groupTopicSlugExists) {
-            req.flash("error", "Có lỗi xảy ra!");
+            req.flash("error", "Something went wrong!");
             return res.redirect("back");
         }
         yield groupTopic_service_1.default.update(id, {
@@ -188,10 +188,10 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             slug,
             description
         });
-        req.flash("success", "Chủ đề cộng đồng được cập nhật thành công!");
+        req.flash("success", "Group topic was updated successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -204,21 +204,21 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         switch (action) {
             case "delete": {
                 if (!myAccount.permissions.includes("groupTopicDelete")) {
-                    req.flash("error", "Bạn không có quyền!");
+                    req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/groupTopics`);
                 }
                 yield Promise.all(ids.map(id => groupTopic_service_1.default.del(id)));
                 break;
             }
             default: {
-                req.flash("error", "Hành động không chính xác!");
+                req.flash("error", "Action wrong!");
                 return res.redirect("back");
             }
         }
-        req.flash("success", "Các chủ đề cộng đồng được cập nhật thành công!");
+        req.flash("success", "Group topics were updated successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -227,20 +227,20 @@ const del = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("groupTopicDelete")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/groupTopics`);
         }
         const id = req.params.id;
         const groupTopicExists = yield groupTopic_service_1.default.findById(id);
         if (!groupTopicExists) {
-            req.flash("error", "Chủ đề cộng đồng không tồn tại!");
+            req.flash("error", "Group topic not found!");
             return res.redirect("back");
         }
         yield groupTopic_service_1.default.del(id);
-        req.flash("success", "Chủ đề cộng đồng được xóa thành công!");
+        req.flash("success", "Group topic was deleted successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });

@@ -16,7 +16,7 @@ const updateDescription = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     if (!description) {
         return res.status(400).json({
             status: false,
-            message: "Input required",
+            message: "Input required!",
         });
     }
     return next();
@@ -27,7 +27,7 @@ const updateInvitation = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     if (!invitation) {
         return res.status(400).json({
             status: false,
-            message: "Input required",
+            message: "Input required!",
         });
     }
     return next();
@@ -49,7 +49,7 @@ const create = (req, res, next) => {
             !groupTopicId) {
             return res.status(400).json({
                 status: false,
-                message: "Input required",
+                message: "Input required!",
             });
         }
         if (typeof title !== "string" ||
@@ -70,7 +70,7 @@ const create = (req, res, next) => {
         return next();
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };

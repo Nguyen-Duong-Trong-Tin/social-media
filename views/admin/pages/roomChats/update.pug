@@ -14,7 +14,7 @@ block main
     enctype="multipart/form-data"
   )
     .mb-3
-      label.form-label Tiêu đề
+      label.form-label Title
       input(
         class="form-control"
         name="title"
@@ -22,7 +22,7 @@ block main
         required
       )
     .mb-3
-      label.form-label Ảnh
+      label.form-label Image
       .w-25.mb-1
         img(
           class="img-thumbnail"
@@ -36,28 +36,28 @@ block main
         value=roomChat.avatar
       )
     .mb-3
-      label.form-label Kiểu
+      label.form-label Type
       select(
         class="form-select"
         disabled
       )
-        option(value="group" selected=(roomChat.type === "group")) Nhóm
-        option(value="friend" selected=(roomChat.type === "friend")) Bạn bè
+        option(value="group" selected=(roomChat.type === "group")) Group
+        option(value="friend" selected=(roomChat.type === "friend")) Friend
     .mb-3
-      label.form-label Trạng thái
+      label.form-label Status
       select(
         class="form-select"
         name="status"
         required
       )
-        option(value="active" selected=(roomChat.status === "active")) Hoạt động
-        option(value="inactive" selected=(roomChat.status === "inactive")) Ngưng hoạt động
+        option(value="active" selected=(roomChat.status === "active")) Active
+        option(value="inactive" selected=(roomChat.status === "inactive")) Inactive
     
     .d-flex.justify-content-center.mb-3
-      button.btn.btn-primary Cập nhật
+      button.btn.btn-primary Update
       
   .mb-3
-    label.form-label Danh sách người tham gia
+    label.form-label List of users
     .row
       each item in users
         .col-3
@@ -78,18 +78,18 @@ block main
                 form-change-room-chat-user-role
               )
                 .mb-3
-                  label.form-label Vai trò
+                  label.form-label Role
                   select.form-select
-                    option(value="superAdmin" selected=(item.role === "superAdmin")) Chủ phòng 
-                    option(value="admin" selected=(item.role === "admin")) Quản trị
-                    option(value="user" selected=(item.role === "user")) Người dùng
+                    option(value="superAdmin" selected=(item.role === "superAdmin")) Owner 
+                    option(value="admin" selected=(item.role === "admin")) Admin
+                    option(value="user" selected=(item.role === "user")) User
               
               p.card-text #{item.user.phone}
               .d-flex
                 a(
                   class="btn btn-primary me-1"
                   href=`/${admin}/users/detail/${item.user.id}`
-                ) Chi tiết
+                ) Detail
 
                 form(
                   method="POST"
@@ -98,11 +98,10 @@ block main
                   userId=item.user.id
                   form-delete-room-chat-user
                 )
-                  button.btn.btn-danger Xóa
-
+                  button.btn.btn-danger Delete
 
   .mb-3
-    label.form-label Danh sách người yêu cầu
+    label.form-label List of user requests
     .row
       each user in userRequests
         .col-3
@@ -118,7 +117,7 @@ block main
               a(
                 class="btn btn-primary"
                 href=`/${admin}/users/detail/${user.id}`
-              ) Chi tiết
+              ) Detail
 
               .mt-1.d-flex
                 form(
@@ -128,7 +127,7 @@ block main
                   userId=user.id
                   form-accept-room-chat-user
                 )
-                  button.btn.btn-primary Chấp nhận
+                  button.btn.btn-primary Accept
 
                 form(
                   class="ms-1"
@@ -138,4 +137,4 @@ block main
                   userId=user.id
                   form-delete-room-chat-user-request
                 )
-                  button.btn.btn-danger Xóa
+                  button.btn.btn-danger Delete

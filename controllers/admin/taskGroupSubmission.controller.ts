@@ -22,7 +22,7 @@ const get = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupSubmissionView")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
 
@@ -32,8 +32,8 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string;
     }[] = [
         { value: "", title: "---" },
-        { value: "status-active", title: "Trạng thái hoạt động" },
-        { value: "status-inactive", title: "Trạng thái ngưng hoạt động" },
+        { value: "status-active", title: "Active status" },
+        { value: "status-inactive", title: "Inative status" },
       ];
 
     const sort: string = req.query.sort;
@@ -42,8 +42,8 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string;
     }[] = [
         { value: "", title: "---" },
-        { value: "title-asc", title: "Tiêu đề nộp bài nhiệm vụ cộng đồng tăng dần" },
-        { value: "title-desc", title: "Tiêu đề nộp bài nhiệm vụ cộng đồng giảm dần" },
+        { value: "title-asc", title: "Title (A - Z)" },
+        { value: "title-desc", title: "Title (Z - A)" },
       ];
 
     const keyword: string = req.query.keyword;
@@ -53,9 +53,9 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string;
     }[] = [
         { value: "", title: "---" },
-        { value: "delete", title: "Xóa" },
-        { value: "active", title: "Hoạt động" },
-        { value: "inactive", title: "Ngưng hoạt động" },
+        { value: "delete", title: "Delete" },
+        { value: "active", title: "Active" },
+        { value: "inactive", title: "Inactive" },
       ];
 
     const page: number = parseInt(req.query.page as string) || 1;
@@ -70,7 +70,7 @@ const get = async (req: any, res: Response): Promise<void> => {
     );
 
     return res.render("admin/pages/taskGroupSubmissions", {
-      pageTitle: "Danh Sách Nộp Bài Nhiệm Vụ Cộng Đồng",
+      pageTitle: "List of group task submissions",
       url: getUrlHelper(req),
       taskGroupSubmissions,
       taskGroups,
@@ -91,7 +91,7 @@ const get = async (req: any, res: Response): Promise<void> => {
       },
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 };
@@ -105,7 +105,7 @@ const getById = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupSubmissionView")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/taskGroupSubmissions`);
     }
 
@@ -113,7 +113,7 @@ const getById = async (req: any, res: Response): Promise<void> => {
 
     const taskGroupSubmissionExists = await taskGroupSubmissionService.findById(id);
     if (!taskGroupSubmissionExists) {
-      req.flash("error", "Nộp bài bài viểt cộng đồng không tồn tại!");
+      req.flash("error", "Group task submission not found!");
       return res.redirect("back");
     }
 
@@ -123,13 +123,13 @@ const getById = async (req: any, res: Response): Promise<void> => {
     ]);
 
     return res.render("admin/pages/taskGroupSubmissions/detail", {
-      pageTitle: "Chi Tiết Nộp Bài Nhiệm Vụ Cộng Đồng",
+      pageTitle: "Group task submission details",
       taskGroupSubmission: taskGroupSubmissionExists,
       taskGroups,
       users,
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 };
@@ -143,7 +143,7 @@ const watchMaterials = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupSubmissionView")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/taskGroupSubmissions`);
     }
 
@@ -151,7 +151,7 @@ const watchMaterials = async (req: any, res: Response): Promise<void> => {
 
     const taskGroupSubmissionExists = await taskGroupSubmissionService.findById(id);
     if (!taskGroupSubmissionExists) {
-      req.flash("error", "Nộp bài nhiệm vụ cộng đồng không tồn tại!");
+      req.flash("error", "Group task submission not found!");
       return req.redirect("back");
     }
 
@@ -169,13 +169,13 @@ const watchMaterials = async (req: any, res: Response): Promise<void> => {
     }
 
     return res.render("admin/pages/taskGroupSubmissions/materials", {
-      pageTitle: "Xem Tài Liệu Nộp Bài Nhiệm Vụ Cộng Đồng",
+      pageTitle: "Materials of group task submission",
       taskGroupSubmission: taskGroupSubmissionExists,
       materialPDFs,
       materialDOCs
     })
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     res.redirect("back");
   }
 }
@@ -189,7 +189,7 @@ const create = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupSubmissionCreate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/taskGroupSubmissions`);
     }
 
@@ -199,12 +199,12 @@ const create = async (req: any, res: Response): Promise<void> => {
     ]);
 
     return res.render("admin/pages/taskGroupSubmissions/create", {
-      pageTitle: "Tạo Mới Nộp Bài Nhiệm Vụ Cộng Đồng",
+      pageTitle: "Create new group task submission",
       users,
       taskGroups,
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 };
@@ -218,7 +218,7 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupSubmissionCreate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/taskGroupSubmissions`);
     }
 
@@ -239,15 +239,15 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       taskGroupService.findById(taskGroupId),
     ]);
     if (taskGroupSubmissionSlugExists) {
-      req.flash("error", "Có lỗi xảy ra!");
+      req.flash("error", "Something went wrong!");
       return res.redirect("back");
     }
     if (!userExists) {
-      req.flash("error", "Người dùng không tồn tại!");
+      req.flash("error", "User not found!");
       return res.redirect("back");
     }
     if (!taskGroupExists) {
-      req.flash("error", "Nhiệm vụ cộng đồng không tồn tại!");
+      req.flash("error", "Group task not found!");
       return res.redirect("back");
     }
 
@@ -274,10 +274,10 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       createdBy,
       deleted: false,
     });
-    req.flash("success", "Nộp bài nhiệm vụ cộng đồng được tạo thành công!");
+    req.flash("success", "Group task submission was created successfully!");
     return res.redirect(`/${configs.admin}/taskGroupSubmissions`);
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 };
@@ -291,7 +291,7 @@ const update = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupSubmissionUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/taskGroupSubmissions`);
     }
 
@@ -299,7 +299,7 @@ const update = async (req: any, res: Response): Promise<void> => {
 
     const taskGroupSubmissionExists = await taskGroupSubmissionService.findById(id);
     if (!taskGroupSubmissionExists) {
-      req.flash("error", "Nộp bài nhiệm vụ cộng đồng không tồn tại!");
+      req.flash("error", "Group task submission not found");
       return res.redirect("back");
     }
 
@@ -309,13 +309,13 @@ const update = async (req: any, res: Response): Promise<void> => {
     ]);
 
     return res.render("admin/pages/taskGroupSubmissions/update", {
-      pageTitle: "Cập Nhật Nộp Bài Nhiệm Vụ Cộng Đồng",
+      pageTitle: "Update group task submission",
       taskGroupSubmission: taskGroupSubmissionExists,
       taskGroups,
       users,
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 };
@@ -329,7 +329,7 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupSubmissionUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/taskGroupSubmissions`);
     }
 
@@ -358,19 +358,19 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       taskGroupService.findById(taskGroupId),
     ]);
     if (!taskGroupSubmissionExists) {
-      req.flash("error", "Nộp bài nhiệm vụ cộng đồng không tồn tại!");
+      req.flash("error", "Group task submission not found");
       return res.redirect("back");
     }
     if (taskGroupSubmissionSlugExists) {
-      req.flash("error", "Có lỗi xảy ra!");
+      req.flash("error", "Something went wrong!");
       return res.redirect("back");
     }
     if (!userExists) {
-      req.flash("error", "Người dùng không tồn tại!");
+      req.flash("error", "User not found!");
       return res.redirect("back");
     }
     if (!taskGroupExists) {
-      req.flash("error", "Cộng đồng không tồn tại!");
+      req.flash("error", "Group not found!");
       return res.redirect("back");
     }
 
@@ -397,9 +397,9 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       createdBy,
       deleted: false,
     });
-    req.flash("success", "Nộp bài nhiệm vụ cộng đồng được cập nhật thành công!");
+    req.flash("success", "Group task submission was updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 };
@@ -418,7 +418,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
     switch (action) {
       case "delete": {
         if (!myAccount.permissions.includes("taskGroupSubmissionDelete")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/taskGroupSubmissions`);
         }
 
@@ -429,7 +429,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
 
       case "active": {
         if (!myAccount.permissions.includes("taskGroupSubmissionUpdate")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/taskGroupSubmissions`);
         }
 
@@ -444,7 +444,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
 
       case "inactive": {
         if (!myAccount.permissions.includes("taskGroupSubmissionUpdate")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/taskGroupSubmissions`);
         }
 
@@ -458,14 +458,14 @@ const actions = async (req: any, res: Response): Promise<void> => {
       }
 
       default: {
-        req.flash("error", "Hành động không chính xác!");
+        req.flash("error", "Action wrong!");
         return res.redirect("back");
       }
     }
 
-    req.flash("success", "Các nộp bài nhiệm vụ cộng đồng được cập nhật thành công!");
+    req.flash("success", "Group task submissions were updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 };
@@ -479,7 +479,7 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupSubmissionUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/taskGroupSubmissions`);
     }
 
@@ -488,14 +488,14 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
 
     const taskGroupSubmissionExists = await taskGroupSubmissionService.findById(id);
     if (!taskGroupSubmissionExists) {
-      req.flash("error", "Nộp Bài nhiệm vụ cộng đồng không tồn tại!");
+      req.flash("error", "Group task submission not found");
       return res.redirect("back");
     }
 
     await taskGroupSubmissionService.update(id, { status });
-    req.flash("success", "Nộp Bài nhiệm vụ cộng đồng được cập nhật thành công!");
+    req.flash("success", "Group task submission was updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 };
@@ -509,7 +509,7 @@ const del = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupSubmissionDelete")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/taskGroupSubmissions`);
     }
 
@@ -517,14 +517,14 @@ const del = async (req: any, res: Response): Promise<void> => {
 
     const taskGroupSubmissionExists = await taskGroupSubmissionService.findById(id);
     if (!taskGroupSubmissionExists) {
-      req.flash("error", "Nộp bài nhiệm vụ cộng đồng không tồn tại!");
+      req.flash("error", "Group task submission not found");
       return res.redirect("back");
     }
 
     await taskGroupSubmissionService.del(id);
-    req.flash("success", "Nộp bài nhiệm vụ cộng đồng được xóa thành công!");
+    req.flash("success", "Group task submission was deleted successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 };

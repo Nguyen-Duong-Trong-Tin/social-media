@@ -11,9 +11,9 @@ import roleService from "../../services/admin/role.service";
 // [GET] /admin/auth/login
 const login = (req: any, res: Response): void => {
   try {
-    return res.render("admin/pages/auth/login", { pageTitle: "Đăng Nhập" });
+    return res.render("admin/pages/auth/login", { pageTitle: "Login page" });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -26,13 +26,13 @@ const loginPost = async (req: any, res: Response): Promise<void> => {
 
     const accountExists = await authService.login(email, password);
     if (!accountExists) {
-      req.flash("error", "Đăng nhập không thành công!");
+      req.flash("error", "Login failed!");
       return res.redirect("back");
     }
 
     const roleExists = await roleService.findById(accountExists.roleId);
     if (!roleExists) {
-      req.flash("error", "Vai trò không tồn tại!");
+      req.flash("error", "Role not found!");
       return res.redirect("back");
     }
 
@@ -48,8 +48,9 @@ const loginPost = async (req: any, res: Response): Promise<void> => {
     });
 
     return res.redirect(`/${configs.admin}/dashboard`);
-  } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+  } catch (e){
+    console.log(e);
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -59,7 +60,7 @@ const logoutPost = (req: any, res: Response): void => {
   try {
     res.clearCookie("token");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 }

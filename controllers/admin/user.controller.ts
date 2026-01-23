@@ -21,7 +21,7 @@ const get = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("userView")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
 
@@ -31,8 +31,8 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string
     }[] = [
         { value: "", title: "---" },
-        { value: "status-active", title: "Trạng thái hoạt động" },
-        { value: "status-inactive", title: "Trạng thái ngưng hoạt động" },
+        { value: "status-active", title: "Active status" },
+        { value: "status-inactive", title: "Inative status" },
       ];
 
     const sort: string = req.query.sort;
@@ -41,10 +41,10 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string
     }[] = [
         { value: "", title: "---" },
-        { value: "fullName-asc", title: "Họ tên tăng dần" },
-        { value: "fullName-desc", title: "Họ tên giảm dần" },
-        { value: "email-asc", title: "Email tăng dần" },
-        { value: "email-desc", title: "Email giảm dần" }
+        { value: "fullName-asc", title: "Full name (A - Z)" },
+        { value: "fullName-desc", title: "Full name (Z - A)" },
+        { value: "email-asc", title: "Email (A - Z)" },
+        { value: "email-desc", title: "Email (Z - A)" }
       ];
 
     const keyword: string = req.query.keyword;
@@ -54,9 +54,9 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string
     }[] = [
         { value: "", title: "---" },
-        { value: "delete", title: "Xóa" },
-        { value: "active", title: "Hoạt động" },
-        { value: "inactive", title: "Ngưng hoạt động" }
+        { value: "delete", title: "Delete" },
+        { value: "active", title: "Active" },
+        { value: "inactive", title: "Inactive" }
       ];
 
     const page: number = parseInt(req.query.page as string) || 1;
@@ -68,7 +68,7 @@ const get = async (req: any, res: Response): Promise<void> => {
     ]);
 
     return res.render("admin/pages/users", {
-      pageTitle: "Danh Sách Người Dùng",
+      pageTitle: "List of users",
       url: getUrlHelper(req),
       users,
       filter: {
@@ -88,7 +88,7 @@ const get = async (req: any, res: Response): Promise<void> => {
       }
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -102,7 +102,7 @@ const getById = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("userView")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
 
@@ -110,16 +110,16 @@ const getById = async (req: any, res: Response): Promise<void> => {
 
     const userExists = await userService.findById(id);
     if (!userExists) {
-      req.flash("error", "Người dùng không tồn tại!");
+      req.flash("error", "User not found!");
       return res.redirect("back");
     }
 
     return res.render("admin/pages/users/detail", {
-      pageTitle: "Chi Tiết Người Dùng",
+      pageTitle: "User details",
       user: userExists
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -133,15 +133,15 @@ const create = (req: any, res: Response): void => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("userCreate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/users`);
     }
 
     return res.render("admin/pages/users/create", {
-      pageTitle: "Tạo Mới Người Dùng",
+      pageTitle: "Create new user",
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -155,7 +155,7 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("userCreate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/users`);
     }
 
@@ -179,15 +179,15 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       userService.findByPhone(phone)
     ]);
     if (userSlugExists) {
-      req.flash("error", "Có lỗi xảy ra!");
+      req.flash("error", "Something went wrong!");
       return res.redirect("back");
     }
     if (userEmailExists) {
-      req.flash("error", "Email đã tồn tại!");
+      req.flash("error", "Email already exists!");
       return res.redirect("back");
     }
     if (userPhoneExists) {
-      req.flash("error", "Số điện thoại đã tồn tại!");
+      req.flash("error", "Phone already exists!");
       return res.redirect("back");
     }
 
@@ -208,10 +208,10 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       deleted: false
     });
 
-    req.flash("success", "Người dùng được tạo thành công!");
+    req.flash("success", "User was created successfully!");
     return res.redirect(`/${configs.admin}/users`);
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -225,7 +225,7 @@ const update = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("userUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/users`);
     }
 
@@ -233,16 +233,16 @@ const update = async (req: any, res: Response): Promise<void> => {
 
     const userExists = await userService.findById(id);
     if (!userExists) {
-      req.flash("error", "Người dùng không tồn tại!");
+      req.flash("error", "User not found!");
       return res.redirect("back");
     }
 
     return res.render("admin/pages/users/update", {
-      pageTitle: "Cập Nhật Người Dùng",
+      pageTitle: "Update user",
       user: userExists
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -256,7 +256,7 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("userUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/users`);
     }
 
@@ -290,25 +290,25 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       userService.findByPhone(phone),
     ]);
     if (!userIdExists) {
-      req.flash("error", "Người dùng không tồn tại!");
+      req.flash("error", "User not found!");
       return res.redirect("back");
     }
     if (userSlugExists) {
-      req.flash("error", "Có lỗi xảy ra!");
+      req.flash("error", "Something went wrong!");
       return res.redirect("back");
     }
     if (
       userEmailExists &&
       userEmailExists.id !== id
     ) {
-      req.flash("error", "Email đã tồn tại!");
+      req.flash("error", "Email already exists!");
       return res.redirect("back");
     }
     if (
       userPhoneExists &&
       userPhoneExists.id !== id
     ) {
-      req.flash("error", "Số điện thoại đã tồn tại!");
+      req.flash("error", "Phone already exists!");
       return res.redirect("back");
     }
 
@@ -322,9 +322,9 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       bio,
       status: status as EUserStatus
     });
-    req.flash("success", "Người dùng được cập nhật thành công!");
+    req.flash("success", "User was updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 }
@@ -343,7 +343,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
     switch (action) {
       case "delete": {
         if (!myAccount.permissions.includes("userDelete")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/users`);
         }
 
@@ -354,7 +354,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
 
       case "active": {
         if (!myAccount.permissions.includes("userUpdate")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/users`);
         }
 
@@ -365,7 +365,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
 
       case "inactive": {
         if (!myAccount.permissions.includes("userUpdate")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/users`);
         }
 
@@ -375,14 +375,14 @@ const actions = async (req: any, res: Response): Promise<void> => {
       }
 
       default: {
-        req.flash("error", "Hành động không chính xác!");
+        req.flash("error", "Action wrong!");
         return res.redirect("back");
       }
     }
 
-    req.flash("success", "Các người dùng được cập nhật thành công!");
+    req.flash("success", "Users were updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 }
@@ -396,7 +396,7 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("userUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/users`);
     }
 
@@ -405,14 +405,14 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
 
     const userExists = await userService.findById(id);
     if (!userExists) {
-      req.flash("error", "Người dùng không tồn tại!");
+      req.flash("error", "User not found!");
       return res.redirect("back");
     }
 
     await userService.update(id, { status });
-    req.flash("success", "Người dùng được cập nhật thành công!");
+    req.flash("success", "User was updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 }
@@ -426,7 +426,7 @@ const del = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("userDelete")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/users`);
     }
 
@@ -434,14 +434,14 @@ const del = async (req: any, res: Response): Promise<void> => {
 
     const userExists = await userService.findById(id);
     if (!userExists) {
-      req.flash("error", "Người dùng không tồn tại!");
+      req.flash("error", "User not found!");
       return res.redirect("back");
     }
 
     await userService.del(id);
-    req.flash("success", "Người dùng được xóa thành công!");
+    req.flash("success", "User was deleted successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 }

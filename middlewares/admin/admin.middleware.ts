@@ -7,7 +7,7 @@ const variable = (req: any, res: Response, next: NextFunction): void => {
     res.locals.admin = configs.admin;
     return next();
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -16,7 +16,7 @@ const redirect = (req: any, res: Response): void => {
   try {
     return res.redirect(`/${configs.admin}/auth/login`);
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }

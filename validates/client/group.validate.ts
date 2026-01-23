@@ -12,7 +12,7 @@ const updateDescription = async (
   if (!description) {
     return res.status(400).json({
       status: false,
-      message: "Input required",
+      message: "Input required!",
     });
   }
 
@@ -30,7 +30,7 @@ const updateInvitation = async (
   if (!invitation) {
     return res.status(400).json({
       status: false,
-      message: "Input required",
+      message: "Input required!",
     });
   }
 
@@ -57,7 +57,7 @@ const create = (req: any, res: Response, next: NextFunction) => {
     ) {
       return res.status(400).json({
         status: false,
-        message: "Input required",
+        message: "Input required!",
       });
     }
 
@@ -82,7 +82,7 @@ const create = (req: any, res: Response, next: NextFunction) => {
 
     return next();
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 };

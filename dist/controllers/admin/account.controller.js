@@ -25,30 +25,30 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("accountView")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
         const filter = req.query.filter;
         const filterOptions = [
             { value: "", title: "---" },
-            { value: "status-active", title: "Trạng thái hoạt động" },
-            { value: "status-inactive", title: "Trạng thái ngưng hoạt động" },
+            { value: "status-active", title: "Active status" },
+            { value: "status-inactive", title: "Inactive status" },
         ];
         const sort = req.query.sort;
         const sortOptions = [
             { value: "", title: "---" },
-            { value: "fullName-asc", title: "Họ tên tăng dần" },
-            { value: "fullName-desc", title: "Họ tên giảm dần" },
-            { value: "email-asc", title: "Email tăng dần" },
-            { value: "email-desc", title: "Email giảm dần" },
-            { value: "roleId-asc", title: "Gom nhóm theo vai trò" }
+            { value: "fullName-asc", title: "Title (A - Z)" },
+            { value: "fullName-desc", title: "Title (Z - A)" },
+            { value: "email-asc", title: "Email (A - Z)" },
+            { value: "email-desc", title: "Email (Z - A)" },
+            { value: "roleId-asc", title: "Group by role" }
         ];
         const keyword = req.query.keyword;
         const actionOptions = [
             { value: "", title: "---" },
-            { value: "delete", title: "Xóa" },
-            { value: "active", title: "Hoạt động" },
-            { value: "inactive", title: "Ngưng hoạt động" }
+            { value: "delete", title: "Delete" },
+            { value: "active", title: "Active" },
+            { value: "inactive", title: "Inactive" }
         ];
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -58,7 +58,7 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         ]);
         const roles = yield Promise.all(accounts.map(account => role_service_1.default.findById(account.roleId)));
         return res.render("admin/pages/accounts", {
-            pageTitle: "Danh Sách Tài Khoản",
+            pageTitle: "List of accounts",
             url: (0, getUrl_helper_1.default)(req),
             accounts,
             roles,
@@ -80,7 +80,7 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -89,7 +89,7 @@ const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("accountView")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/dashboard`);
         }
         const id = req.params.id;
@@ -98,7 +98,7 @@ const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             role_service_1.default.findAll()
         ]);
         if (!accountExists) {
-            req.flash("error", "Tài khoản không tồn tại!");
+            req.flash("error", "Account not found!");
             return res.redirect("back");
         }
         const [createdBy, updatedBy] = yield Promise.all([
@@ -112,7 +112,7 @@ const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }))))
         ]);
         return res.render("admin/pages/accounts/detail", {
-            pageTitle: "Chi Tiết Tài Khoản",
+            pageTitle: "Account details",
             account: accountExists,
             roles,
             createdBy,
@@ -120,7 +120,7 @@ const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -129,7 +129,7 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("accountCreate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/accounts`);
         }
         const roles = yield role_service_1.default.findAll();
@@ -139,7 +139,7 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -148,7 +148,7 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("accountCreate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/accounts`);
         }
         const fullName = req.body.fullName;
@@ -166,19 +166,19 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             role_service_1.default.findById(roleId)
         ]);
         if (accountSlugExists) {
-            req.flash("error", "Có lỗi xảy ra!");
+            req.flash("error", "Something went wrong!");
             return res.redirect("back");
         }
         if (accountEmailExists) {
-            req.flash("error", "Email đã tồn tại!");
+            req.flash("error", "Email already exists!");
             return res.redirect("back");
         }
         if (accountPhoneExists) {
-            req.flash("error", "Số điện thoại đã tồn tại!");
+            req.flash("error", "Phone already exists!");
             return res.redirect("back");
         }
         if (!roleExists) {
-            req.flash("error", "Vai trò không được tìm thấy!");
+            req.flash("error", "Role not found!");
             return res.redirect("back");
         }
         yield account_service_1.default.create({
@@ -196,12 +196,12 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             },
             deleted: false
         });
-        req.flash("success", "Tài khoản được tạo thành công!");
+        req.flash("success", "Account was created successfully!");
         return res.redirect(`/${index_config_1.default.admin}/accounts`);
     }
     catch (e) {
         console.log(e);
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -210,7 +210,7 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("accountUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/accounts`);
         }
         const id = req.params.id;
@@ -219,17 +219,17 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             role_service_1.default.findAll()
         ]);
         if (!accountExists) {
-            req.flash("error", "Tài khoản không tồn tại!");
+            req.flash("error", "Account not found!");
             return res.redirect("back");
         }
         return res.render("admin/pages/accounts/update", {
-            pageTitle: "Cập Nhật Tài Khoản",
+            pageTitle: "Update account",
             account: accountExists,
             roles
         });
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 });
@@ -238,7 +238,7 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("accountUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/accounts`);
         }
         const id = req.params.id;
@@ -260,25 +260,25 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             role_service_1.default.findById(roleId)
         ]);
         if (!accountIdExists) {
-            req.flash("error", "Tài khoản không tồn tại!");
+            req.flash("error", "Account not found!");
             return res.redirect("back");
         }
         if (accountSlugExists) {
-            req.flash("error", "Có lỗi xảy ra!");
+            req.flash("error", "Something went wrong!");
             return res.redirect("back");
         }
         if (accountEmailExists &&
             accountEmailExists.id !== id) {
-            req.flash("error", "Email đã tồn tại!");
+            req.flash("error", "Email already exists!");
             return res.redirect("back");
         }
         if (accountPhoneExists &&
             accountPhoneExists.id !== id) {
-            req.flash("error", "Số điện thoại đã tồn tại!");
+            req.flash("error", "Phone already exists!");
             return res.redirect("back");
         }
         if (!roleExists) {
-            req.flash("error", "Vai trò không tồn tại!");
+            req.flash("error", "Role not found!");
             return res.redirect("back");
         }
         yield account_service_1.default.update(id, {
@@ -296,10 +296,10 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 }
             }
         });
-        req.flash("success", "Tài khoản được cập nhật thành công!");
+        req.flash("success", "Account was updated successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -312,7 +312,7 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         switch (action) {
             case "delete": {
                 if (!myAccount.permissions.includes("accountDelete")) {
-                    req.flash("error", "Bạn không có quyền!");
+                    req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/accounts`);
                 }
                 yield Promise.all(ids.map(id => account_service_1.default.del(id, {
@@ -323,7 +323,7 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }
             case "active": {
                 if (!myAccount.permissions.includes("accountUpdate")) {
-                    req.flash("error", "Bạn không có quyền!");
+                    req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/accounts`);
                 }
                 yield Promise.all(ids.map(id => account_service_1.default.update(id, {
@@ -339,7 +339,7 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }
             case "inactive": {
                 if (!myAccount.permissions.includes("accountUpdate")) {
-                    req.flash("error", "Bạn không có quyền!");
+                    req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/accounts`);
                 }
                 yield Promise.all(ids.map(id => account_service_1.default.update(id, {
@@ -354,14 +354,14 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 break;
             }
             default: {
-                req.flash("error", "Hành động không chính xác!");
+                req.flash("error", "Action wrong!");
                 return res.redirect("back");
             }
         }
-        req.flash("success", "Các tài khoản được cập nhật thành công!");
+        req.flash("success", "Accounts were updated successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -370,14 +370,14 @@ const updateStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("accountUpdate")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/accounts`);
         }
         const id = req.params.id;
         const status = req.params.status;
         const accountExists = yield account_service_1.default.findById(id);
         if (!accountExists) {
-            req.flash("error", "Tài khoản không tồn tại!");
+            req.flash("error", "Account not found!");
             return res.redirect("back");
         }
         yield account_service_1.default.update(id, {
@@ -389,10 +389,10 @@ const updateStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                 }
             }
         });
-        req.flash("success", "Tài khoản được cập nhật thành công!");
+        req.flash("success", "Account was updated successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });
@@ -401,23 +401,23 @@ const del = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         if (!myAccount.permissions.includes("accountDelete")) {
-            req.flash("error", "Bạn không có quyền!");
+            req.flash("error", "Access denied!");
             return res.redirect(`/${index_config_1.default.admin}/accounts`);
         }
         const id = req.params.id;
         const accountExists = yield account_service_1.default.findById(id);
         if (!accountExists) {
-            req.flash("error", "Tài khoản không tồn tại!");
+            req.flash("error", "Account not found!");
             return res.redirect("back");
         }
         yield account_service_1.default.del(id, {
             accountId: myAccount.accountId,
             deletedAt: new Date()
         });
-        req.flash("success", "Tài khoản được xóa thành công!");
+        req.flash("success", "Account was deleted successfully!");
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
     return res.redirect("back");
 });

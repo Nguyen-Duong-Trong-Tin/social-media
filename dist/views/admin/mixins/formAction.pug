@@ -4,7 +4,7 @@ mixin formAction(action, options)
     action=action
     form-action
   )
-    label.form-label Hành động
+    label.form-label Actions
     .input-group.mb-3
       select(
         class="form-select"
@@ -12,4 +12,4 @@ mixin formAction(action, options)
       )
         each option in options
           option(value=option.value) #{option.title}
-      button.btn.btn-primary Thực hiện
+      button.btn.btn-primary Execute

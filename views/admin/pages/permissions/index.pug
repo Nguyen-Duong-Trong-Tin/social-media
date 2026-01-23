@@ -14,9 +14,9 @@ block main
     tbody
       //- Accounts
       tr.border-top
-        th(scope="row") Tài khoản
+        th(scope="row") Accounts
       tr
-        td Xem
+        td Read
         each role of roles
           td
             input(
@@ -27,7 +27,7 @@ block main
               checked=role.permissions.includes("accountView")
             )
       tr
-        td Thêm
+        td Create
         each role of roles
           td
             input(
@@ -38,7 +38,7 @@ block main
               checked=role.permissions.includes("accountCreate")
             )
       tr
-        td Sửa
+        td Update
         each role of roles
           td
             input(
@@ -49,7 +49,7 @@ block main
               checked=role.permissions.includes("accountUpdate")
             )
       tr
-        td Xóa
+        td Delete
         each role of roles
           td
             input(
@@ -62,9 +62,9 @@ block main
 
       //- Roles
       tr.border-top
-        th(scope="row") Vai trò
+        th(scope="row") Roles
       tr
-        td Xem
+        td Read
         each role of roles
           td
             input(
@@ -75,7 +75,7 @@ block main
               checked=role.permissions.includes("roleView")
             )
       tr
-        td Thêm
+        td Create
         each role of roles
           td
             input(
@@ -86,7 +86,7 @@ block main
               checked=role.permissions.includes("roleCreate")
             )
       tr
-        td Sửa
+        td Update
         each role of roles
           td
             input(
@@ -97,7 +97,7 @@ block main
               checked=role.permissions.includes("roleUpdate")
             )
       tr
-        td Xóa
+        td Delete
         each role of roles
           td
             input(
@@ -110,9 +110,9 @@ block main
       
       //- Users
       tr.border-top
-        th(scope="row") Người dùng
+        th(scope="row") Users
       tr
-        td Xem
+        td Read
         each role of roles
           td
             input(
@@ -123,7 +123,7 @@ block main
               checked=role.permissions.includes("userView")
             )
       tr
-        td Thêm
+        td Create
         each role of roles
           td
             input(
@@ -134,7 +134,7 @@ block main
               checked=role.permissions.includes("userCreate")
             )
       tr
-        td Sửa
+        td Update
         each role of roles
           td
             input(
@@ -145,7 +145,7 @@ block main
               checked=role.permissions.includes("userUpdate")
             )
       tr
-        td Xóa
+        td Delete
         each role of roles
           td
             input(
@@ -158,9 +158,9 @@ block main
 
       //- RoomChats
       tr.border-top
-        th(scope="row") Phòng trò chuyện
+        th(scope="row") Room chats
       tr
-        td Xem
+        td Read
         each role of roles
           td
             input(
@@ -171,7 +171,7 @@ block main
               checked=role.permissions.includes("roomChatView")
             )
       tr
-        td Thêm
+        td Create
         each role of roles
           td
             input(
@@ -182,7 +182,7 @@ block main
               checked=role.permissions.includes("roomChatCreate")
             )
       tr
-        td Sửa
+        td Update
         each role of roles
           td
             input(
@@ -193,7 +193,7 @@ block main
               checked=role.permissions.includes("roomChatUpdate")
             )
       tr
-        td Xóa
+        td Delete
         each role of roles
           td
             input(
@@ -206,9 +206,9 @@ block main
 
       //- GroupTopics
       tr.border-top
-        th(scope="row") Chủ đề cộng đồng
+        th(scope="row") Group topics
       tr
-        td Xem
+        td Read
         each role of roles
           td
             input(
@@ -219,7 +219,7 @@ block main
               checked=role.permissions.includes("groupTopicView")
             )
       tr
-        td Thêm
+        td Create
         each role of roles
           td
             input(
@@ -230,7 +230,7 @@ block main
               checked=role.permissions.includes("groupTopicCreate")
             )
       tr
-        td Sửa
+        td Update
         each role of roles
           td
             input(
@@ -241,7 +241,7 @@ block main
               checked=role.permissions.includes("groupTopicUpdate")
             )
       tr
-        td Xóa
+        td Delete
         each role of roles
           td
             input(
@@ -254,9 +254,9 @@ block main
 
       //- Groups
       tr.border-top
-        th(scope="row") Cộng đồng
+        th(scope="row") Groups
       tr
-        td Xem
+        td Read
         each role of roles
           td
             input(
@@ -267,7 +267,7 @@ block main
               checked=role.permissions.includes("groupView")
             )
       tr
-        td Thêm
+        td Create
         each role of roles
           td
             input(
@@ -278,7 +278,7 @@ block main
               checked=role.permissions.includes("groupCreate")
             )
       tr
-        td Sửa
+        td Update
         each role of roles
           td
             input(
@@ -289,7 +289,7 @@ block main
               checked=role.permissions.includes("groupUpdate")
             )
       tr
-        td Xóa
+        td Delete
         each role of roles
           td
             input(
@@ -302,9 +302,9 @@ block main
 
       //- ArticleGroups
       tr.border-top
-        th(scope="row") Bài Viết Cộng đồng
+        th(scope="row") Group articles
       tr
-        td Xem
+        td Read
         each role of roles
           td
             input(
@@ -315,7 +315,7 @@ block main
               checked=role.permissions.includes("articleGroupView")
             )
       tr
-        td Thêm
+        td Create
         each role of roles
           td
             input(
@@ -326,7 +326,7 @@ block main
               checked=role.permissions.includes("articleGroupCreate")
             )
       tr
-        td Sửa
+        td Update
         each role of roles
           td
             input(
@@ -337,7 +337,7 @@ block main
               checked=role.permissions.includes("articleGroupUpdate")
             )
       tr
-        td Xóa
+        td Delete
         each role of roles
           td
             input(
@@ -350,9 +350,9 @@ block main
 
       //- ArticleUsers
       tr.border-top
-        th(scope="row") Bài Viết Người Dùng
+        th(scope="row") User articles
       tr
-        td Xem
+        td Read
         each role of roles
           td
             input(
@@ -363,7 +363,7 @@ block main
               checked=role.permissions.includes("articleUserView")
             )
       tr
-        td Thêm
+        td Create
         each role of roles
           td
             input(
@@ -374,7 +374,7 @@ block main
               checked=role.permissions.includes("articleUserCreate")
             )
       tr
-        td Sửa
+        td Update
         each role of roles
           td
             input(
@@ -385,7 +385,7 @@ block main
               checked=role.permissions.includes("articleUserUpdate")
             )
       tr
-        td Xóa
+        td Delete
         each role of roles
           td
             input(
@@ -398,9 +398,9 @@ block main
       
       //- TaskGroups
       tr.border-top
-        th(scope="row") Nhiệm Vụ Cộng đồng
+        th(scope="row") Group tasks
       tr
-        td Xem
+        td Read
         each role of roles
           td
             input(
@@ -411,7 +411,7 @@ block main
               checked=role.permissions.includes("taskGroupView")
             )
       tr
-        td Thêm
+        td Create
         each role of roles
           td
             input(
@@ -422,7 +422,7 @@ block main
               checked=role.permissions.includes("taskGroupCreate")
             )
       tr
-        td Sửa
+        td Update
         each role of roles
           td
             input(
@@ -433,7 +433,7 @@ block main
               checked=role.permissions.includes("taskGroupUpdate")
             )
       tr
-        td Xóa
+        td Delete
         each role of roles
           td
             input(
@@ -446,9 +446,9 @@ block main
 
       //- TaskGroupSubmissions
       tr.border-top
-        th(scope="row") Nộp Bài Nhiệm Vụ Cộng đồng
+        th(scope="row") Group task submissions
       tr
-        td Xem
+        td Read
         each role of roles
           td
             input(
@@ -459,7 +459,7 @@ block main
               checked=role.permissions.includes("taskGroupSubmissionView")
             )
       tr
-        td Thêm
+        td Create
         each role of roles
           td
             input(
@@ -470,7 +470,7 @@ block main
               checked=role.permissions.includes("taskGroupSubmissionCreate")
             )
       tr
-        td Sửa
+        td Update
         each role of roles
           td
             input(
@@ -481,7 +481,7 @@ block main
               checked=role.permissions.includes("taskGroupSubmissionUpdate")
             )
       tr
-        td Xóa
+        td Delete
         each role of roles
           td
             input(

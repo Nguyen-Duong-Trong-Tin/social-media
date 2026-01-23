@@ -6,7 +6,7 @@ const updatePatch = (req, res, next) => {
         return next();
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
     }
 };
 const permissionValidate = {

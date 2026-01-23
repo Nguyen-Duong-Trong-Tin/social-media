@@ -9,16 +9,16 @@ block main
   +boxTitle(pageTitle)
 
   .mb-3
-    label.form-label Tiêu đề
+    label.form-label Title
     input(
       class="form-control"
       value=groupTopic.title
       readonly
     )
   .mb-3
-    label.form-label Mô tả
+    label.form-label Description
     textarea(
-      name="bio"
+      name="description"
       tinymce
       readonly
     ) #{groupTopic.description}

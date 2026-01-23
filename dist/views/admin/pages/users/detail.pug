@@ -9,7 +9,7 @@ block main
   +boxTitle(pageTitle)
 
   .mb-3
-    label.form-label Họ và tên
+    label.form-label Full name
     input(
       class="form-control"
       value=user.fullName
@@ -24,38 +24,38 @@ block main
       readonly
     )
   .mb-3
-    label.form-label Số điện thoại
+    label.form-label Phone
     input(
       class="form-control"
       value=user.phone
       readonly
     )
   .mb-3
-    label.form-label Ảnh
+    label.form-label Image
     .w-25.mb-1
       img(
         class="img-thumbnail"
         src=user.avatar
       )
   .mb-3
-    label.form-label Ảnh bìa
+    label.form-label Cover photo
     .w-25.mb-1
       img(
         class="img-thumbnail"
         src=user.coverPhoto
       )
   .mb-3
-    label.form-label Tiểu sử
+    label.form-label Bio
     textarea(
       name="bio"
       tinymce
       readonly
     ) #{user.bio}
   .mb-3
-    label.form-label Trạng thái
+    label.form-label Status
     select(
       class="form-select"
       disabled
     )
-      option(value="active" selected=(user.status === "active")) Hoạt động
-      option(value="inactive" selected=(user.status === "inactive")) Ngưng hoạt động
+      option(value="active" selected=(user.status === "active")) Active
+      option(value="inactive" selected=(user.status === "inactive")) Inactive

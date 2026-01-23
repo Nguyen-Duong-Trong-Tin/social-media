@@ -14,7 +14,7 @@ block main
     enctype="multipart/form-data"
   )
     .mb-3
-      label.form-label Họ và tên
+      label.form-label Title
       input(
         class="form-control"
         name="fullName"
@@ -31,7 +31,7 @@ block main
         required
       )
     .mb-3
-      label.form-label Số điện thoại
+      label.form-label Phone
       input(
         class="form-control"
         name="phone"
@@ -39,7 +39,7 @@ block main
         required
       )
     .mb-3
-      label.form-label Ảnh
+      label.form-label Image
       .w-25.mb-1
         img(
           class="img-thumbnail"
@@ -53,16 +53,16 @@ block main
         value=account.avatar
       )
     .mb-3
-      label.form-label Trạng thái
+      label.form-label Status
       select(
         class="form-select"
         name="status"
         required
       )
-        option(value="active" selected=(account.status === "active")) Hoạt động
-        option(value="inactive" selected=(account.status === "inactive")) Ngưng hoạt động
+        option(value="active" selected=(account.status === "active")) Active
+        option(value="inactive" selected=(account.status === "inactive")) Inactive
     .mb-3
-      label.form-label Vai trò
+      label.form-label Role
       select(
         class="form-select"
         name="roleId"
@@ -72,4 +72,4 @@ block main
           option(value=role.id selected=(account.roleId = role.id)) #{role.title}
     
     .d-flex.justify-content-center.mb-3
-      button.btn.btn-primary Cập nhật
+      button.btn.btn-primary Update

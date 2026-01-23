@@ -230,22 +230,6 @@ const updateBio = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
 });
-// PATCH /v1/users/accept-friend
-const acceptFriend = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { id, userRequestId } = req.body;
-        // const userExists = await userService.findOneAndUpdate({
-        //   filter: { _id: id, "friendRequests.userId": userRequestId},
-        //   update: { $push: { friends: { userId: userRequestId, roomChatId } } },
-        // });
-    }
-    catch (_a) {
-        return res.status(500).json({
-            status: false,
-            message: "Something went wrong",
-        });
-    }
-});
 const userController = {
     checkExistsEmail,
     checkExistsPhone,

@@ -19,7 +19,7 @@ const get = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleView")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
 
@@ -29,8 +29,8 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string
     }[] = [
         { value: "", title: "---" },
-        { value: "title-asc", title: "Tiêu đề tăng dần" },
-        { value: "title-desc", title: "Tiêu đề giảm dần" }
+        { value: "title-asc", title: "Title (A - Z)" },
+        { value: "title-desc", title: "Title (Z - A)" }
       ];
 
     const keyword: string = req.query.keyword;
@@ -40,7 +40,7 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string
     }[] = [
         { value: "", title: "---" },
-        { value: "delete", title: "Xóa" }
+        { value: "delete", title: "Delete" }
       ];
 
     const page: number = parseInt(req.query.page as string) || 1;
@@ -52,7 +52,7 @@ const get = async (req: any, res: Response): Promise<void> => {
     ]);
 
     return res.render("admin/pages/roles", {
-      pageTitle: "Danh Sách Vai Trò",
+      pageTitle: "List of roles",
       url: getUrlHelper(req),
       roles,
       sort: {
@@ -68,7 +68,7 @@ const get = async (req: any, res: Response): Promise<void> => {
       }
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra");
+    req.flash("error", "Something went wrong");
     return res.redirect("back");
   }
 }
@@ -82,7 +82,7 @@ const getById = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleView")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
 
@@ -90,7 +90,7 @@ const getById = async (req: any, res: Response): Promise<void> => {
 
     const roleExists = await roleService.findById(id);
     if (!roleExists) {
-      req.flash("error", "Vai trò không tồn tại!");
+      req.flash("error", "Role not found!");
       return res.redirect("back");
     }
 
@@ -110,13 +110,13 @@ const getById = async (req: any, res: Response): Promise<void> => {
     ]);
 
     return res.render("admin/pages/roles/detail", {
-      pageTitle: "Chi Tiết Vai Trò",
+      pageTitle: "Role details",
       role: roleExists,
       createdBy,
       updatedBy
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -130,15 +130,15 @@ const create = (req: any, res: Response): void => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleCreate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/roles`);
     }
 
     return res.render("admin/pages/roles/create", {
-      pageTitle: "Thêm Mới Vai Trò"
+      pageTitle: "Create new role"
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -152,7 +152,7 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleCreate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/roles`);
     }
 
@@ -162,7 +162,7 @@ const createPost = async (req: any, res: Response): Promise<void> => {
 
     const roleSlugExists = await roleService.findBySlug(slug);
     if (roleSlugExists) {
-      req.flash("error", "Có lỗi xảy ra!");
+      req.flash("error", "Something went wrong!");
       return res.redirect("back");
     }
 
@@ -178,10 +178,10 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       deleted: false
     });
 
-    req.flash("success", "Vai trò được tạo thành công!");
+    req.flash("success", "Role was updated successfully!");
     return res.redirect(`/${configs.admin}/roles`);
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -195,7 +195,7 @@ const update = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/roles`);
     }
 
@@ -203,16 +203,16 @@ const update = async (req: any, res: Response): Promise<void> => {
 
     const roleExists = await roleService.findById(id);
     if (!roleExists) {
-      req.flash("error", "Vai trò không tồn tại!");
+      req.flash("error", "Role not found!");
       return res.redirect("back");
     }
 
     return res.render("admin/pages/roles/update", {
-      pageTitle: "Cập Nhật Vai Trò",
+      pageTitle: "Update role",
       role: roleExists
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -226,7 +226,7 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/roles`);
     }
 
@@ -244,11 +244,11 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       roleService.findBySlug(slug)
     ]);
     if (!roleExists) {
-      req.flash("error", "Vai trò không tồn tại!");
+      req.flash("error", "Role not found!");
       return req.redirect("back");
     }
     if (roleSlugExists) {
-      req.flash("error", "Có lỗi xảy ra!");
+      req.flash("error", "Something went wrong!");
       return res.redirect("back");
     }
 
@@ -264,9 +264,9 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       }
     },);
 
-    req.flash("success", "Vai trò được cập nhật thành công!");
+    req.flash("success", "Role was updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 }
@@ -285,7 +285,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
     switch (action) {
       case "delete": {
         if (!myAccount.permissions.includes("roleDelete")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/roles`);
         }
 
@@ -298,14 +298,14 @@ const actions = async (req: any, res: Response): Promise<void> => {
       }
 
       default: {
-        req.flash("error", "Hành động không chính xác!");
+        req.flash("error", "Action wrong!");
         return res.redirect("back");
       }
     }
 
-    req.flash("success", "Các vai trò được cập nhật thành công!");
+    req.flash("success", "Roles were updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 }
@@ -319,7 +319,7 @@ const del = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleDelete")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/roles`);
     }
 
@@ -327,7 +327,7 @@ const del = async (req: any, res: Response): Promise<void> => {
 
     const roleExists = await roleService.findById(id);
     if (!roleExists) {
-      req.flash("error", "Vai trò không tồn tại!");
+      req.flash("error", "Role not found!");
       return res.redirect("back");
     }
 
@@ -336,9 +336,9 @@ const del = async (req: any, res: Response): Promise<void> => {
       deletedAt: new Date()
     });
 
-    req.flash("success", "Vai trò được xóa thành công!");
+    req.flash("success", "Role was deleted successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 }

@@ -1,46 +1,46 @@
 ul.menu
   li
-    a(class="btn btn-secondary" href=`/${admin}/dashboard`) Tổng Quan
+    a(class="btn btn-secondary" href=`/${admin}/dashboard`) Dashboard
   hr
 
   if (myAccount.permissions.includes("groupView"))
     li
-      a(class="btn btn-secondary" href=`/${admin}/groups`) Cộng Đồng
+      a(class="btn btn-secondary" href=`/${admin}/groups`) Groups
   if (myAccount.permissions.includes("groupTopicView"))
     li
-      a(class="btn btn-secondary" href=`/${admin}/groupTopics`) Chủ Đề Cộng Đồng
+      a(class="btn btn-secondary" href=`/${admin}/groupTopics`) Group topics
   if (myAccount.permissions.includes("articleGroupView"))
     li
-      a(class="btn btn-secondary" href=`/${admin}/articleGroups`) Bài Viết Cộng Đồng
+      a(class="btn btn-secondary" href=`/${admin}/articleGroups`) Group articles
   if (myAccount.permissions.includes("taskGroupView"))
     li
-      a(class="btn btn-secondary" href=`/${admin}/taskGroups`) Nhiệm Vụ Cộng Đồng
+      a(class="btn btn-secondary" href=`/${admin}/taskGroups`) Group tasks
   if (myAccount.permissions.includes("taskGroupSubmissionView"))
     li
-      a(class="btn btn-secondary" href=`/${admin}/taskGroupSubmissions`) Nộp Bài Nhiệm Vụ Cộng Đồng
+      a(class="btn btn-secondary" href=`/${admin}/taskGroupSubmissions`) Group task submissions
   hr
 
   if (myAccount.permissions.includes("userView"))
     li
-      a(class="btn btn-secondary" href=`/${admin}/users`) Người Dùng
+      a(class="btn btn-secondary" href=`/${admin}/users`) Users
   if (myAccount.permissions.includes("articleUserView"))
     li
-      a(class="btn btn-secondary" href=`/${admin}/articleUsers`) Bài Viết Người Dùng
+      a(class="btn btn-secondary" href=`/${admin}/articleUsers`) User articles
   hr
 
   if (myAccount.permissions.includes("roomChatView"))
     li
-      a(class="btn btn-secondary" href=`/${admin}/roomChats`) Phòng Trò Chuyện
+      a(class="btn btn-secondary" href=`/${admin}/roomChats`) Room chats
   hr
 
   if (myAccount.permissions.includes("accountView"))
     li
-      a(class="btn btn-secondary" href=`/${admin}/accounts`) Tài Khoản
+      a(class="btn btn-secondary" href=`/${admin}/accounts`) Accounts
 
   if (myAccount.permissions.includes("roleView")) 
     li
-      a(class="btn btn-secondary" href=`/${admin}/roles`) Vai Trò
+      a(class="btn btn-secondary" href=`/${admin}/roles`) Roles
       
   if (myAccount.permissions.includes("roleView")) 
     li
-      a(class="btn btn-secondary" href=`/${admin}/permissions`) Phân Quyền
+      a(class="btn btn-secondary" href=`/${admin}/permissions`) Permissions

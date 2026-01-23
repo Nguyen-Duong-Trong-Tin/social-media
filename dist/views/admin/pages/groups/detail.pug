@@ -9,42 +9,42 @@ block main
   +boxTitle(pageTitle)
 
   .mb-3
-    label.form-label Tiêu đề
+    label.form-label Title
     input(
       class="form-control"
       value=group.title
       readonly
     )
   .mb-3
-    label.form-label Mô tả
+    label.form-label Description
     textarea(
       tinymce
       readonly
     ) #{group.description}
   .mb-3
-    label.form-label Ảnh
+    label.form-label Avatar
     .w-25.mb-1
       img(
         class="img-thumbnail"
         src=group.avatar
       )
   .mb-3
-    label.form-label Ảnh bìa
+    label.form-label Cover photo
     .w-25.mb-1
       img(
         class="img-thumbnail"
         src=group.coverPhoto
       )
   .mb-3
-    label.form-label Trạng thái
+    label.form-label Status
     select(
       class="form-select"
       disabled
     )
-      option(value="active" selected=(group.status === "active")) Hoạt động
-      option(value="inactive" selected=(group.status === "inactive")) Ngưng hoạt động
+      option(value="active" selected=(group.status === "active")) Active
+      option(value="inactive" selected=(group.status === "inactive")) Inactive
   .mb-3
-    label.form-label Chủ đề
+    label.form-label Group topic
     select(
       class="form-select"
       disabled
@@ -53,7 +53,7 @@ block main
         option(value=groupTopic.id selected=(groupTopic.id === group.groupTopicId)) #{groupTopic.title}
 
   .mb-3
-    label.form-label Danh sách người tham gia
+    label.form-label List of participants
     .row
       each item in users
         .col-3
@@ -66,19 +66,19 @@ block main
             .card-body
               h5.card-title #{item.user.fullName}
               -if(item.role === "superAdmin")
-                p.card-text #{"Chủ phòng"}
+                p.card-text #{"Owner"}
               -else if (item.role === "admin")
-                p.card-text #{"Quản trị"}
+                p.card-text #{"Admin"}
               -else
-                p.card-text #{"Người dùng"}
+                p.card-text #{"User"}
               p.card-text #{item.user.phone}
               a(
                 class="btn btn-primary"
                 href=`/${admin}/users/detail/${item.user.id}`
-              ) Chi tiết
+              ) Detail
 
   .mb-3
-    label.form-label Danh sách người yêu cầu
+    label.form-label List of user requests
     .row
       each user in userRequests
         .col-3
@@ -94,4 +94,4 @@ block main
               a(
                 class="btn btn-primary"
                 href=`/${admin}/users/detail/${user.id}`
-              ) Chi tiết
+              ) Detail

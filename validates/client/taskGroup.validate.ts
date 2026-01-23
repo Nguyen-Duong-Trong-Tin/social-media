@@ -15,7 +15,7 @@ const create = (req: any, res: Response, next: NextFunction) => {
     if (!title || !status || !userId || !groupId || !deadline) {
       return res.status(400).json({
         status: false,
-        message: "Input required",
+        message: "Input required!",
       });
     }
 
@@ -63,7 +63,7 @@ const create = (req: any, res: Response, next: NextFunction) => {
 
     return next();
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 };
@@ -83,7 +83,7 @@ const update = (req: any, res: Response, next: NextFunction) => {
     if (!title && !description && !status && !userId && !groupId && !deadline) {
       return res.status(400).json({
         status: false,
-        message: "Input required",
+        message: "Input required!",
       });
     }
 

@@ -13,7 +13,7 @@ block main
   +boxCreate(`/${admin}/taskGroups/create`)
 
   form(form-filter)
-    label.form-label Bộ lọc
+    label.form-label Filter
     .input-group.mb-3
       select(
         class="form-select"
@@ -27,7 +27,7 @@ block main
 
   +formSort(sort)
 
-  +formSearch(keyword, "Tìm kiếm theo tiêu đề nhiệm vụ cộng đồng...")
+  +formSearch(keyword, "Search by title...")
 
   +formAction(`${url.base}/actions?_method=PATCH`, actionOptions)
 
@@ -41,10 +41,10 @@ block main
             name="checkbox-all"
           )
         th(scope="col") #
-        th(scope="col") Tiêu đề
-        th(scope="col") Cộng đồng
-        th(scope="col") Trạng thái
-        th(scope="col") Hành động
+        th(scope="col") Title
+        th(scope="col") Group
+        th(scope="col") Status
+        th(scope="col") Actions
     tbody
       each taskGroup, index in taskGroups
         tr
@@ -69,17 +69,17 @@ block main
                 name="status"
                 required
               )
-                option(value="active" selected=(taskGroup.status === "active")) Hoạt động
-                option(value="inactive" selected=(taskGroup.status === "inactive")) Ngưng hoạt động
+                option(value="active" selected=(taskGroup.status === "active")) Active
+                option(value="inactive" selected=(taskGroup.status === "inactive")) Inactive
           td
-            a(class="btn btn-primary" href=`/${admin}/taskGroups/detail/${taskGroup.id}`) Xem 
-            a(class="btn btn-warning mx-1" href=`/${admin}/taskGroups/update/${taskGroup.id}`) Sửa
+            a(class="btn btn-primary" href=`/${admin}/taskGroups/detail/${taskGroup.id}`) Detail 
+            a(class="btn btn-warning mx-1" href=`/${admin}/taskGroups/update/${taskGroup.id}`) Edit
             form(
               class="d-inline"
               method="POST"
               action=`/${admin}/taskGroups/delete/${taskGroup.id}?_method=DELETE`
               form-delete-item
             )
-              button.btn.btn-danger Xóa
+              button.btn.btn-danger Delete
   
   +pagination(url, pagination.page, pagination.maxPage, pagination.limit)

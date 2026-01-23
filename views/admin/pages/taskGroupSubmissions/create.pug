@@ -14,20 +14,20 @@ block main
     enctype="multipart/form-data"
   )
     .mb-3
-      label.form-label Tiêu đề
+      label.form-label Title
       input(
         class="form-control"
         name="title"
         required
       )
     .mb-3
-      label.form-label Mô tả
+      label.form-label Description
       textarea(
         name="description"
         tinymce
       )
     .mb-3
-      label.form-label Các ảnh
+      label.form-label Images
       input(
         class="form-control"
         type="file"
@@ -37,7 +37,7 @@ block main
         chooseMaxFileQuantity=6
       )
     .mb-3
-      label.form-label Các đoạn phim
+      label.form-label Videos
       input(
         class="form-control"
         type="file"
@@ -47,7 +47,7 @@ block main
         chooseMaxFileQuantity=6
       )
     .mb-3
-      label.form-label Các tài liệu
+      label.form-label Materials
       input(
         class="form-control"
         type="file"
@@ -57,16 +57,16 @@ block main
         chooseMaxFileQuantity=6
       )
     .mb-3
-      label.form-label Trạng thái
+      label.form-label Status
       select(
         class="form-select"
         name="status"
         required
       )
-        option(value="active") Hoạt động
-        option(value="inactive") Ngưng hoạt động
+        option(value="active") Active
+        option(value="inactive") Inactive
     .mb-3
-      label.form-label Người tạo
+      label.form-label Owner
       select(
         class="form-select"
         name="userId"
@@ -77,7 +77,7 @@ block main
           option(value=user.id) #{user.fullName} - #{user.phone}
 
     .mb-3
-      label.form-label Nhiệm vụ cộng đồng
+      label.form-label Group task
       select(
         class="form-select"
         name="taskGroupId"
@@ -88,4 +88,4 @@ block main
           option(value=taskGroup.id) #{taskGroup.title}
     
     .d-flex.justify-content-center.mb-3
-      button.btn.btn-primary Thêm
+      button.btn.btn-primary Add

@@ -22,7 +22,7 @@ const get = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountView")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
 
@@ -32,8 +32,8 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string
     }[] = [
         { value: "", title: "---" },
-        { value: "status-active", title: "Trạng thái hoạt động" },
-        { value: "status-inactive", title: "Trạng thái ngưng hoạt động" },
+        { value: "status-active", title: "Active status" },
+        { value: "status-inactive", title: "Inactive status" },
       ];
 
     const sort: string = req.query.sort;
@@ -42,11 +42,11 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string
     }[] = [
         { value: "", title: "---" },
-        { value: "fullName-asc", title: "Họ tên tăng dần" },
-        { value: "fullName-desc", title: "Họ tên giảm dần" },
-        { value: "email-asc", title: "Email tăng dần" },
-        { value: "email-desc", title: "Email giảm dần" },
-        { value: "roleId-asc", title: "Gom nhóm theo vai trò" }
+        { value: "fullName-asc", title: "Title (A - Z)" },
+        { value: "fullName-desc", title: "Title (Z - A)" },
+        { value: "email-asc", title: "Email (A - Z)" },
+        { value: "email-desc", title: "Email (Z - A)" },
+        { value: "roleId-asc", title: "Group by role" }
       ];
 
     const keyword: string = req.query.keyword;
@@ -56,9 +56,9 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string
     }[] = [
         { value: "", title: "---" },
-        { value: "delete", title: "Xóa" },
-        { value: "active", title: "Hoạt động" },
-        { value: "inactive", title: "Ngưng hoạt động" }
+        { value: "delete", title: "Delete" },
+        { value: "active", title: "Active" },
+        { value: "inactive", title: "Inactive" }
       ];
 
     const page: number = parseInt(req.query.page as string) || 1;
@@ -71,7 +71,7 @@ const get = async (req: any, res: Response): Promise<void> => {
     const roles = await Promise.all(accounts.map(account => roleService.findById(account.roleId)));
 
     return res.render("admin/pages/accounts", {
-      pageTitle: "Danh Sách Tài Khoản",
+      pageTitle: "List of accounts",
       url: getUrlHelper(req),
       accounts,
       roles,
@@ -92,7 +92,7 @@ const get = async (req: any, res: Response): Promise<void> => {
       }
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -106,7 +106,7 @@ const getById = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountView")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
 
@@ -120,7 +120,7 @@ const getById = async (req: any, res: Response): Promise<void> => {
       roleService.findAll()
     ]);
     if (!accountExists) {
-      req.flash("error", "Tài khoản không tồn tại!");
+      req.flash("error", "Account not found!");
       return res.redirect("back");
     }
 
@@ -140,14 +140,14 @@ const getById = async (req: any, res: Response): Promise<void> => {
     ]);
 
     return res.render("admin/pages/accounts/detail", {
-      pageTitle: "Chi Tiết Tài Khoản",
+      pageTitle: "Account details",
       account: accountExists,
       roles,
       createdBy,
       updatedBy
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -161,7 +161,7 @@ const create = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountCreate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/accounts`);
     }
 
@@ -171,7 +171,7 @@ const create = async (req: any, res: Response): Promise<void> => {
       roles
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -185,7 +185,7 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountCreate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/accounts`);
     }
 
@@ -210,19 +210,19 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       roleService.findById(roleId)
     ]);
     if (accountSlugExists) {
-      req.flash("error", "Có lỗi xảy ra!");
+      req.flash("error", "Something went wrong!");
       return res.redirect("back");
     }
     if (accountEmailExists) {
-      req.flash("error", "Email đã tồn tại!");
+      req.flash("error", "Email already exists!");
       return res.redirect("back");
     }
     if (accountPhoneExists) {
-      req.flash("error", "Số điện thoại đã tồn tại!");
+      req.flash("error", "Phone already exists!");
       return res.redirect("back");
     }
     if (!roleExists) {
-      req.flash("error", "Vai trò không được tìm thấy!");
+      req.flash("error", "Role not found!");
       return res.redirect("back");
     }
 
@@ -242,12 +242,12 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       deleted: false
     });
 
-    req.flash("success", "Tài khoản được tạo thành công!");
+    req.flash("success", "Account was created successfully!");
     return res.redirect(`/${configs.admin}/accounts`);
   } catch(e) {
     console.log(e);
     
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -261,7 +261,7 @@ const update = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/accounts`);
     }
 
@@ -275,17 +275,17 @@ const update = async (req: any, res: Response): Promise<void> => {
       roleService.findAll()
     ]);
     if (!accountExists) {
-      req.flash("error", "Tài khoản không tồn tại!");
+      req.flash("error", "Account not found!");
       return res.redirect("back");
     }
 
     return res.render("admin/pages/accounts/update", {
-      pageTitle: "Cập Nhật Tài Khoản",
+      pageTitle: "Update account",
       account: accountExists,
       roles
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -299,7 +299,7 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/accounts`);
     }
 
@@ -331,29 +331,29 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       roleService.findById(roleId)
     ]);
     if (!accountIdExists) {
-      req.flash("error", "Tài khoản không tồn tại!");
+      req.flash("error", "Account not found!");
       return res.redirect("back");
     }
     if (accountSlugExists) {
-      req.flash("error", "Có lỗi xảy ra!");
+      req.flash("error", "Something went wrong!");
       return res.redirect("back");
     }
     if (
       accountEmailExists &&
       accountEmailExists.id !== id
     ) {
-      req.flash("error", "Email đã tồn tại!");
+      req.flash("error", "Email already exists!");
       return res.redirect("back");
     }
     if (
       accountPhoneExists &&
       accountPhoneExists.id !== id
     ) {
-      req.flash("error", "Số điện thoại đã tồn tại!");
+      req.flash("error", "Phone already exists!");
       return res.redirect("back");
     }
     if (!roleExists) {
-      req.flash("error", "Vai trò không tồn tại!");
+      req.flash("error", "Role not found!");
       return res.redirect("back");
     }
 
@@ -372,9 +372,9 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
         }
       }
     });
-    req.flash("success", "Tài khoản được cập nhật thành công!");
+    req.flash("success", "Account was updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 }
@@ -393,7 +393,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
     switch (action) {
       case "delete": {
         if (!myAccount.permissions.includes("accountDelete")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/accounts`);
         }
 
@@ -407,7 +407,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
 
       case "active": {
         if (!myAccount.permissions.includes("accountUpdate")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/accounts`);
         }
 
@@ -426,7 +426,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
 
       case "inactive": {
         if (!myAccount.permissions.includes("accountUpdate")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/accounts`);
         }
 
@@ -444,14 +444,14 @@ const actions = async (req: any, res: Response): Promise<void> => {
       }
 
       default: {
-        req.flash("error", "Hành động không chính xác!");
+        req.flash("error", "Action wrong!");
         return res.redirect("back");
       }
     }
 
-    req.flash("success", "Các tài khoản được cập nhật thành công!");
+    req.flash("success", "Accounts were updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 }
@@ -465,7 +465,7 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/accounts`);
     }
 
@@ -474,7 +474,7 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
 
     const accountExists = await accountService.findById(id);
     if (!accountExists) {
-      req.flash("error", "Tài khoản không tồn tại!");
+      req.flash("error", "Account not found!");
       return res.redirect("back");
     }
 
@@ -487,9 +487,9 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
         }
       }
     });
-    req.flash("success", "Tài khoản được cập nhật thành công!");
+    req.flash("success", "Account was updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 }
@@ -503,7 +503,7 @@ const del = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountDelete")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/accounts`);
     }
 
@@ -511,7 +511,7 @@ const del = async (req: any, res: Response): Promise<void> => {
 
     const accountExists = await accountService.findById(id);
     if (!accountExists) {
-      req.flash("error", "Tài khoản không tồn tại!");
+      req.flash("error", "Account not found!");
       return res.redirect("back");
     }
 
@@ -519,9 +519,9 @@ const del = async (req: any, res: Response): Promise<void> => {
       accountId: myAccount.accountId,
       deletedAt: new Date()
     });
-    req.flash("success", "Tài khoản được xóa thành công!");
+    req.flash("success", "Account was deleted successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 }

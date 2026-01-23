@@ -14,7 +14,7 @@ const create = (req, res, next) => {
         if (!title || !status || !userId || !groupId || !deadline) {
             return res.status(400).json({
                 status: false,
-                message: "Input required",
+                message: "Input required!",
             });
         }
         if (typeof title !== "string" ||
@@ -55,7 +55,7 @@ const create = (req, res, next) => {
         return next();
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };
@@ -73,7 +73,7 @@ const update = (req, res, next) => {
         if (!title && !description && !status && !userId && !groupId && !deadline) {
             return res.status(400).json({
                 status: false,
-                message: "Input required",
+                message: "Input required!",
             });
         }
         if ((title && typeof title !== "string") ||

@@ -7,7 +7,7 @@ const checkExistsEmail = (req: Request, res: Response, next: NextFunction) => {
   if (!email) {
     return res.status(400).json({
       status: false,
-      message: "Input required",
+      message: "Input required!",
     });
   }
 
@@ -21,7 +21,7 @@ const checkExistsPhone = (req: Request, res: Response, next: NextFunction) => {
   if (!phone) {
     return res.status(400).json({
       status: false,
-      message: "Input required",
+      message: "Input required!",
     });
   }
 
@@ -35,7 +35,7 @@ const updateBio = async (req: Request, res: Response, next: NextFunction) => {
   if (!bio) {
     return res.status(400).json({
       status: false,
-      message: "Input required",
+      message: "Input required!",
     });
   }
 

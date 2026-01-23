@@ -10,7 +10,7 @@ mixin pagination(url, page, maxPage, limit)
           a(
             class="page-link"
             href=`${url.base}?${searchParams.toString()}`
-          ) Trước
+          ) Previous
         li.page-item
           a(
             class="page-link"
@@ -23,7 +23,7 @@ mixin pagination(url, page, maxPage, limit)
           a(
             class="page-link"
             href=`${url.base}?${searchParams.toString()}`
-          ) Trước
+          ) Previous
 
         - searchParams.set("page", page - 2);
         li.page-item
@@ -66,7 +66,7 @@ mixin pagination(url, page, maxPage, limit)
           a(
             class="page-link"
             href=`${url.base}?${searchParams.toString()}`
-          ) Sau
+          ) Next
 
       if (page + 1 === maxPage)  
         - searchParams.set("page", page + 1); 
@@ -79,4 +79,4 @@ mixin pagination(url, page, maxPage, limit)
           a(
             class="page-link"
             href=`${url.base}?${searchParams.toString()}`
-          ) Sau
+          ) Next

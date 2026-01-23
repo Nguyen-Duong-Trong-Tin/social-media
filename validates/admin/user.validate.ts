@@ -24,7 +24,7 @@ const createPost = (req: any, res: Response, next: NextFunction): void => {
       !status ||
       !bio
     ) {
-      req.flash("error", "Thông tin không đầy đủ!");
+      req.flash("error", "Input required!");
       return res.redirect("back");
     }
 
@@ -36,28 +36,28 @@ const createPost = (req: any, res: Response, next: NextFunction): void => {
       typeof status !== "string" ||
       typeof bio !== "string"
     ) {
-      req.flash("error", "Kiểu dữ liệu không chính xác!");
+      req.flash("error", "Datatype wrong!");
       return res.redirect("back");
     }
 
     if (!validateHelper.email(email)) {
-      req.flash("error", "Email không chính xác!");
+      req.flash("error", "Email wrong!");
       return res.redirect("back");
     }
 
     if (!validateHelper.password(password)) {
-      req.flash("error", "Mật khẩu phải có độ dài từ 8 kí tự, có kí tự in hoa, in thường, số và kí tự đặc biệt.");
+      req.flash("error", "Passwords must be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and special characters.!");
       return res.redirect("back");
     }
 
     if (!Object.values(EUserStatus).includes(status as EUserStatus)) {
-      req.flash("error", "Trạng thái không chính xác!");
+      req.flash("error", "Status wrong!");
       return res.redirect("back");
     }
 
     return next();
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -78,7 +78,7 @@ const updatePatch = (req: any, res: Response, next: NextFunction): void => {
       !status ||
       !bio
     ) {
-      req.flash("error", "Thông tin không đầy đủ!");
+      req.flash("error", "Input required!");
       return res.redirect("back");
     }
 
@@ -89,23 +89,23 @@ const updatePatch = (req: any, res: Response, next: NextFunction): void => {
       typeof status !== "string" ||
       typeof bio !== "string"
     ) {
-      req.flash("error", "Kiểu dữ liệu không chính xác!");
+      req.flash("error", "Datatype wrong!");
       return res.redirect("back");
     }
 
     if (!validateHelper.email(email)) {
-      req.flash("error", "Email không chính xác!");
+      req.flash("error", "Email wrong!");
       return res.redirect("back");
     }
 
     if (!Object.values(EUserStatus).includes(status as EUserStatus)) {
-      req.flash("error", "Trạng thái không chính xác!");
+      req.flash("error", "Status wrong!");
       return res.redirect("back");
     }
 
     return next();
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -120,7 +120,7 @@ const actions = (req: any, res: Response, next: NextFunction): void => {
       !action ||
       !ids
     ) {
-      req.flash("error", "Thiếu thông tin cần thiết!");
+      req.flash("error", "Input required!");
       return res.redirect("back");
     }
 
@@ -128,13 +128,13 @@ const actions = (req: any, res: Response, next: NextFunction): void => {
       typeof action !== "string" ||
       typeof ids !== "string"
     ) {
-      req.flash("error", "Kiểu dữ liệu không chính xác!");
+      req.flash("error", "Datatype wrong!");
       return res.redirect("back");
     }
 
     return next();
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }
@@ -145,13 +145,13 @@ const updateStatus = (req: any, res: Response, next: NextFunction): void => {
     const status: string = req.params.status;
 
     if (!Object.values(EUserStatus).includes(status as EUserStatus)) {
-      req.flash("error", "Trạng thái không chính xác!");
+      req.flash("error", "Status wrong!");
       return res.redirect("back");
     }
 
     return next();
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 }

@@ -9,20 +9,20 @@ block main
   +boxTitle(pageTitle)
 
   .mb-3
-    label.form-label Tiêu đề
+    label.form-label Title
     input(
       class="form-control"
       value=taskGroup.title
       readonly
     )
   .mb-3
-    label.form-label Mô tả
+    label.form-label Description
     textarea(
       tinymce
       readonly
     ) #{taskGroup.description}
   .mb-3
-    label.form-label Các ảnh
+    label.form-label Images
     each image in taskGroup.images
       .w-50.mb-1
         img(
@@ -30,7 +30,7 @@ block main
           src=image
         )
   .mb-3
-    label.form-label Các đoạn phim
+    label.form-label Videos
     each video in taskGroup.videos
       .w-50.mb-1
         video(
@@ -42,15 +42,15 @@ block main
             src=video
         )
   .mb-3
-    label.form-label Trạng thái
+    label.form-label Status
     select(
       class="form-select"
       disabled
     )
-      option(value="active" selected=(taskGroup.status === "active")) Hoạt động
-      option(value="inactive" selected=(taskGroup.status === "inactive")) Ngưng hoạt động
+      option(value="active" selected=(taskGroup.status === "active")) Active
+      option(value="inactive" selected=(taskGroup.status === "inactive")) Inactive
   .mb-3
-    label.form-label Người tạo
+    label.form-label Onwer
     select(
       class="form-select"
       disabled
@@ -60,7 +60,7 @@ block main
         option(value=user.id selected=(user.id === taskGroup.createdBy.userId)) #{user.fullName} - #{user.phone}
 
   .mb-3
-    label.form-label Cộng đồng
+    label.form-label Group
     select(
       class="form-select"
       disabled

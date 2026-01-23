@@ -22,77 +22,79 @@ const get = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("groupView")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
 
     const filter: string = req.query.filter;
     const filterOptions: {
-      value: string,
-      title: string
+      value: string;
+      title: string;
     }[] = [
-        { value: "", title: "---" },
-        { value: "status-active", title: "Trạng thái hoạt động" },
-        { value: "status-inactive", title: "Trạng thái ngưng hoạt động" },
-      ];
+      { value: "", title: "---" },
+      { value: "status-active", title: "Active status" },
+      { value: "status-inactive", title: "Inactive status" },
+    ];
 
     const sort: string = req.query.sort;
     const sortOptions: {
-      value: string,
-      title: string
+      value: string;
+      title: string;
     }[] = [
-        { value: "", title: "---" },
-        { value: "title-asc", title: "Tiêu đề cộng đồng tăng dần" },
-        { value: "title-desc", title: "Tiêu đề cộng đồng giảm dần" }
-      ];
+      { value: "", title: "---" },
+      { value: "title-asc", title: "Title (A-Z)" },
+      { value: "title-desc", title: "Title (Z-A)" },
+    ];
 
     const keyword: string = req.query.keyword;
 
     const actionOptions: {
-      value: string,
-      title: string
+      value: string;
+      title: string;
     }[] = [
-        { value: "", title: "---" },
-        { value: "delete", title: "Xóa" },
-        { value: "active", title: "Hoạt động" },
-        { value: "inactive", title: "Ngưng hoạt động" }
-      ];
+      { value: "", title: "---" },
+      { value: "delete", title: "Delete" },
+      { value: "active", title: "Active" },
+      { value: "inactive", title: "Inactive" },
+    ];
 
     const page: number = parseInt(req.query.page as string) || 1;
     const limit: number = parseInt(req.query.limit as string) || 10;
 
     const [maxPage, groups] = await Promise.all([
       groupService.calculateMaxPage(limit),
-      groupService.find(req)
+      groupService.find(req),
     ]);
-    const groupTopics = await Promise.all(groups.map(group => groupTopicService.findById(group.groupTopicId)));
+    const groupTopics = await Promise.all(
+      groups.map((group) => groupTopicService.findById(group.groupTopicId)),
+    );
 
     return res.render("admin/pages/groups", {
-      pageTitle: "Danh Sách Cộng Đồng",
+      pageTitle: "List of groups",
       url: getUrlHelper(req),
       groups,
       groupTopics,
       filter: {
         filter,
-        filterOptions
+        filterOptions,
       },
       sort: {
         sort,
-        sortOptions
+        sortOptions,
       },
       keyword,
       actionOptions,
       pagination: {
         page,
         limit,
-        maxPage
-      }
+        maxPage,
+      },
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [GET] /admin/groups/detail/:id
 const getById = async (req: any, res: Response): Promise<void> => {
@@ -103,7 +105,7 @@ const getById = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("groupView")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
 
@@ -111,37 +113,41 @@ const getById = async (req: any, res: Response): Promise<void> => {
 
     const groupExists = await groupService.findById(id);
     if (!groupExists) {
-      req.flash("error", "Cộng đồng không tồn tại!");
+      req.flash("error", "Group not found!");
       return res.redirect("back");
     }
 
-    const [
-      groupTopics,
-      users,
-      userRequests
-    ] = await Promise.all([
+    const [groupTopics, users, userRequests] = await Promise.all([
       groupTopicService.findAll(),
 
-      Promise.all(groupExists.users.map(user => userService.findById(user.userId as string).then(data => ({
-        user: data,
-        role: user.role
-      })))),
+      Promise.all(
+        groupExists.users.map((user) =>
+          userService.findById(user.userId as string).then((data) => ({
+            user: data,
+            role: user.role,
+          })),
+        ),
+      ),
 
-      Promise.all(groupExists.userRequests.map(userRequest => userService.findById(userRequest)))
+      Promise.all(
+        groupExists.userRequests.map((userRequest) =>
+          userService.findById(userRequest),
+        ),
+      ),
     ]);
 
     return res.render("admin/pages/groups/detail", {
-      pageTitle: "Chi Tiết Cộng Đồng",
+      pageTitle: "Group details",
       group: groupExists,
       groupTopics,
       users,
-      userRequests
+      userRequests,
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [GET] /admin/groups/create
 const create = async (req: any, res: Response): Promise<void> => {
@@ -152,44 +158,42 @@ const create = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("groupCreate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/groups`);
     }
 
-    const [
-      users,
-      groupTopics
-    ] = await Promise.all([
+    const [users, groupTopics] = await Promise.all([
       userService.findAll(),
-      groupTopicService.findAll()
+      groupTopicService.findAll(),
     ]);
 
     return res.render("admin/pages/groups/create", {
-      pageTitle: "Tạo Mới Cộng Đồng",
+      pageTitle: "Create new group",
       users,
-      groupTopics
+      groupTopics,
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [POST] /admin/groups/create
 const createPost = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("groupCreate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/groups`);
     }
 
     const title: string = req.body.title;
-    const slug: string = slugUtil.convert(title) + '-' + shortUniqueKeyUtil.generate();
+    const slug: string =
+      slugUtil.convert(title) + "-" + shortUniqueKeyUtil.generate();
     const description: string = req.body.description;
     const avatar: string = req.files["avatar"][0].path;
     const coverPhoto: string = req.files["coverPhoto"][0].path;
@@ -197,31 +201,27 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     const userId: string = req.body.userId;
     const groupTopicId: string = req.body.groupTopicId;
 
-    const [
-      groupSlugExists,
-      userExists,
-      groupTopicExists
-    ] = await Promise.all([
+    const [groupSlugExists, userExists, groupTopicExists] = await Promise.all([
       groupService.findBySlug(slug),
       userService.findById(userId),
-      groupTopicService.findById(groupTopicId)
+      groupTopicService.findById(groupTopicId),
     ]);
     if (groupSlugExists) {
-      req.flash("error", "Có lỗi xảy ra!");
+      req.flash("error", "Something went wrong!");
       return res.redirect("back");
     }
     if (!userExists) {
-      req.flash("error", "Người dùng không tồn tại!");
+      req.flash("error", "User not found!");
       return res.redirect("back");
     }
     if (!groupTopicExists) {
-      req.flash("error", "Chủ đề cộng đồng không tồn tại!");
+      req.flash("error", "Group topic not found!");
       return res.redirect("back");
     }
 
     const users: {
       userId: string;
-      role: EGroupRole
+      role: EGroupRole;
     }[] = [{ userId, role: EGroupRole.superAdmin }];
 
     await groupService.create({
@@ -234,26 +234,26 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       users,
       userRequests: [],
       groupTopicId,
-      deleted: false
+      deleted: false,
     });
-    req.flash("success", "Cộng đồng được tạo thành công!");
+    req.flash("success", "Group was created successfully!");
     return res.redirect(`/${configs.admin}/groups`);
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [GET] /admin/groups/update/:id
 const update = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("groupUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/groups`);
     }
 
@@ -261,55 +261,60 @@ const update = async (req: any, res: Response): Promise<void> => {
 
     const groupExists = await groupService.findById(id);
     if (!groupExists) {
-      req.flash("error", "Cộng đồng không tồn tại!");
+      req.flash("error", "Group not found!");
       return res.redirect("back");
     }
 
-    const [
-      groupTopics,
-      users,
-      userRequests
-    ] = await Promise.all([
+    const [groupTopics, users, userRequests] = await Promise.all([
       groupTopicService.findAll(),
 
-      Promise.all(groupExists.users.map(user => userService.findById(user.userId as string).then(data => ({
-        user: data,
-        role: user.role
-      })))),
+      Promise.all(
+        groupExists.users.map((user) =>
+          userService.findById(user.userId as string).then((data) => ({
+            user: data,
+            role: user.role,
+          })),
+        ),
+      ),
 
-      Promise.all(groupExists.userRequests.map(userRequest => userService.findById(userRequest)))
+      Promise.all(
+        groupExists.userRequests.map((userRequest) =>
+          userService.findById(userRequest),
+        ),
+      ),
     ]);
 
     return res.render("admin/pages/groups/update", {
-      pageTitle: "Cập Nhật Cộng Đồng",
+      pageTitle: "Update group",
       group: groupExists,
       groupTopics,
       users,
-      userRequests
+      userRequests,
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [PATCH] /admin/groups/update/:id
 const updatePatch = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("groupUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/groups`);
     }
 
     const id: string = req.params.id;
 
     const title: string = req.body.title;
-    const slug: string = slugUtil.convert(title) + '-' + shortUniqueKeyUtil.generate();
+    const slug: string =
+      slugUtil.convert(title) + "-" + shortUniqueKeyUtil.generate();
     const description: string = req.body.description;
     const status: EGroupStatus = req.body.status;
     const groupTopicId: string = req.body.groupTopicId;
@@ -323,25 +328,21 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       coverPhoto = req.files["coverPhoto"][0].path;
     }
 
-    const [
-      groupExists,
-      groupSlugExists,
-      groupTopicExists
-    ] = await Promise.all([
+    const [groupExists, groupSlugExists, groupTopicExists] = await Promise.all([
       groupService.findById(id),
       groupService.findBySlug(slug),
-      groupTopicService.findById(groupTopicId)
+      groupTopicService.findById(groupTopicId),
     ]);
     if (!groupExists) {
-      req.flash("error", "Cộng đồng không tồn tại!");
+      req.flash("error", "Group not found!");
       return res.redirect("back");
     }
     if (groupSlugExists) {
-      req.flash("error", "Có lỗi xảy ra!");
+      req.flash("error", "Something went wrong!");
       return res.redirect("back");
     }
     if (!groupTopicExists) {
-      req.flash("error", "Chủ đề cộng đồng không tồn tại!");
+      req.flash("error", "Group topic not found!");
       return res.redirect("back");
     }
 
@@ -352,14 +353,14 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       avatar,
       coverPhoto,
       status,
-      groupTopicId
-    })
-    req.flash("success", "Cộng đồng được cập nhật thành công!");
+      groupTopicId,
+    });
+    req.flash("success", "Group was updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 // [PATCH] /admin/groups/changeUserRole/:role/:userId/:id
 const changeUserRole = async (req: any, res: Response): Promise<void> => {
@@ -370,7 +371,7 @@ const changeUserRole = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("groupUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
 
@@ -378,33 +379,26 @@ const changeUserRole = async (req: any, res: Response): Promise<void> => {
     const userId: string = req.params.userId;
     const role: string = req.params.role;
 
-    const [
-      groupExists,
-      userExists
-    ] = await Promise.all([
+    const [groupExists, userExists] = await Promise.all([
       groupService.findById(id),
-      userService.findById(userId)
+      userService.findById(userId),
     ]);
     if (!groupExists) {
-      req.flash("error", "Cộng đồng không tồn tại!");
+      req.flash("error", "Topic not found!");
       return res.redirect("back");
     }
     if (!userExists) {
-      req.flash("error", "Người dùng không tồn tại!");
+      req.flash("error", "user not found!");
       return res.redirect("back");
     }
 
-    await groupService.changeUserRole(
-      id,
-      userId,
-      role
-    );
-    req.flash("success", "Vai trò người dùng được cập nhật thành công!");
+    await groupService.changeUserRole(id, userId, role);
+    req.flash("success", "user role was updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 // [PATCH] /admin/groups/acceptUser/:userId/:id
 const acceptUser = async (req: any, res: Response): Promise<void> => {
@@ -415,112 +409,116 @@ const acceptUser = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("groupUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
 
     const id: string = req.params.id;
     const userId: string = req.params.userId;
 
-    const [
-      groupExists,
-      userExists,
-      groupUserExists
-    ] = await Promise.all([
+    const [groupExists, userExists, groupUserExists] = await Promise.all([
       groupService.findById(id),
       userService.findById(userId),
-      groupService.findUserInGroup(id, userId)
+      groupService.findUserInGroup(id, userId),
     ]);
     if (!groupExists) {
-      req.flash("error", "Cộng đồng không tồn tại!");
+      req.flash("error", "Group not found!");
       return res.redirect("back");
     }
     if (!userExists) {
-      req.flash("error", "Người dùng không tồn tại!");
+      req.flash("error", "User not found!");
       return res.redirect("back");
     }
     if (groupUserExists) {
-      req.flash("error", "Người dùng đã tồn tại trong cộng đồng!");
+      req.flash("error", "User already exists in group!");
       return res.redirect("back");
     }
 
     await groupService.acceptUser(id, userId);
     await groupService.delUserRequest(id, userId);
-    req.flash("success", "Người dùng được thêm vào cộng đồng thành công!");
+    req.flash("success", "User was added to group successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 // [PATCH] /admin/groups/actions
 const actions = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     const action: string = req.body.action;
-    const ids: string[] = req.body.ids.split(',');
+    const ids: string[] = req.body.ids.split(",");
 
     switch (action) {
       case "delete": {
         if (!myAccount.permissions.includes("groupDelete")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/groups`);
         }
 
-        await Promise.all(ids.map(id => groupService.del(id)));
+        await Promise.all(ids.map((id) => groupService.del(id)));
 
         break;
       }
 
       case "active": {
         if (!myAccount.permissions.includes("groupUpdate")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/groups`);
         }
 
-        await Promise.all(ids.map(id => groupService.update(id, { status: EGroupStatus.active })));
+        await Promise.all(
+          ids.map((id) =>
+            groupService.update(id, { status: EGroupStatus.active }),
+          ),
+        );
 
         break;
       }
 
       case "inactive": {
         if (!myAccount.permissions.includes("groupUpdate")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/groups`);
         }
 
-        await Promise.all(ids.map(id => groupService.update(id, { status: EGroupStatus.inactive })));
+        await Promise.all(
+          ids.map((id) =>
+            groupService.update(id, { status: EGroupStatus.inactive }),
+          ),
+        );
 
         break;
       }
 
       default: {
-        req.flash("error", "Hành động không chính xác!");
+        req.flash("error", "Action wrong!");
         return res.redirect("back");
       }
     }
 
-    req.flash("success", "Các cộng đồng được cập nhật thành công!");
+    req.flash("success", "Groups were updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 // [PATCH] /admin/groups/updateStatus/:status/:id
 const updateStatus = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("groupUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/groups`);
     }
 
@@ -529,17 +527,17 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
 
     const groupExists = await groupService.findById(id);
     if (!groupExists) {
-      req.flash("error", "Cộng đồng không tồn tại!");
+      req.flash("error", "Group not found!");
       return res.redirect("back");
     }
 
     await groupService.update(id, { status });
-    req.flash("success", "Cộng đồng được cập nhật thành công!");
+    req.flash("success", "Group was updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 // [DELETE] /admin/groups/changeUserRole/:userId/:id
 const delUser = async (req: any, res: Response): Promise<void> => {
@@ -550,36 +548,33 @@ const delUser = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("groupUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
 
     const id: string = req.params.id;
     const userId: string = req.params.userId;
 
-    const [
-      groupExists,
-      userExists
-    ] = await Promise.all([
+    const [groupExists, userExists] = await Promise.all([
       groupService.findById(id),
-      userService.findById(userId)
+      userService.findById(userId),
     ]);
     if (!groupExists) {
-      req.flash("error", "Cộng đồng không tồn tại!");
+      req.flash("error", "Group not found!");
       return res.redirect("back");
     }
     if (!userExists) {
-      req.flash("error", "Người dùng không tồn tại!");
+      req.flash("error", "User not found!");
       return res.redirect("back");
     }
 
     await groupService.delUser(id, userId);
-    req.flash("success", "Người dùng được xóa thành công!");
+    req.flash("success", "User was deleted successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 // [DELETE] /admin/groups/deleteUserRequest/:userId/:id
 const delUserRequest = async (req: any, res: Response): Promise<void> => {
@@ -590,47 +585,44 @@ const delUserRequest = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("groupUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
 
     const id: string = req.params.id;
     const userId: string = req.params.userId;
 
-    const [
-      groupExists,
-      userExists
-    ] = await Promise.all([
+    const [groupExists, userExists] = await Promise.all([
       groupService.findById(id),
-      userService.findById(userId)
+      userService.findById(userId),
     ]);
     if (!groupExists) {
-      req.flash("error", "Cộng đồng không tồn tại!");
+      req.flash("error", "Group not found!");
       return res.redirect("back");
     }
     if (!userExists) {
-      req.flash("error", "Người dùng không tồn tại!");
+      req.flash("error", "User not found!");
       return res.redirect("back");
     }
 
     await groupService.delUserRequest(id, userId);
-    req.flash("success", "Yêu cầu người dùng được xóa thành công!");
+    req.flash("success", "User request was deleted successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 // [DELETE] /admin/groups/delete/:id
 const del = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("groupDelete")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/groups`);
     }
 
@@ -638,17 +630,17 @@ const del = async (req: any, res: Response): Promise<void> => {
 
     const groupExists = await groupService.findById(id);
     if (!groupExists) {
-      req.flash("error", "Cộng đồng không tồn tại!");
+      req.flash("error", "Group not found!");
       return res.redirect("back");
     }
 
     await groupService.del(id);
-    req.flash("success", "Cộng đồng được xóa thành công!");
+    req.flash("success", "Group was deleted successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 const groupController = {
   get,
@@ -663,6 +655,6 @@ const groupController = {
   updateStatus,
   delUser,
   delUserRequest,
-  del
+  del,
 };
 export default groupController;

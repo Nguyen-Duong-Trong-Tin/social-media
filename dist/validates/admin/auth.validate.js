@@ -7,18 +7,18 @@ const loginPost = (req, res, next) => {
         const password = req.body.password;
         if (!email ||
             !password) {
-            req.flash("error", "Thông tin không đầy đủ!");
+            req.flash("error", "Input required!");
             return res.redirect("back");
         }
         if (typeof email !== "string" ||
             typeof password !== "string") {
-            req.flash("error", "Kiểu dữ liệu không chính xác");
+            req.flash("error", "Datatype wrong!");
             return res.redirect("back");
         }
         return next();
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };

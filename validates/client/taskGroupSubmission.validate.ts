@@ -15,7 +15,7 @@ const submit = async (req: any, res: Response, next: NextFunction) => {
     if (!title || !status || !userId || !taskGroupId) {
       return res.status(400).json({
         status: false,
-        message: "Input required",
+        message: "Input required!",
       });
     }
 
@@ -84,7 +84,7 @@ const scoring = async (req: Request, res: Response, next: NextFunction) => {
     ) {
       return res.status(400).json({
         status: false,
-        message: "Input required",
+        message: "Input required!",
       });
     }
 

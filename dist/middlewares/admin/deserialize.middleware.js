@@ -9,19 +9,19 @@ const deserialize = (req, res, next) => {
     try {
         const token = req.cookies.token;
         if (!token) {
-            req.flash("error", "Đăng nhập để tiếp tục!");
+            req.flash("error", "Login to continue!");
             return res.redirect(`/${index_config_1.default.admin}/auth/login`);
         }
         const verify = jwt_util_1.default.accountVerify(token);
         if (!verify.success) {
-            req.flash("error", "Đăng nhập để tiếp tục!");
+            req.flash("error", "Login to continue!");
             return res.redirect(`/${index_config_1.default.admin}/auth/login`);
         }
         res.locals.myAccount = verify.account;
         return next();
     }
     catch (_a) {
-        req.flash("error", "Có lỗi xảy ra!");
+        req.flash("error", "Something went wrong!");
         return res.redirect("back");
     }
 };

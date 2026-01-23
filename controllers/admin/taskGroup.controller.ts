@@ -22,7 +22,7 @@ const get = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupView")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/dashboard`);
     }
 
@@ -32,8 +32,8 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string;
     }[] = [
       { value: "", title: "---" },
-      { value: "status-active", title: "Trạng thái hoạt động" },
-      { value: "status-inactive", title: "Trạng thái ngưng hoạt động" },
+      { value: "status-active", title: "Active status" },
+      { value: "status-inactive", title: "Inative status" },
     ];
 
     const sort: string = req.query.sort;
@@ -42,8 +42,8 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string;
     }[] = [
       { value: "", title: "---" },
-      { value: "title-asc", title: "Tiêu đề nhiệm vụ cộng đồng tăng dần" },
-      { value: "title-desc", title: "Tiêu đề nhiệm vụ cộng đồng giảm dần" },
+      { value: "title-asc", title: "Title (A - Z)" },
+      { value: "title-desc", title: "title (Z - A)" },
     ];
 
     const keyword: string = req.query.keyword;
@@ -53,9 +53,9 @@ const get = async (req: any, res: Response): Promise<void> => {
       title: string;
     }[] = [
       { value: "", title: "---" },
-      { value: "delete", title: "Xóa" },
-      { value: "active", title: "Hoạt động" },
-      { value: "inactive", title: "Ngưng hoạt động" },
+      { value: "delete", title: "Delete" },
+      { value: "active", title: "Active" },
+      { value: "inactive", title: "Inactive" },
     ];
 
     const page: number = parseInt(req.query.page as string) || 1;
@@ -70,7 +70,7 @@ const get = async (req: any, res: Response): Promise<void> => {
     );
 
     return res.render("admin/pages/taskGroups", {
-      pageTitle: "Danh Sách Nhiệm Vụ Cộng Đồng",
+      pageTitle: "List of group tasks",
       url: getUrlHelper(req),
       taskGroups,
       groups,
@@ -91,7 +91,7 @@ const get = async (req: any, res: Response): Promise<void> => {
       },
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 };
@@ -105,7 +105,7 @@ const getById = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupView")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/taskGroups`);
     }
 
@@ -113,7 +113,7 @@ const getById = async (req: any, res: Response): Promise<void> => {
 
     const taskGroupExists = await taskGroupService.findById(id);
     if (!taskGroupExists) {
-      req.flash("error", "Bài viểt cộng đồng không tồn tại!");
+      req.flash("error", "Group task not found!");
       return res.redirect("back");
     }
 
@@ -123,13 +123,13 @@ const getById = async (req: any, res: Response): Promise<void> => {
     ]);
 
     return res.render("admin/pages/taskGroups/detail", {
-      pageTitle: "Chi Tiết Nhiệm Vụ Cộng Đồng",
+      pageTitle: "Group task details",
       taskGroup: taskGroupExists,
       groups,
       users,
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 };
@@ -143,7 +143,7 @@ const create = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupCreate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/taskGroups`);
     }
 
@@ -153,12 +153,12 @@ const create = async (req: any, res: Response): Promise<void> => {
     ]);
 
     return res.render("admin/pages/taskGroups/create", {
-      pageTitle: "Tạo Mới Nhiệm Vụ Cộng Đồng",
+      pageTitle: "Create new group task",
       users,
       groups,
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 };
@@ -172,7 +172,7 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupCreate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/taskGroups`);
     }
 
@@ -193,15 +193,15 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       groupService.findById(groupId),
     ]);
     if (taskGroupSlugExists) {
-      req.flash("error", "Có lỗi xảy ra!");
+      req.flash("error", "Something went wrong!");
       return res.redirect("back");
     }
     if (!userExists) {
-      req.flash("error", "Người dùng không tồn tại!");
+      req.flash("error", "User not found!");
       return res.redirect("back");
     }
     if (!groupExists) {
-      req.flash("error", "Cộng đồng không tồn tại!");
+      req.flash("error", "Group not found!");
       return res.redirect("back");
     }
 
@@ -226,10 +226,10 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       createdBy,
       deleted: false,
     });
-    req.flash("success", "Nhiệm vụ cộng đồng được tạo thành công!");
+    req.flash("success", "Group task was created successfully!");
     return res.redirect(`/${configs.admin}/taskGroups`);
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 };
@@ -243,7 +243,7 @@ const update = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/taskGroups`);
     }
 
@@ -251,7 +251,7 @@ const update = async (req: any, res: Response): Promise<void> => {
 
     const taskGroupExists = await taskGroupService.findById(id);
     if (!taskGroupExists) {
-      req.flash("error", "Nhiệm vụ cộng đồng không tồn tại!");
+      req.flash("error", "Group task not found!");
       return res.redirect("back");
     }
 
@@ -261,13 +261,13 @@ const update = async (req: any, res: Response): Promise<void> => {
     ]);
 
     return res.render("admin/pages/taskGroups/update", {
-      pageTitle: "Cập Nhật Nhiệm Vụ Cộng Đồng",
+      pageTitle: "Update group task",
       taskGroup: taskGroupExists,
       groups,
       users,
     });
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
 };
@@ -281,7 +281,7 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/taskGroups`);
     }
 
@@ -306,19 +306,19 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
         groupService.findById(groupId),
       ]);
     if (!taskGroupExists) {
-      req.flash("error", "Nhiệm Vụ cộng đồng không tồn tại!");
+      req.flash("error", "Group task not found!");
       return res.redirect("back");
     }
     if (taskGroupSlugExists) {
-      req.flash("error", "Có lỗi xảy ra!");
+      req.flash("error", "Something went wrong!");
       return res.redirect("back");
     }
     if (!userExists) {
-      req.flash("error", "Người dùng không tồn tại!");
+      req.flash("error", "User not found!");
       return res.redirect("back");
     }
     if (!groupExists) {
-      req.flash("error", "Cộng đồng không tồn tại!");
+      req.flash("error", "Group not found!");
       return res.redirect("back");
     }
 
@@ -343,9 +343,9 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       createdBy,
       deleted: false,
     });
-    req.flash("success", "Nhiệm Vụ cộng đồng được cập nhật thành công!");
+    req.flash("success", "Group task was updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 };
@@ -364,7 +364,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
     switch (action) {
       case "delete": {
         if (!myAccount.permissions.includes("taskGroupDelete")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/taskGroups`);
         }
 
@@ -375,7 +375,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
 
       case "active": {
         if (!myAccount.permissions.includes("taskGroupUpdate")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/taskGroups`);
         }
 
@@ -390,7 +390,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
 
       case "inactive": {
         if (!myAccount.permissions.includes("taskGroupUpdate")) {
-          req.flash("error", "Bạn không có quyền!");
+          req.flash("error", "Access denied!");
           return res.redirect(`/${configs.admin}/taskGroups`);
         }
 
@@ -404,14 +404,14 @@ const actions = async (req: any, res: Response): Promise<void> => {
       }
 
       default: {
-        req.flash("error", "Hành động không chính xác!");
+        req.flash("error", "Action wrong!");
         return res.redirect("back");
       }
     }
 
-    req.flash("success", "Các nhiệm vụ cộng đồng được cập nhật thành công!");
+    req.flash("success", "Group tasks were updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 };
@@ -425,7 +425,7 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupUpdate")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/taskGroups`);
     }
 
@@ -434,14 +434,14 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
 
     const taskGroupExists = await taskGroupService.findById(id);
     if (!taskGroupExists) {
-      req.flash("error", "Nhiệm vụ cộng đồng không tồn tại!");
+      req.flash("error", "Group task not found!");
       return res.redirect("back");
     }
 
     await taskGroupService.update(id, { status });
-    req.flash("success", "Nhiệm vụ cộng đồng được cập nhật thành công!");
+    req.flash("success", "Group task was updated successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 };
@@ -455,7 +455,7 @@ const del = async (req: any, res: Response): Promise<void> => {
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("taskGroupDelete")) {
-      req.flash("error", "Bạn không có quyền!");
+      req.flash("error", "Access denied!");
       return res.redirect(`/${configs.admin}/taskGroups`);
     }
 
@@ -463,14 +463,14 @@ const del = async (req: any, res: Response): Promise<void> => {
 
     const taskGroupExists = await taskGroupService.findById(id);
     if (!taskGroupExists) {
-      req.flash("error", "Nhiệm vụ cộng đồng không tồn tại!");
+      req.flash("error", "Group task not found!");
       return res.redirect("back");
     }
 
     await taskGroupService.del(id);
-    req.flash("success", "Nhiệm vụ cộng đồng được xóa thành công!");
+    req.flash("success", "Group task was deleted successfully!");
   } catch {
-    req.flash("error", "Có lỗi xảy ra!");
+    req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
 };
