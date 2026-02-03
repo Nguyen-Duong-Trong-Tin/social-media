@@ -3,7 +3,7 @@ import { RootFilterQuery, SortOrder, UpdateQuery } from "mongoose";
 import UserModel from "../../models/user.model";
 import IUser from "../../interfaces/user.interface";
 
-const create = async ({ doc }: { doc: IUser }) => {
+const create = async ({ doc }: { doc: Partial<IUser> }) => {
   const newUser = new UserModel(doc);
   return await newUser.save();
 };

@@ -7,6 +7,7 @@ const auth_route_1 = __importDefault(require("./auth.route"));
 const user_route_1 = __importDefault(require("./user.route"));
 const groupTopic_route_1 = __importDefault(require("./groupTopic.route"));
 const group_route_1 = __importDefault(require("./group.route"));
+const articleUser_route_1 = __importDefault(require("./articleUser.route"));
 const taskGroup_route_1 = __importDefault(require("./taskGroup.route"));
 const taskGroupSubmission_route_1 = __importDefault(require("./taskGroupSubmission.route"));
 const roomChat_route_1 = __importDefault(require("./roomChat.route"));
@@ -16,6 +17,7 @@ const clientRoutes = (app) => {
     app.use(`/v1/users`, user_route_1.default);
     app.use(`/v1/groupTopics`, groupTopic_route_1.default);
     app.use(`/v1/groups`, group_route_1.default);
+    app.use(`/v1/articleUsers`, articleUser_route_1.default);
     app.use(`/v1/taskGroups`, taskGroup_route_1.default);
     app.use(`/v1/taskGroupSubmissions`, taskGroupSubmission_route_1.default);
     app.use(`/v1/roomChats`, roomChat_route_1.default);

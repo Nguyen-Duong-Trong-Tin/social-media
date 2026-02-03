@@ -8,5 +8,7 @@ var SocketEvent;
     SocketEvent["SERVER_RESPONSE_ACCEPT_FRIEND_REQUEST"] = "server.response.accept.friend.request";
     SocketEvent["CLIENT_REJECT_FRIEND_REQUEST"] = "client.reject.friend.request";
     SocketEvent["SERVER_RESPONSE_REJECT_FRIEND_REQUEST"] = "server.response.reject.friend.request";
+    SocketEvent["CLIENT_DELETE_FRIEND_ACCEPT"] = "client.delete.friend.accept";
+    SocketEvent["SERVER_RESPONSE_DELETE_FRIEND_ACCEPT"] = "server.response.delete.friend.accept";
 })(SocketEvent || (SocketEvent = {}));
 exports.default = SocketEvent;

@@ -10,6 +10,7 @@ import userService from "../../services/client/user.service";
 import roomChatService from "../../services/client/roomChat.service";
 import {
   ClientAcceptFriendRequestDto,
+  ClientDeleteFriendAcceptDto,
   ClientRejectFriendRequestDto,
 } from "../../dtos/user.dto";
 import slugUtil from "../../utils/slug.util";
@@ -126,13 +127,51 @@ const rejectFriendRequest = (socket: Socket, io: Server) => {
   );
 };
 
+const deleteFriendAccept = (socket: Socket, io: Server) => {
+  socket.on(
+    SocketEvent.CLIENT_DELETE_FRIEND_ACCEPT,
+    async (data: ClientDeleteFriendAcceptDto) => {
+      const { userId, userRequestId } = data;
+
+      const userExists = await userService.findOneAndUpdate({
+        filter: { _id: userId, friendAccepts: userRequestId },
+        update: {
+          $pull: { friendAccepts: userRequestId },
+        },
+      });
+      const userRequestExists = await userService.findOneAndUpdate({
+        filter: { _id: userRequestId, friendRequests: userId },
+        update: {
+          $pull: { friendRequests: userId },
+        },
+      });
+
+      if (!userExists || !userRequestExists) {
+        console.log({
+          userId,
+          userRequestId,
+        });
+
+        return;
+      }
+
+      io.emit(SocketEvent.SERVER_RESPONSE_DELETE_FRIEND_ACCEPT, {
+        userId,
+        userRequestId,
+      });
+    }
+  );
+};
+
 const register = (socket: Socket, io: Server) => {
   acceptFriendRequest(socket, io);
   rejectFriendRequest(socket, io);
+  deleteFriendAccept(socket, io);
 };
 
 const userSocket = {
   acceptFriendRequest,
+  deleteFriendAccept,
   rejectFriendRequest,
   register,
 };

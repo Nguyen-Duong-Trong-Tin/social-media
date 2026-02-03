@@ -107,12 +107,42 @@ const rejectFriendRequest = (socket, io) => {
         });
     }));
 };
+const deleteFriendAccept = (socket, io) => {
+    socket.on(socketEvent_enum_1.default.CLIENT_DELETE_FRIEND_ACCEPT, (data) => __awaiter(void 0, void 0, void 0, function* () {
+        const { userId, userRequestId } = data;
+        const userExists = yield user_service_1.default.findOneAndUpdate({
+            filter: { _id: userId, friendAccepts: userRequestId },
+            update: {
+                $pull: { friendAccepts: userRequestId },
+            },
+        });
+        const userRequestExists = yield user_service_1.default.findOneAndUpdate({
+            filter: { _id: userRequestId, friendRequests: userId },
+            update: {
+                $pull: { friendRequests: userId },
+            },
+        });
+        if (!userExists || !userRequestExists) {
+            console.log({
+                userId,
+                userRequestId,
+            });
+            return;
+        }
+        io.emit(socketEvent_enum_1.default.SERVER_RESPONSE_DELETE_FRIEND_ACCEPT, {
+            userId,
+            userRequestId,
+        });
+    }));
+};
 const register = (socket, io) => {
     acceptFriendRequest(socket, io);
     rejectFriendRequest(socket, io);
+    deleteFriendAccept(socket, io);
 };
 const userSocket = {
     acceptFriendRequest,
+    deleteFriendAccept,
     rejectFriendRequest,
     register,
 };

@@ -27,7 +27,7 @@ const UserSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
-      default: "https://aic.com.vn/wp-content/uploads/2024/10/avatar-fb-mac-dinh-2.jpg",
+      default: "https://scontent.fvca1-1.fna.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=dst-png_s200x200&_nc_cat=1&ccb=1-7&_nc_sid=136b72&_nc_ohc=72JKYE4Co3AQ7kNvwGGN3Vi&_nc_oc=Adm95NUudPLGhpnyETRVlrr8tRKhd55nSSWxOyzNGTzAB25k1eUjHc8Tnq97Q39HT3A&_nc_zt=24&_nc_ht=scontent.fvca1-1.fna&oh=00_Afq-ToSPvj1Xu8du51D5fR-mhjB8337x_JAECxTMHiW4Ww&oe=699D9F7A",
     },
     status: {
       type: String,
