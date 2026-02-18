@@ -19,6 +19,34 @@ const user_service_1 = __importDefault(require("../../services/client/user.servi
 const slug_util_1 = __importDefault(require("../../utils/slug.util"));
 const shortUniqueKey_util_1 = __importDefault(require("../../utils/shortUniqueKey.util"));
 const articleUser_enum_1 = require("../../enums/articleUser.enum");
+const parseExistingMedia = (value) => {
+    if (!value)
+        return [];
+    if (Array.isArray(value)) {
+        return value.map((item) => String(item).trim()).filter(Boolean);
+    }
+    if (typeof value !== "string")
+        return [];
+    const trimmed = value.trim();
+    if (!trimmed)
+        return [];
+    if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+        try {
+            const parsed = JSON.parse(trimmed);
+            if (Array.isArray(parsed)) {
+                return parsed.map((item) => String(item).trim()).filter(Boolean);
+            }
+        }
+        catch (_a) {
+            // fall through to delimiter split
+        }
+    }
+    return trimmed
+        .split(/[,;|\n]/)
+        .map((item) => item.trim())
+        .filter(Boolean);
+};
+const uniqueList = (items) => Array.from(new Set(items));
 // GET /v1/articleUsers?sort&page&limit&filter
 const find = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -188,7 +216,7 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
     try {
         const { id } = req.params;
-        const { title, description, userId, status } = req.body;
+        const { title, description, userId, status, existingImages, existingVideos } = req.body;
         const images = ((_a = req.files) === null || _a === void 0 ? void 0 : _a["images"]) || [];
         const videos = ((_b = req.files) === null || _b === void 0 ? void 0 : _b["videos"]) || [];
         const articleUserExists = yield articleUser_service_1.default.findOne({
@@ -219,6 +247,14 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         const imagePaths = (images || []).map((image) => image.path);
         const videoPaths = (videos || []).map((video) => video.path);
+        const mergedImages = uniqueList([
+            ...parseExistingMedia(existingImages),
+            ...imagePaths,
+        ]);
+        const mergedVideos = uniqueList([
+            ...parseExistingMedia(existingVideos),
+            ...videoPaths,
+        ]);
         const updatedArticleUser = yield articleUser_service_1.default.findOneAndUpdate({
             filter: { _id: id },
             update: {
@@ -226,8 +262,8 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     title: title !== null && title !== void 0 ? title : undefined,
                     slug: slug !== null && slug !== void 0 ? slug : undefined,
                     description: description !== null && description !== void 0 ? description : undefined,
-                    images: imagePaths.length ? imagePaths : undefined,
-                    videos: videoPaths.length ? videoPaths : undefined,
+                    images: mergedImages.length ? mergedImages : undefined,
+                    videos: mergedVideos.length ? mergedVideos : undefined,
                     status: status !== null && status !== void 0 ? status : undefined,
                 },
             },

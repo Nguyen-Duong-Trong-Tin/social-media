@@ -10,8 +10,10 @@ import userService from "../../services/client/user.service";
 import roomChatService from "../../services/client/roomChat.service";
 import {
   ClientAcceptFriendRequestDto,
+  ClientDeleteFriendDto,
   ClientDeleteFriendAcceptDto,
   ClientRejectFriendRequestDto,
+  ClientSendFriendRequestDto,
 } from "../../dtos/user.dto";
 import slugUtil from "../../utils/slug.util";
 import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
@@ -127,6 +129,55 @@ const rejectFriendRequest = (socket: Socket, io: Server) => {
   );
 };
 
+const sendFriendRequest = (socket: Socket, io: Server) => {
+  socket.on(
+    SocketEvent.CLIENT_SEND_FRIEND_REQUEST,
+    async (data: ClientSendFriendRequestDto) => {
+      const { userId, userRequestId } = data;
+
+      if (userId === userRequestId) {
+        return;
+      }
+
+      const userExists = await userService.findOneAndUpdate({
+        filter: { _id: userId },
+        update: {
+          $addToSet: { friendAccepts: userRequestId },
+        },
+      });
+      const userRequestExists = await userService.findOneAndUpdate({
+        filter: { _id: userRequestId },
+        update: {
+          $addToSet: { friendRequests: userId },
+        },
+      });
+
+      if (!userExists || !userRequestExists) {
+        if (userExists) {
+          await userService.updateOne({
+            filter: { _id: userId },
+            update: { $pull: { friendAccepts: userRequestId } },
+          });
+        }
+
+        if (userRequestExists) {
+          await userService.updateOne({
+            filter: { _id: userRequestId },
+            update: { $pull: { friendRequests: userId } },
+          });
+        }
+
+        return;
+      }
+
+      io.emit(SocketEvent.SERVER_RESPONSE_SEND_FRIEND_REQUEST, {
+        userId,
+        userRequestId,
+      });
+    }
+  );
+};
+
 const deleteFriendAccept = (socket: Socket, io: Server) => {
   socket.on(
     SocketEvent.CLIENT_DELETE_FRIEND_ACCEPT,
@@ -163,15 +214,61 @@ const deleteFriendAccept = (socket: Socket, io: Server) => {
   );
 };
 
+const deleteFriend = (socket: Socket, io: Server) => {
+  socket.on(
+    SocketEvent.CLIENT_DELETE_FRIEND,
+    async (data: ClientDeleteFriendDto) => {
+      const { userId, userRequestId } = data;
+
+      const userExists = await userService.findOne({
+        filter: { _id: userId },
+      });
+
+      const friendEntry = userExists?.friends?.find(
+        (friend) => friend.userId === userRequestId
+      );
+
+      if (!friendEntry) {
+        return;
+      }
+
+      await userService.updateOne({
+        filter: { _id: userId },
+        update: { $pull: { friends: { userId: userRequestId } } },
+      });
+
+      await userService.updateOne({
+        filter: { _id: userRequestId },
+        update: { $pull: { friends: { userId: userId } } },
+      });
+
+      if (friendEntry.roomChatId) {
+        await roomChatService.deleteOne({
+          filter: { _id: friendEntry.roomChatId },
+        });
+      }
+
+      io.emit(SocketEvent.SERVER_RESPONSE_DELETE_FRIEND, {
+        userId,
+        userRequestId,
+      });
+    }
+  );
+};
+
 const register = (socket: Socket, io: Server) => {
   acceptFriendRequest(socket, io);
+  sendFriendRequest(socket, io);
   rejectFriendRequest(socket, io);
   deleteFriendAccept(socket, io);
+  deleteFriend(socket, io);
 };
 
 const userSocket = {
   acceptFriendRequest,
+  sendFriendRequest,
   deleteFriendAccept,
+  deleteFriend,
   rejectFriendRequest,
   register,
 };

@@ -4,3 +4,155 @@ include ../../mixins/boxTitle
 
 block main
   +boxTitle(pageTitle)
+
+  .row.mb-4
+    .col-12
+      .alert.alert-primary
+        h4.mb-1 Welcome to Admin Dashboard
+        p.mb-0 Manage users, groups, articles, and system settings from the quick shortcuts below.
+
+  .row.g-4.mb-4
+    .col-12
+      h4.mb-3 Statistics
+
+    if (myAccount.permissions.includes("userView"))
+      .col-12.col-md-6.col-xl-3
+        .card.h-100
+          .card-body
+            h6.card-subtitle.mb-2.text-muted Users
+            h3.mb-0 #{stats.users}
+
+    if (myAccount.permissions.includes("groupView"))
+      .col-12.col-md-6.col-xl-3
+        .card.h-100
+          .card-body
+            h6.card-subtitle.mb-2.text-muted Groups
+            h3.mb-0 #{stats.groups}
+
+    if (myAccount.permissions.includes("articleUserView"))
+      .col-12.col-md-6.col-xl-3
+        .card.h-100
+          .card-body
+            h6.card-subtitle.mb-2.text-muted User Articles
+            h3.mb-0 #{stats.articleUsers}
+
+    if (myAccount.permissions.includes("articleGroupView"))
+      .col-12.col-md-6.col-xl-3
+        .card.h-100
+          .card-body
+            h6.card-subtitle.mb-2.text-muted Group Articles
+            h3.mb-0 #{stats.articleGroups}
+
+    if (myAccount.permissions.includes("roomChatView"))
+      .col-12.col-md-6.col-xl-3
+        .card.h-100
+          .card-body
+            h6.card-subtitle.mb-2.text-muted Rooms Chat
+            h3.mb-0 #{stats.roomChats}
+
+    if (myAccount.permissions.includes("taskGroupView"))
+      .col-12.col-md-6.col-xl-3
+        .card.h-100
+          .card-body
+            h6.card-subtitle.mb-2.text-muted Task Groups
+            h3.mb-0 #{stats.taskGroups}
+
+    if (myAccount.permissions.includes("taskGroupSubmissionView"))
+      .col-12.col-md-6.col-xl-3
+        .card.h-100
+          .card-body
+            h6.card-subtitle.mb-2.text-muted Submissions
+            h3.mb-0 #{stats.taskGroupSubmissions}
+
+  .row.g-4
+    if (myAccount.permissions.includes("userView"))
+      .col-12.col-md-6.col-xl-3
+        .card.h-100
+          .card-body
+            h5.card-title Users
+            p.card-text Manage all users in the system.
+            a.btn.btn-primary(href=`/${admin}/users`) Go to Users
+
+    if (myAccount.permissions.includes("groupView"))
+      .col-12.col-md-6.col-xl-3
+        .card.h-100
+          .card-body
+            h5.card-title Groups
+            p.card-text View and manage user groups.
+            a.btn.btn-primary(href=`/${admin}/groups`) Go to Groups
+
+    if (myAccount.permissions.includes("groupTopicView"))
+      .col-12.col-md-6.col-xl-3
+        .card.h-100
+          .card-body
+            h5.card-title Group Topics
+            p.card-text Organize and review group topics.
+            a.btn.btn-primary(href=`/${admin}/groupTopics`) Go to Topics
+
+    if (myAccount.permissions.includes("roomChatView"))
+      .col-12.col-md-6.col-xl-3
+        .card.h-100
+          .card-body
+            h5.card-title Rooms Chat
+            p.card-text Monitor and manage chat rooms.
+            a.btn.btn-primary(href=`/${admin}/roomChats`) Go to Rooms
+
+  .row.g-4.mt-1
+    if (myAccount.permissions.includes("articleUserView"))
+      .col-12.col-md-6.col-xl-3
+        .card.h-100
+          .card-body
+            h5.card-title Article Users
+            p.card-text Review user articles and moderation.
+            a.btn.btn-outline-primary(href=`/${admin}/articleUsers`) Open Articles
+
+    if (myAccount.permissions.includes("articleGroupView"))
+      .col-12.col-md-6.col-xl-3
+        .card.h-100
+          .card-body
+            h5.card-title Article Groups
+            p.card-text Review group articles and moderation.
+            a.btn.btn-outline-primary(href=`/${admin}/articleGroups`) Open Articles
+
+    if (myAccount.permissions.includes("taskGroupView"))
+      .col-12.col-md-6.col-xl-3
+        .card.h-100
+          .card-body
+            h5.card-title Task Groups
+            p.card-text Manage group tasks and progress.
+            a.btn.btn-outline-primary(href=`/${admin}/taskGroups`) Go to Tasks
+
+    if (myAccount.permissions.includes("taskGroupSubmissionView"))
+      .col-12.col-md-6.col-xl-3
+        .card.h-100
+          .card-body
+            h5.card-title Submissions
+            p.card-text Review task submissions.
+            a.btn.btn-outline-primary(href=`/${admin}/taskGroupSubmissions`) Go to Submissions
+
+  .row.g-4.mt-1
+    if (myAccount.permissions.includes("roleView"))
+      .col-12.col-md-6.col-xl-4
+        .card.h-100
+          .card-body
+            h5.card-title Roles
+            p.card-text Manage role access and permissions.
+            a.btn.btn-secondary(href=`/${admin}/roles`) Manage Roles
+
+    if (myAccount.permissions.includes("roleView"))
+      .col-12.col-md-6.col-xl-4
+        .card.h-100
+          .card-body
+            h5.card-title Permissions
+            p.card-text Configure system permissions.
+            a.btn.btn-secondary(href=`/${admin}/permissions`) Manage Permissions
+
+    if (myAccount.permissions.includes("accountView"))
+      .col-12.col-md-6.col-xl-4
+        .card.h-100
+          .card-body
+            h5.card-title Accounts
+            p.card-text Admin accounts and access control.
+            a.btn.btn-secondary(href=`/${admin}/accounts`) Manage Accounts
+
+  br

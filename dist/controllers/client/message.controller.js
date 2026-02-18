@@ -64,5 +64,30 @@ const find = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 const messageController = {
     find,
+    uploadImages: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const files = req.files || [];
+            const images = files
+                .map((file) => (file === null || file === void 0 ? void 0 : file.path) || (file === null || file === void 0 ? void 0 : file.secure_url))
+                .filter(Boolean);
+            if (!images.length) {
+                return res.status(400).json({
+                    status: false,
+                    message: "No images uploaded",
+                });
+            }
+            return res.status(200).json({
+                status: true,
+                message: "Images uploaded",
+                data: { images },
+            });
+        }
+        catch (_a) {
+            return res.status(500).json({
+                status: false,
+                message: "Something went wrong",
+            });
+        }
+    }),
 };
 exports.default = messageController;

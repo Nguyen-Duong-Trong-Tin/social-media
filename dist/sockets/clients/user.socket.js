@@ -107,6 +107,45 @@ const rejectFriendRequest = (socket, io) => {
         });
     }));
 };
+const sendFriendRequest = (socket, io) => {
+    socket.on(socketEvent_enum_1.default.CLIENT_SEND_FRIEND_REQUEST, (data) => __awaiter(void 0, void 0, void 0, function* () {
+        const { userId, userRequestId } = data;
+        if (userId === userRequestId) {
+            return;
+        }
+        const userExists = yield user_service_1.default.findOneAndUpdate({
+            filter: { _id: userId },
+            update: {
+                $addToSet: { friendAccepts: userRequestId },
+            },
+        });
+        const userRequestExists = yield user_service_1.default.findOneAndUpdate({
+            filter: { _id: userRequestId },
+            update: {
+                $addToSet: { friendRequests: userId },
+            },
+        });
+        if (!userExists || !userRequestExists) {
+            if (userExists) {
+                yield user_service_1.default.updateOne({
+                    filter: { _id: userId },
+                    update: { $pull: { friendAccepts: userRequestId } },
+                });
+            }
+            if (userRequestExists) {
+                yield user_service_1.default.updateOne({
+                    filter: { _id: userRequestId },
+                    update: { $pull: { friendRequests: userId } },
+                });
+            }
+            return;
+        }
+        io.emit(socketEvent_enum_1.default.SERVER_RESPONSE_SEND_FRIEND_REQUEST, {
+            userId,
+            userRequestId,
+        });
+    }));
+};
 const deleteFriendAccept = (socket, io) => {
     socket.on(socketEvent_enum_1.default.CLIENT_DELETE_FRIEND_ACCEPT, (data) => __awaiter(void 0, void 0, void 0, function* () {
         const { userId, userRequestId } = data;
@@ -135,14 +174,48 @@ const deleteFriendAccept = (socket, io) => {
         });
     }));
 };
+const deleteFriend = (socket, io) => {
+    socket.on(socketEvent_enum_1.default.CLIENT_DELETE_FRIEND, (data) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
+        const { userId, userRequestId } = data;
+        const userExists = yield user_service_1.default.findOne({
+            filter: { _id: userId },
+        });
+        const friendEntry = (_a = userExists === null || userExists === void 0 ? void 0 : userExists.friends) === null || _a === void 0 ? void 0 : _a.find((friend) => friend.userId === userRequestId);
+        if (!friendEntry) {
+            return;
+        }
+        yield user_service_1.default.updateOne({
+            filter: { _id: userId },
+            update: { $pull: { friends: { userId: userRequestId } } },
+        });
+        yield user_service_1.default.updateOne({
+            filter: { _id: userRequestId },
+            update: { $pull: { friends: { userId: userId } } },
+        });
+        if (friendEntry.roomChatId) {
+            yield roomChat_service_1.default.deleteOne({
+                filter: { _id: friendEntry.roomChatId },
+            });
+        }
+        io.emit(socketEvent_enum_1.default.SERVER_RESPONSE_DELETE_FRIEND, {
+            userId,
+            userRequestId,
+        });
+    }));
+};
 const register = (socket, io) => {
     acceptFriendRequest(socket, io);
+    sendFriendRequest(socket, io);
     rejectFriendRequest(socket, io);
     deleteFriendAccept(socket, io);
+    deleteFriend(socket, io);
 };
 const userSocket = {
     acceptFriendRequest,
+    sendFriendRequest,
     deleteFriendAccept,
+    deleteFriend,
     rejectFriendRequest,
     register,
 };

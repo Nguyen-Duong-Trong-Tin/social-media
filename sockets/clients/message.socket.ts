@@ -13,7 +13,11 @@ import groupService from "../../services/client/group.service";
 import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
 import messageService from "../../services/client/message.service";
 import roomChatService from "../../services/client/roomChat.service";
-import { ClientSendMessageToAIAssistantDto } from "../../dtos/message.dto";
+import {
+  ClientSendMessageToAIAssistantDto,
+  ClientSendMessageToRoomChatDto,
+  ClientTypingToRoomChatDto,
+} from "../../dtos/message.dto";
 
 const sendMessageToAiAssistant = (socket: Socket, io: Server) => {
   socket.on(
@@ -141,12 +145,85 @@ const sendMessageToAiAssistant = (socket: Socket, io: Server) => {
   );
 };
 
+const sendMessageToRoomChat = (socket: Socket, io: Server) => {
+  socket.on(
+    SocketEvent.CLIENT_SEND_MESSAGE_TO_ROOM_CHAT,
+    async (data: ClientSendMessageToRoomChatDto) => {
+      const { userId, roomChatId, content, images } = data;
+
+      if (!content?.trim() && (!images || images.length === 0)) {
+        return;
+      }
+
+      const roomChatExists = await roomChatService.findOne({
+        filter: {
+          _id: roomChatId,
+          users: { $elemMatch: { userId } },
+          status: ERoomChatStatus.active,
+        },
+      });
+
+      if (!roomChatExists) {
+        console.log({
+          userId,
+          roomChatId,
+          error: "Room chat not found or user not in room",
+        });
+
+        return;
+      }
+
+      const [newMessage] = await messageService.insertMany({
+        docs: [
+          {
+            content: content || "",
+            images: images || [],
+            userId,
+            roomChatId,
+          },
+        ],
+      });
+
+      io.emit(SocketEvent.SERVER_RESPONSE_MESSAGE_TO_ROOM_CHAT, {
+        userId,
+        roomChatId,
+        content: content || "",
+        images: images || [],
+        createdAt: newMessage?.createdAt,
+      });
+    }
+  );
+};
+
+const typingToRoomChat = (socket: Socket, io: Server) => {
+  socket.on(
+    SocketEvent.CLIENT_TYPING_TO_ROOM_CHAT,
+    async (data: ClientTypingToRoomChatDto) => {
+      const { userId, roomChatId, isTyping } = data;
+
+      if (!roomChatId || !userId) {
+        return;
+      }
+
+      io.emit(SocketEvent.SERVER_RESPONSE_TYPING_TO_ROOM_CHAT, {
+        userId,
+        roomChatId,
+        isTyping,
+      });
+    }
+  );
+};
+
 const register = (socket: Socket, io: Server) => {
   sendMessageToAiAssistant(socket, io);
+  sendMessageToRoomChat(socket, io);
+  typingToRoomChat(socket, io);
 };
 
 const messageSocket = {
   sendMessageToAiAssistant,
+  sendMessageToRoomChat,
+  typingToRoomChat,
   register,
 };
 export default messageSocket;

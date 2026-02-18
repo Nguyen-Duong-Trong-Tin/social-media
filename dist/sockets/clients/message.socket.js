@@ -128,11 +128,68 @@ const sendMessageToAiAssistant = (socket, io) => {
         });
     }));
 };
+const sendMessageToRoomChat = (socket, io) => {
+    socket.on(socketEvent_enum_1.default.CLIENT_SEND_MESSAGE_TO_ROOM_CHAT, (data) => __awaiter(void 0, void 0, void 0, function* () {
+        const { userId, roomChatId, content, images } = data;
+        if (!(content === null || content === void 0 ? void 0 : content.trim()) && (!images || images.length === 0)) {
+            return;
+        }
+        const roomChatExists = yield roomChat_service_1.default.findOne({
+            filter: {
+                _id: roomChatId,
+                users: { $elemMatch: { userId } },
+                status: roomChat_enum_1.ERoomChatStatus.active,
+            },
+        });
+        if (!roomChatExists) {
+            console.log({
+                userId,
+                roomChatId,
+                error: "Room chat not found or user not in room",
+            });
+            return;
+        }
+        const [newMessage] = yield message_service_1.default.insertMany({
+            docs: [
+                {
+                    content: content || "",
+                    images: images || [],
+                    userId,
+                    roomChatId,
+                },
+            ],
+        });
+        io.emit(socketEvent_enum_1.default.SERVER_RESPONSE_MESSAGE_TO_ROOM_CHAT, {
+            userId,
+            roomChatId,
+            content: content || "",
+            images: images || [],
+            createdAt: newMessage === null || newMessage === void 0 ? void 0 : newMessage.createdAt,
+        });
+    }));
+};
+const typingToRoomChat = (socket, io) => {
+    socket.on(socketEvent_enum_1.default.CLIENT_TYPING_TO_ROOM_CHAT, (data) => __awaiter(void 0, void 0, void 0, function* () {
+        const { userId, roomChatId, isTyping } = data;
+        if (!roomChatId || !userId) {
+            return;
+        }
+        io.emit(socketEvent_enum_1.default.SERVER_RESPONSE_TYPING_TO_ROOM_CHAT, {
+            userId,
+            roomChatId,
+            isTyping,
+        });
+    }));
+};
 const register = (socket, io) => {
     sendMessageToAiAssistant(socket, io);
+    sendMessageToRoomChat(socket, io);
+    typingToRoomChat(socket, io);
 };
 const messageSocket = {
     sendMessageToAiAssistant,
+    sendMessageToRoomChat,
+    typingToRoomChat,
     register,
 };
 exports.default = messageSocket;

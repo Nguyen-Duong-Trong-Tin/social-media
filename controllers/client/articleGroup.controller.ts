@@ -10,6 +10,35 @@ import slugUtil from "../../utils/slug.util";
 import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
 import { EArticleGroupStatus } from "../../enums/articleGroup.enum";
 
+const parseExistingMedia = (value?: unknown) => {
+  if (!value) return [] as string[];
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item).trim()).filter(Boolean);
+  }
+  if (typeof value !== "string") return [] as string[];
+
+  const trimmed = value.trim();
+  if (!trimmed) return [] as string[];
+
+  if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        return parsed.map((item) => String(item).trim()).filter(Boolean);
+      }
+    } catch {
+      // fall through to delimiter split
+    }
+  }
+
+  return trimmed
+    .split(/[,;|\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+};
+
+const uniqueList = (items: string[]) => Array.from(new Set(items));
+
 // GET /v1/articleGroups?sort&page&limit&filter
 const find = async (req: Request, res: Response) => {
   try {
@@ -206,7 +235,7 @@ const create = async (req: any, res: Response) => {
 const update = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
-    const { title, description, userId, status } = req.body;
+    const { title, description, userId, status, existingImages, existingVideos } = req.body;
     const images: any[] = req.files?.["images"] || [];
     const videos: any[] = req.files?.["videos"] || [];
 
@@ -241,6 +270,14 @@ const update = async (req: any, res: Response) => {
 
     const imagePaths = (images || []).map((image) => image.path);
     const videoPaths = (videos || []).map((video) => video.path);
+    const mergedImages = uniqueList([
+      ...parseExistingMedia(existingImages),
+      ...imagePaths,
+    ]);
+    const mergedVideos = uniqueList([
+      ...parseExistingMedia(existingVideos),
+      ...videoPaths,
+    ]);
 
     const updatedArticleGroup = await articleGroupService.findOneAndUpdate({
       filter: { _id: id },
@@ -249,8 +286,8 @@ const update = async (req: any, res: Response) => {
           title: title ?? undefined,
           slug: slug ?? undefined,
           description: description ?? undefined,
-          images: imagePaths.length ? imagePaths : undefined,
-          videos: videoPaths.length ? videoPaths : undefined,
+          images: mergedImages.length ? mergedImages : undefined,
+          videos: mergedVideos.length ? mergedVideos : undefined,
           status: status ?? undefined,
         },
       },

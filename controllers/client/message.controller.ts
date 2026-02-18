@@ -63,5 +63,31 @@ const find = async (req: Request, res: Response) => {
 
 const messageController = {
   find,
+  uploadImages: async (req: Request, res: Response) => {
+    try {
+      const files = (req as Request & { files?: any[] }).files || [];
+      const images = files
+        .map((file) => file?.path || file?.secure_url)
+        .filter(Boolean);
+
+      if (!images.length) {
+        return res.status(400).json({
+          status: false,
+          message: "No images uploaded",
+        });
+      }
+
+      return res.status(200).json({
+        status: true,
+        message: "Images uploaded",
+        data: { images },
+      });
+    } catch {
+      return res.status(500).json({
+        status: false,
+        message: "Something went wrong",
+      });
+    }
+  },
 };
 export default messageController;
