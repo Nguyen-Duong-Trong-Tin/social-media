@@ -14,6 +14,7 @@ interface IParams {
   resource_type: "raw" | "auto";
   allowedFormats: string[];
   public_id?: string;
+  access_mode?: "public" | "authenticated";
 };
 
 const storage = new CloudinaryStorage({
@@ -25,11 +26,13 @@ const storage = new CloudinaryStorage({
     const result: IParams = {
       folder: "CloudinaryDemo",
       resource_type: "auto",
-      allowedFormats: ["jpeg", "png", "jpg", "mp4", "avi", "mov", "pdf", "doc", "docx"]
+      allowedFormats: ["jpeg", "png", "jpg", "mp4", "avi", "mov", "pdf", "doc", "docx"],
+      access_mode: "public"
     };
     if (resourceType === "raw") {
       result.resource_type = "raw";
-      result.public_id = file.originalname
+      result.public_id = file.originalname;
+      result.access_mode = "public";
     }
 
     return result;

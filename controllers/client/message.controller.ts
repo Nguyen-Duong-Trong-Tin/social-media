@@ -1,10 +1,40 @@
 import { RootFilterQuery } from "mongoose";
 import { Request, Response } from "express";
+import path from "path";
 
 import sortHelper from "../../helpers/sort.helper";
 import MessageModel from "../../models/message.model";
 import paginationHelper from "../../helpers/pagination.helper";
 import messageService from "../../services/client/message.service";
+import {
+  buildSignedRawUrl,
+  buildSignedRawUrlFromSource,
+} from "../../utils/cloudinary.util";
+
+const getSignedMaterialUrl = (url?: string) => {
+  if (!url) return "";
+  return buildSignedRawUrlFromSource(url) || url;
+};
+
+const getSignedMaterialUrlFromFile = (file?: any) => {
+  if (!file) return "";
+
+  const originalName = file.originalname || "";
+  const ext = path.extname(originalName).toLowerCase();
+  const format = ext ? ext.slice(1) : undefined;
+  const publicId = file.filename || file.public_id;
+
+  if (publicId) {
+    return buildSignedRawUrl({ publicId, format });
+  }
+
+  const sourceUrl = file.path || file.secure_url;
+  return buildSignedRawUrlFromSource(sourceUrl) || sourceUrl || "";
+};
+
+const normalizeMaterialUrls = (materials?: string[]) => {
+  return (materials || []).map(getSignedMaterialUrl).filter(Boolean);
+};
 
 // GET /v1/messages?sort&page&limit&filter
 const find = async (req: Request, res: Response) => {
@@ -41,6 +71,14 @@ const find = async (req: Request, res: Response) => {
       }),
     ]);
 
+    const normalizedItems = items.map((item: any) => {
+      const raw = item.toObject ? item.toObject() : item;
+      return {
+        ...raw,
+        materials: normalizeMaterialUrls(raw.materials),
+      };
+    });
+
     return res.status(200).json({
       status: true,
       message: "Group topics found",
@@ -49,7 +87,7 @@ const find = async (req: Request, res: Response) => {
           total,
           // page: pagination.page,
           // limit: pagination.limit,
-          items,
+          items: normalizedItems,
         },
       },
     });
@@ -81,6 +119,58 @@ const messageController = {
         status: true,
         message: "Images uploaded",
         data: { images },
+      });
+    } catch {
+      return res.status(500).json({
+        status: false,
+        message: "Something went wrong",
+      });
+    }
+  },
+  uploadVideos: async (req: Request, res: Response) => {
+    try {
+      const files = (req as Request & { files?: any[] }).files || [];
+      const videos = files
+        .map((file) => file?.path || file?.secure_url)
+        .filter(Boolean);
+
+      if (!videos.length) {
+        return res.status(400).json({
+          status: false,
+          message: "No videos uploaded",
+        });
+      }
+
+      return res.status(200).json({
+        status: true,
+        message: "Videos uploaded",
+        data: { videos },
+      });
+    } catch {
+      return res.status(500).json({
+        status: false,
+        message: "Something went wrong",
+      });
+    }
+  },
+  uploadMaterials: async (req: Request, res: Response) => {
+    try {
+      const files = (req as Request & { files?: any[] }).files || [];
+      const materials = files
+        .map((file) => getSignedMaterialUrlFromFile(file))
+        .filter(Boolean);
+
+      if (!materials.length) {
+        return res.status(400).json({
+          status: false,
+          message: "No materials uploaded",
+        });
+      }
+
+      return res.status(200).json({
+        status: true,
+        message: "Materials uploaded",
+        data: { materials },
       });
     } catch {
       return res.status(500).json({

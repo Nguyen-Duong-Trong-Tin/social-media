@@ -13,6 +13,7 @@ const taskGroup_route_1 = __importDefault(require("./taskGroup.route"));
 const taskGroupSubmission_route_1 = __importDefault(require("./taskGroupSubmission.route"));
 const roomChat_route_1 = __importDefault(require("./roomChat.route"));
 const message_route_1 = __importDefault(require("./message.route"));
+const notification_route_1 = __importDefault(require("./notification.route"));
 const clientRoutes = (app) => {
     app.use(`/v1/auth`, auth_route_1.default);
     app.use(`/v1/users`, user_route_1.default);
@@ -24,5 +25,6 @@ const clientRoutes = (app) => {
     app.use(`/v1/taskGroupSubmissions`, taskGroupSubmission_route_1.default);
     app.use(`/v1/roomChats`, roomChat_route_1.default);
     app.use(`/v1/messages`, message_route_1.default);
+    app.use(`/v1/notifications`, notification_route_1.default);
 };
 exports.default = clientRoutes;

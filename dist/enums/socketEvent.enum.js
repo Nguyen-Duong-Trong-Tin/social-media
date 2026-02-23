@@ -18,5 +18,6 @@ var SocketEvent;
     SocketEvent["SERVER_RESPONSE_DELETE_FRIEND_ACCEPT"] = "server.response.delete.friend.accept";
     SocketEvent["CLIENT_DELETE_FRIEND"] = "client.delete.friend";
     SocketEvent["SERVER_RESPONSE_DELETE_FRIEND"] = "server.response.delete.friend";
+    SocketEvent["SERVER_PUSH_NOTIFICATION"] = "server.push.notification";
 })(SocketEvent || (SocketEvent = {}));
 exports.default = SocketEvent;

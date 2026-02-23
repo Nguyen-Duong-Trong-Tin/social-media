@@ -16,10 +16,12 @@ const genai_1 = require("@google/genai");
 const roomChat_enum_1 = require("../../enums/roomChat.enum");
 const slug_util_1 = __importDefault(require("../../utils/slug.util"));
 const socketEvent_enum_1 = __importDefault(require("../../enums/socketEvent.enum"));
+const notification_enum_1 = __importDefault(require("../../enums/notification.enum"));
 const group_service_1 = __importDefault(require("../../services/client/group.service"));
 const shortUniqueKey_util_1 = __importDefault(require("../../utils/shortUniqueKey.util"));
 const message_service_1 = __importDefault(require("../../services/client/message.service"));
 const roomChat_service_1 = __importDefault(require("../../services/client/roomChat.service"));
+const notification_service_1 = __importDefault(require("../../services/client/notification.service"));
 const sendMessageToAiAssistant = (socket, io) => {
     socket.on(socketEvent_enum_1.default.CLIENT_SEND_MESSAGE_TO_AI_ASSISTANT, (data) => __awaiter(void 0, void 0, void 0, function* () {
         const { userId, message, groupId } = data;
@@ -130,8 +132,11 @@ const sendMessageToAiAssistant = (socket, io) => {
 };
 const sendMessageToRoomChat = (socket, io) => {
     socket.on(socketEvent_enum_1.default.CLIENT_SEND_MESSAGE_TO_ROOM_CHAT, (data) => __awaiter(void 0, void 0, void 0, function* () {
-        const { userId, roomChatId, content, images } = data;
-        if (!(content === null || content === void 0 ? void 0 : content.trim()) && (!images || images.length === 0)) {
+        const { userId, roomChatId, content, images, videos, materials } = data;
+        if (!(content === null || content === void 0 ? void 0 : content.trim()) &&
+            (!images || images.length === 0) &&
+            (!videos || videos.length === 0) &&
+            (!materials || materials.length === 0)) {
             return;
         }
         const roomChatExists = yield roomChat_service_1.default.findOne({
@@ -154,16 +159,50 @@ const sendMessageToRoomChat = (socket, io) => {
                 {
                     content: content || "",
                     images: images || [],
+                    videos: videos || [],
+                    materials: materials || [],
                     userId,
                     roomChatId,
                 },
             ],
         });
+        const recipients = ((roomChatExists === null || roomChatExists === void 0 ? void 0 : roomChatExists.users) || [])
+            .map((user) => user.userId)
+            .filter((recipientId) => recipientId && recipientId !== userId);
+        if (recipients.length > 0) {
+            const messageText = (content === null || content === void 0 ? void 0 : content.trim()) ||
+                ((images === null || images === void 0 ? void 0 : images.length) || (videos === null || videos === void 0 ? void 0 : videos.length) || (materials === null || materials === void 0 ? void 0 : materials.length)
+                    ? "Sent an attachment"
+                    : "Sent a message");
+            yield notification_service_1.default.insertMany({
+                docs: recipients.map((recipientId) => ({
+                    userId: recipientId,
+                    type: notification_enum_1.default.message,
+                    title: "New message",
+                    message: messageText,
+                    data: {
+                        roomChatId,
+                        fromUserId: userId,
+                    },
+                    isRead: false,
+                    deleted: false,
+                })),
+            });
+            recipients.forEach((recipientId) => {
+                io.emit(socketEvent_enum_1.default.SERVER_PUSH_NOTIFICATION, {
+                    userId: recipientId,
+                    type: notification_enum_1.default.message,
+                    data: { roomChatId, fromUserId: userId },
+                });
+            });
+        }
         io.emit(socketEvent_enum_1.default.SERVER_RESPONSE_MESSAGE_TO_ROOM_CHAT, {
             userId,
             roomChatId,
             content: content || "",
             images: images || [],
+            videos: videos || [],
+            materials: materials || [],
             createdAt: newMessage === null || newMessage === void 0 ? void 0 : newMessage.createdAt,
         });
     }));

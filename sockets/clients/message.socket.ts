@@ -9,10 +9,12 @@ import {
 } from "../../enums/roomChat.enum";
 import slugUtil from "../../utils/slug.util";
 import SocketEvent from "../../enums/socketEvent.enum";
+import ENotificationType from "../../enums/notification.enum";
 import groupService from "../../services/client/group.service";
 import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
 import messageService from "../../services/client/message.service";
 import roomChatService from "../../services/client/roomChat.service";
+import notificationService from "../../services/client/notification.service";
 import {
   ClientSendMessageToAIAssistantDto,
   ClientSendMessageToRoomChatDto,
@@ -149,9 +151,14 @@ const sendMessageToRoomChat = (socket: Socket, io: Server) => {
   socket.on(
     SocketEvent.CLIENT_SEND_MESSAGE_TO_ROOM_CHAT,
     async (data: ClientSendMessageToRoomChatDto) => {
-      const { userId, roomChatId, content, images } = data;
+      const { userId, roomChatId, content, images, videos, materials } = data;
 
-      if (!content?.trim() && (!images || images.length === 0)) {
+      if (
+        !content?.trim() &&
+        (!images || images.length === 0) &&
+        (!videos || videos.length === 0) &&
+        (!materials || materials.length === 0)
+      ) {
         return;
       }
 
@@ -178,17 +185,56 @@ const sendMessageToRoomChat = (socket: Socket, io: Server) => {
           {
             content: content || "",
             images: images || [],
+            videos: videos || [],
+            materials: materials || [],
             userId,
             roomChatId,
           },
         ],
       });
 
+      const recipients = (roomChatExists?.users || [])
+        .map((user) => user.userId)
+        .filter((recipientId) => recipientId && recipientId !== userId);
+
+      if (recipients.length > 0) {
+        const messageText =
+          content?.trim() ||
+          (images?.length || videos?.length || materials?.length
+            ? "Sent an attachment"
+            : "Sent a message");
+
+        await notificationService.insertMany({
+          docs: recipients.map((recipientId) => ({
+            userId: recipientId,
+            type: ENotificationType.message,
+            title: "New message",
+            message: messageText,
+            data: {
+              roomChatId,
+              fromUserId: userId,
+            },
+            isRead: false,
+            deleted: false,
+          })),
+        });
+
+        recipients.forEach((recipientId) => {
+          io.emit(SocketEvent.SERVER_PUSH_NOTIFICATION, {
+            userId: recipientId,
+            type: ENotificationType.message,
+            data: { roomChatId, fromUserId: userId },
+          });
+        });
+      }
+
       io.emit(SocketEvent.SERVER_RESPONSE_MESSAGE_TO_ROOM_CHAT, {
         userId,
         roomChatId,
         content: content || "",
         images: images || [],
+        videos: videos || [],
+        materials: materials || [],
         createdAt: newMessage?.createdAt,
       });
     }

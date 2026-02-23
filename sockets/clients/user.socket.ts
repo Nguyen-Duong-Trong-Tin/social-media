@@ -6,8 +6,10 @@ import {
   ERoomChatType,
 } from "../../enums/roomChat.enum";
 import SocketEvent from "../../enums/socketEvent.enum";
+import ENotificationType from "../../enums/notification.enum";
 import userService from "../../services/client/user.service";
 import roomChatService from "../../services/client/roomChat.service";
+import notificationService from "../../services/client/notification.service";
 import {
   ClientAcceptFriendRequestDto,
   ClientDeleteFriendDto,
@@ -89,6 +91,26 @@ const acceptFriendRequest = (socket: Socket, io: Server) => {
         userRequestId,
         roomChatId: newRoomChat.id,
       });
+
+      await notificationService.insertMany({
+        docs: [
+          {
+            userId: userRequestId,
+            type: ENotificationType.friend_accept,
+            title: "Friend request accepted",
+            message: "Your friend request was accepted.",
+            data: { fromUserId: userId, roomChatId: newRoomChat.id },
+            isRead: false,
+            deleted: false,
+          },
+        ],
+      });
+
+      io.emit(SocketEvent.SERVER_PUSH_NOTIFICATION, {
+        userId: userRequestId,
+        type: ENotificationType.friend_accept,
+        data: { fromUserId: userId, roomChatId: newRoomChat.id },
+      });
     }
   );
 };
@@ -124,6 +146,26 @@ const rejectFriendRequest = (socket: Socket, io: Server) => {
       io.emit(SocketEvent.SERVER_RESPONSE_REJECT_FRIEND_REQUEST, {
         userId,
         userRequestId,
+      });
+
+      await notificationService.insertMany({
+        docs: [
+          {
+            userId: userRequestId,
+            type: ENotificationType.friend_reject,
+            title: "Friend request declined",
+            message: "Your friend request was declined.",
+            data: { fromUserId: userId },
+            isRead: false,
+            deleted: false,
+          },
+        ],
+      });
+
+      io.emit(SocketEvent.SERVER_PUSH_NOTIFICATION, {
+        userId: userRequestId,
+        type: ENotificationType.friend_reject,
+        data: { fromUserId: userId },
       });
     }
   );
@@ -173,6 +215,26 @@ const sendFriendRequest = (socket: Socket, io: Server) => {
       io.emit(SocketEvent.SERVER_RESPONSE_SEND_FRIEND_REQUEST, {
         userId,
         userRequestId,
+      });
+
+      await notificationService.insertMany({
+        docs: [
+          {
+            userId: userRequestId,
+            type: ENotificationType.friend_request,
+            title: "New friend request",
+            message: "You have a new friend request.",
+            data: { fromUserId: userId },
+            isRead: false,
+            deleted: false,
+          },
+        ],
+      });
+
+      io.emit(SocketEvent.SERVER_PUSH_NOTIFICATION, {
+        userId: userRequestId,
+        type: ENotificationType.friend_request,
+        data: { fromUserId: userId },
       });
     }
   );

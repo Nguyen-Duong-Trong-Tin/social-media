@@ -15,5 +15,17 @@ router.post(
 	upload.array("images", 6),
 	messageController.uploadImages
 );
+router.post(
+	"/upload-videos",
+	deserialize,
+	upload.array("videos", 6),
+	messageController.uploadVideos
+);
+router.post(
+	"/upload-materials",
+	deserialize,
+	upload.array("materials", 6),
+	messageController.uploadMaterials
+);
 
 export default router;

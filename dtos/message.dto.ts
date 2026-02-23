@@ -9,6 +9,8 @@ export interface ClientSendMessageToRoomChatDto {
   roomChatId: string;
   content?: string;
   images?: string[];
+  videos?: string[];
+  materials?: string[];
 };
 
 export interface ClientTypingToRoomChatDto {
@@ -22,6 +24,8 @@ export interface ServerResponseMessageToRoomChatDto {
   roomChatId: string;
   content: string;
   images?: string[];
+  videos?: string[];
+  materials?: string[];
   createdAt?: string;
 };
 

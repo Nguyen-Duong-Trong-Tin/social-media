@@ -14,8 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const roomChat_enum_1 = require("../../enums/roomChat.enum");
 const socketEvent_enum_1 = __importDefault(require("../../enums/socketEvent.enum"));
+const notification_enum_1 = __importDefault(require("../../enums/notification.enum"));
 const user_service_1 = __importDefault(require("../../services/client/user.service"));
 const roomChat_service_1 = __importDefault(require("../../services/client/roomChat.service"));
+const notification_service_1 = __importDefault(require("../../services/client/notification.service"));
 const slug_util_1 = __importDefault(require("../../utils/slug.util"));
 const shortUniqueKey_util_1 = __importDefault(require("../../utils/shortUniqueKey.util"));
 const acceptFriendRequest = (socket, io) => {
@@ -77,6 +79,24 @@ const acceptFriendRequest = (socket, io) => {
             userRequestId,
             roomChatId: newRoomChat.id,
         });
+        yield notification_service_1.default.insertMany({
+            docs: [
+                {
+                    userId: userRequestId,
+                    type: notification_enum_1.default.friend_accept,
+                    title: "Friend request accepted",
+                    message: "Your friend request was accepted.",
+                    data: { fromUserId: userId, roomChatId: newRoomChat.id },
+                    isRead: false,
+                    deleted: false,
+                },
+            ],
+        });
+        io.emit(socketEvent_enum_1.default.SERVER_PUSH_NOTIFICATION, {
+            userId: userRequestId,
+            type: notification_enum_1.default.friend_accept,
+            data: { fromUserId: userId, roomChatId: newRoomChat.id },
+        });
     }));
 };
 const rejectFriendRequest = (socket, io) => {
@@ -104,6 +124,24 @@ const rejectFriendRequest = (socket, io) => {
         io.emit(socketEvent_enum_1.default.SERVER_RESPONSE_REJECT_FRIEND_REQUEST, {
             userId,
             userRequestId,
+        });
+        yield notification_service_1.default.insertMany({
+            docs: [
+                {
+                    userId: userRequestId,
+                    type: notification_enum_1.default.friend_reject,
+                    title: "Friend request declined",
+                    message: "Your friend request was declined.",
+                    data: { fromUserId: userId },
+                    isRead: false,
+                    deleted: false,
+                },
+            ],
+        });
+        io.emit(socketEvent_enum_1.default.SERVER_PUSH_NOTIFICATION, {
+            userId: userRequestId,
+            type: notification_enum_1.default.friend_reject,
+            data: { fromUserId: userId },
         });
     }));
 };
@@ -143,6 +181,24 @@ const sendFriendRequest = (socket, io) => {
         io.emit(socketEvent_enum_1.default.SERVER_RESPONSE_SEND_FRIEND_REQUEST, {
             userId,
             userRequestId,
+        });
+        yield notification_service_1.default.insertMany({
+            docs: [
+                {
+                    userId: userRequestId,
+                    type: notification_enum_1.default.friend_request,
+                    title: "New friend request",
+                    message: "You have a new friend request.",
+                    data: { fromUserId: userId },
+                    isRead: false,
+                    deleted: false,
+                },
+            ],
+        });
+        io.emit(socketEvent_enum_1.default.SERVER_PUSH_NOTIFICATION, {
+            userId: userRequestId,
+            type: notification_enum_1.default.friend_request,
+            data: { fromUserId: userId },
         });
     }));
 };
