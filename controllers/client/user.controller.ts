@@ -78,14 +78,9 @@ const findUsersByIds = async (req: Request, res: Response) => {
     for (const user of users) {
       map.set(user.id, user as IUser);
     }
-    const usersOrdered: IUser[] = ids.map((id: string) => map.get(id) ?? null);
-
-    if (usersOrdered.some((userOrdered) => !userOrdered)) {
-      return res.status(404).json({
-        status: false,
-        message: "Some user ids not found",
-      });
-    }
+    const usersOrdered: IUser[] = ids
+      .map((id: string) => map.get(id) ?? null)
+      .filter(Boolean) as IUser[];
 
     return res.status(200).json({
       status: true,

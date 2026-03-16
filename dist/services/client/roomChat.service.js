@@ -24,9 +24,19 @@ const deleteOne = (_a) => __awaiter(void 0, [_a], void 0, function* ({ filter, }
 const findOne = (_a) => __awaiter(void 0, [_a], void 0, function* ({ filter, }) {
     return yield roomChat_model_1.default.findOne(Object.assign({ deleted: false }, filter));
 });
+const findOneAndUpdate = (_a) => __awaiter(void 0, [_a], void 0, function* ({ filter, update, }) {
+    return yield roomChat_model_1.default.findOneAndUpdate(Object.assign({ deleted: false }, filter), update, { new: true, runValidators: true });
+});
+const find = (_a) => __awaiter(void 0, [_a], void 0, function* ({ filter, sort, limit, }) {
+    return yield roomChat_model_1.default.find(Object.assign({ deleted: false }, filter))
+        .sort(sort || {})
+        .limit(limit || 50);
+});
 const roomChatService = {
     create,
     deleteOne,
     findOne,
+    findOneAndUpdate,
+    find,
 };
 exports.default = roomChatService;

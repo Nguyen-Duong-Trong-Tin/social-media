@@ -10,4 +10,16 @@ router.get(
   roomChatController.findByAiAssistantAndUserId
 );
 
+router.get(
+  "/group/:groupId/:userId",
+  deserialize,
+  roomChatController.findByGroupId
+);
+
+router.get(
+  "/user/:userId",
+  deserialize,
+  roomChatController.findByUserId
+);
+
 export default router;

@@ -81,13 +81,9 @@ const findUsersByIds = (req, res) => __awaiter(void 0, void 0, void 0, function*
         for (const user of users) {
             map.set(user.id, user);
         }
-        const usersOrdered = ids.map((id) => { var _a; return (_a = map.get(id)) !== null && _a !== void 0 ? _a : null; });
-        if (usersOrdered.some((userOrdered) => !userOrdered)) {
-            return res.status(404).json({
-                status: false,
-                message: "Some user ids not found",
-            });
-        }
+        const usersOrdered = ids
+            .map((id) => { var _a; return (_a = map.get(id)) !== null && _a !== void 0 ? _a : null; })
+            .filter(Boolean);
         return res.status(200).json({
             status: true,
             message: "Users found",

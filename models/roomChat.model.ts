@@ -25,6 +25,10 @@ const RoomChatSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    groupId: {
+      type: String,
+      default: "",
+    },
     status: {
       type: String,
       enum: Object.values(ERoomChatStatus),

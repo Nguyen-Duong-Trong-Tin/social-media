@@ -8,4 +8,6 @@ const router = express_1.default.Router();
 const deserialize_middleware_1 = __importDefault(require("../../middlewares/client/deserialize.middleware"));
 const roomChat_controller_1 = __importDefault(require("../../controllers/client/roomChat.controller"));
 router.get("/ai-assistant/:groupId/:userId", deserialize_middleware_1.default, roomChat_controller_1.default.findByAiAssistantAndUserId);
+router.get("/group/:groupId/:userId", deserialize_middleware_1.default, roomChat_controller_1.default.findByGroupId);
+router.get("/user/:userId", deserialize_middleware_1.default, roomChat_controller_1.default.findByUserId);
 exports.default = router;

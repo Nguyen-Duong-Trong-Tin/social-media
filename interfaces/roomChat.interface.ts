@@ -5,6 +5,7 @@ interface IRoomChat {
   slug: string;
   type: ERoomChatType;
   avatar: string;
+  groupId?: string;
   status: ERoomChatStatus;
   users: {
     userId: string;
