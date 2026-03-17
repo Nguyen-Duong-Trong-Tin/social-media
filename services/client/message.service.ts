@@ -7,6 +7,28 @@ const insertMany = async ({ docs }: { docs: Partial<IMessage>[] }) => {
   return await MessageModel.insertMany(docs);
 };
 
+const findOne = async ({
+  filter,
+}: {
+  filter: RootFilterQuery<typeof MessageModel>;
+}) => {
+  return await MessageModel.findOne({ deleted: false, ...filter });
+};
+
+const findOneAndUpdate = async ({
+  filter,
+  update,
+}: {
+  filter: RootFilterQuery<typeof MessageModel>;
+  update: Partial<IMessage>;
+}) => {
+  return await MessageModel.findOneAndUpdate(
+    { deleted: false, ...filter },
+    update,
+    { new: true, runValidators: true }
+  );
+};
+
 const countDocuments = async ({
   filter,
 }: {
@@ -34,6 +56,8 @@ const find = async ({
 
 const messageService = {
   insertMany,
+  findOne,
+  findOneAndUpdate,
   countDocuments,
   find,
 };

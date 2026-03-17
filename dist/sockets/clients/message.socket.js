@@ -22,6 +22,13 @@ const shortUniqueKey_util_1 = __importDefault(require("../../utils/shortUniqueKe
 const message_service_1 = __importDefault(require("../../services/client/message.service"));
 const roomChat_service_1 = __importDefault(require("../../services/client/roomChat.service"));
 const notification_service_1 = __importDefault(require("../../services/client/notification.service"));
+const toIsoString = (value) => {
+    if (!value)
+        return null;
+    if (value instanceof Date)
+        return value.toISOString();
+    return value;
+};
 const sendMessageToAiAssistant = (socket, io) => {
     socket.on(socketEvent_enum_1.default.CLIENT_SEND_MESSAGE_TO_AI_ASSISTANT, (data) => __awaiter(void 0, void 0, void 0, function* () {
         const { userId, message, groupId } = data;
@@ -197,13 +204,67 @@ const sendMessageToRoomChat = (socket, io) => {
             });
         }
         io.emit(socketEvent_enum_1.default.SERVER_RESPONSE_MESSAGE_TO_ROOM_CHAT, {
+            _id: newMessage === null || newMessage === void 0 ? void 0 : newMessage._id,
             userId,
             roomChatId,
             content: content || "",
             images: images || [],
             videos: videos || [],
             materials: materials || [],
+            pinned: (newMessage === null || newMessage === void 0 ? void 0 : newMessage.pinned) || false,
+            pinnedBy: (newMessage === null || newMessage === void 0 ? void 0 : newMessage.pinnedBy) || "",
+            pinnedAt: toIsoString((newMessage === null || newMessage === void 0 ? void 0 : newMessage.pinnedAt) || null),
             createdAt: newMessage === null || newMessage === void 0 ? void 0 : newMessage.createdAt,
+        });
+    }));
+};
+const togglePinMessage = (socket, io) => {
+    socket.on(socketEvent_enum_1.default.CLIENT_TOGGLE_PIN_MESSAGE, (data) => __awaiter(void 0, void 0, void 0, function* () {
+        const { userId, roomChatId, messageId, pinned } = data;
+        if (!userId || !roomChatId || !messageId) {
+            return;
+        }
+        const roomChatExists = yield roomChat_service_1.default.findOne({
+            filter: {
+                _id: roomChatId,
+                users: { $elemMatch: { userId } },
+                status: roomChat_enum_1.ERoomChatStatus.active,
+            },
+        });
+        if (!roomChatExists) {
+            return;
+        }
+        const messageExists = yield message_service_1.default.findOne({
+            filter: { _id: messageId, roomChatId },
+        });
+        if (!messageExists) {
+            return;
+        }
+        const update = pinned
+            ? {
+                pinned: true,
+                pinnedBy: userId,
+                pinnedAt: new Date(),
+            }
+            : {
+                pinned: false,
+                pinnedBy: "",
+                pinnedAt: null,
+            };
+        const updatedMessage = yield message_service_1.default.findOneAndUpdate({
+            filter: { _id: messageId, roomChatId },
+            update,
+        });
+        if (!updatedMessage) {
+            return;
+        }
+        io.emit(socketEvent_enum_1.default.SERVER_RESPONSE_PIN_MESSAGE, {
+            userId,
+            roomChatId,
+            messageId,
+            pinned: updatedMessage.pinned || false,
+            pinnedBy: updatedMessage.pinnedBy || "",
+            pinnedAt: toIsoString(updatedMessage.pinnedAt || null),
         });
     }));
 };
@@ -223,6 +284,7 @@ const typingToRoomChat = (socket, io) => {
 const register = (socket, io) => {
     sendMessageToAiAssistant(socket, io);
     sendMessageToRoomChat(socket, io);
+    togglePinMessage(socket, io);
     typingToRoomChat(socket, io);
 };
 const messageSocket = {

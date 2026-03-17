@@ -29,6 +29,18 @@ const MessageSchema = new mongoose_1.default.Schema({
         type: String,
         required: true
     },
+    pinned: {
+        type: Boolean,
+        default: false,
+    },
+    pinnedBy: {
+        type: String,
+        default: "",
+    },
+    pinnedAt: {
+        type: Date,
+        default: null,
+    },
     deleted: {
         type: Boolean,
         default: false,

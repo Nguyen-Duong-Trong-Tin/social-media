@@ -19,7 +19,14 @@ import {
   ClientSendMessageToAIAssistantDto,
   ClientSendMessageToRoomChatDto,
   ClientTypingToRoomChatDto,
+  ClientTogglePinMessageDto,
 } from "../../dtos/message.dto";
+
+const toIsoString = (value?: string | Date | null) => {
+  if (!value) return null;
+  if (value instanceof Date) return value.toISOString();
+  return value;
+};
 
 const sendMessageToAiAssistant = (socket: Socket, io: Server) => {
   socket.on(
@@ -229,13 +236,80 @@ const sendMessageToRoomChat = (socket: Socket, io: Server) => {
       }
 
       io.emit(SocketEvent.SERVER_RESPONSE_MESSAGE_TO_ROOM_CHAT, {
+        _id: newMessage?._id,
         userId,
         roomChatId,
         content: content || "",
         images: images || [],
         videos: videos || [],
         materials: materials || [],
+        pinned: newMessage?.pinned || false,
+        pinnedBy: newMessage?.pinnedBy || "",
+        pinnedAt: toIsoString(newMessage?.pinnedAt || null),
         createdAt: newMessage?.createdAt,
+      });
+    }
+  );
+};
+
+const togglePinMessage = (socket: Socket, io: Server) => {
+  socket.on(
+    SocketEvent.CLIENT_TOGGLE_PIN_MESSAGE,
+    async (data: ClientTogglePinMessageDto) => {
+      const { userId, roomChatId, messageId, pinned } = data;
+
+      if (!userId || !roomChatId || !messageId) {
+        return;
+      }
+
+      const roomChatExists = await roomChatService.findOne({
+        filter: {
+          _id: roomChatId,
+          users: { $elemMatch: { userId } },
+          status: ERoomChatStatus.active,
+        },
+      });
+
+      if (!roomChatExists) {
+        return;
+      }
+
+      const messageExists = await messageService.findOne({
+        filter: { _id: messageId, roomChatId },
+      });
+
+      if (!messageExists) {
+        return;
+      }
+
+      const update = pinned
+        ? {
+            pinned: true,
+            pinnedBy: userId,
+            pinnedAt: new Date(),
+          }
+        : {
+            pinned: false,
+            pinnedBy: "",
+            pinnedAt: null,
+          };
+
+      const updatedMessage = await messageService.findOneAndUpdate({
+        filter: { _id: messageId, roomChatId },
+        update,
+      });
+
+      if (!updatedMessage) {
+        return;
+      }
+
+      io.emit(SocketEvent.SERVER_RESPONSE_PIN_MESSAGE, {
+        userId,
+        roomChatId,
+        messageId,
+        pinned: updatedMessage.pinned || false,
+        pinnedBy: updatedMessage.pinnedBy || "",
+        pinnedAt: toIsoString(updatedMessage.pinnedAt || null),
       });
     }
   );
@@ -263,6 +337,7 @@ const typingToRoomChat = (socket: Socket, io: Server) => {
 const register = (socket: Socket, io: Server) => {
   sendMessageToAiAssistant(socket, io);
   sendMessageToRoomChat(socket, io);
+  togglePinMessage(socket, io);
   typingToRoomChat(socket, io);
 };
 

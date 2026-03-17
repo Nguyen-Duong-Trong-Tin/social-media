@@ -16,6 +16,12 @@ const message_model_1 = __importDefault(require("../../models/message.model"));
 const insertMany = (_a) => __awaiter(void 0, [_a], void 0, function* ({ docs }) {
     return yield message_model_1.default.insertMany(docs);
 });
+const findOne = (_a) => __awaiter(void 0, [_a], void 0, function* ({ filter, }) {
+    return yield message_model_1.default.findOne(Object.assign({ deleted: false }, filter));
+});
+const findOneAndUpdate = (_a) => __awaiter(void 0, [_a], void 0, function* ({ filter, update, }) {
+    return yield message_model_1.default.findOneAndUpdate(Object.assign({ deleted: false }, filter), update, { new: true, runValidators: true });
+});
 const countDocuments = (_a) => __awaiter(void 0, [_a], void 0, function* ({ filter, }) {
     return yield message_model_1.default.countDocuments(Object.assign({ deleted: false }, filter));
 });
@@ -27,6 +33,8 @@ const find = (_a) => __awaiter(void 0, [_a], void 0, function* ({ filter, sort, 
 });
 const messageService = {
     insertMany,
+    findOne,
+    findOneAndUpdate,
     countDocuments,
     find,
 };

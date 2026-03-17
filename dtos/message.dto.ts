@@ -13,6 +13,13 @@ export interface ClientSendMessageToRoomChatDto {
   materials?: string[];
 };
 
+export interface ClientTogglePinMessageDto {
+  userId: string;
+  roomChatId: string;
+  messageId: string;
+  pinned: boolean;
+};
+
 export interface ClientTypingToRoomChatDto {
   userId: string;
   roomChatId: string;
@@ -20,13 +27,26 @@ export interface ClientTypingToRoomChatDto {
 };
 
 export interface ServerResponseMessageToRoomChatDto {
+  _id?: string;
   userId: string;
   roomChatId: string;
   content: string;
   images?: string[];
   videos?: string[];
   materials?: string[];
+  pinned?: boolean;
+  pinnedBy?: string;
+  pinnedAt?: string | null;
   createdAt?: string;
+};
+
+export interface ServerResponsePinMessageDto {
+  userId: string;
+  roomChatId: string;
+  messageId: string;
+  pinned: boolean;
+  pinnedBy?: string;
+  pinnedAt?: string | null;
 };
 
 export interface ServerResponseTypingToRoomChatDto {
