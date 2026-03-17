@@ -37,6 +37,14 @@ const countDocuments = async ({
   return await MessageModel.countDocuments({ deleted: false, ...filter });
 };
 
+const countDocumentsWithDeleted = async ({
+  filter,
+}: {
+  filter: RootFilterQuery<typeof MessageModel>;
+}) => {
+  return await MessageModel.countDocuments({ ...filter });
+};
+
 const find = async ({
   filter,
   sort,
@@ -54,11 +62,30 @@ const find = async ({
     .limit(limit || 0);
 };
 
+const findWithDeleted = async ({
+  filter,
+  sort,
+  skip,
+  limit,
+}: {
+  filter: RootFilterQuery<typeof MessageModel>;
+  sort?: { [key: string]: SortOrder };
+  skip?: number;
+  limit?: number;
+}) => {
+  return await MessageModel.find({ ...filter })
+    .sort(sort)
+    .skip(skip || 0)
+    .limit(limit || 0);
+};
+
 const messageService = {
   insertMany,
   findOne,
   findOneAndUpdate,
   countDocuments,
+  countDocumentsWithDeleted,
   find,
+  findWithDeleted,
 };
 export default messageService;

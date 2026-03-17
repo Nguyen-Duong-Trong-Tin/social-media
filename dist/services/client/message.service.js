@@ -25,8 +25,17 @@ const findOneAndUpdate = (_a) => __awaiter(void 0, [_a], void 0, function* ({ fi
 const countDocuments = (_a) => __awaiter(void 0, [_a], void 0, function* ({ filter, }) {
     return yield message_model_1.default.countDocuments(Object.assign({ deleted: false }, filter));
 });
+const countDocumentsWithDeleted = (_a) => __awaiter(void 0, [_a], void 0, function* ({ filter, }) {
+    return yield message_model_1.default.countDocuments(Object.assign({}, filter));
+});
 const find = (_a) => __awaiter(void 0, [_a], void 0, function* ({ filter, sort, skip, limit, }) {
     return yield message_model_1.default.find(Object.assign({ deleted: false }, filter))
+        .sort(sort)
+        .skip(skip || 0)
+        .limit(limit || 0);
+});
+const findWithDeleted = (_a) => __awaiter(void 0, [_a], void 0, function* ({ filter, sort, skip, limit, }) {
+    return yield message_model_1.default.find(Object.assign({}, filter))
         .sort(sort)
         .skip(skip || 0)
         .limit(limit || 0);
@@ -36,6 +45,8 @@ const messageService = {
     findOne,
     findOneAndUpdate,
     countDocuments,
+    countDocumentsWithDeleted,
     find,
+    findWithDeleted,
 };
 exports.default = messageService;

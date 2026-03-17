@@ -57,8 +57,8 @@ const find = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }
         }
         const [total, items] = yield Promise.all([
-            message_service_1.default.countDocuments({ filter: filterOptions }),
-            message_service_1.default.find({
+            message_service_1.default.countDocumentsWithDeleted({ filter: filterOptions }),
+            message_service_1.default.findWithDeleted({
                 filter: filterOptions,
                 // skip: pagination.skip,
                 // limit: pagination.limit,

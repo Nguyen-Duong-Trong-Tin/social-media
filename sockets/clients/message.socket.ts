@@ -18,6 +18,7 @@ import notificationService from "../../services/client/notification.service";
 import {
   ClientSendMessageToAIAssistantDto,
   ClientSendMessageToRoomChatDto,
+  ClientDeleteMessageDto,
   ClientTypingToRoomChatDto,
   ClientTogglePinMessageDto,
 } from "../../dtos/message.dto";
@@ -247,6 +248,7 @@ const sendMessageToRoomChat = (socket: Socket, io: Server) => {
         pinnedBy: newMessage?.pinnedBy || "",
         pinnedAt: toIsoString(newMessage?.pinnedAt || null),
         createdAt: newMessage?.createdAt,
+        deleted: newMessage?.deleted || false,
       });
     }
   );
@@ -315,6 +317,60 @@ const togglePinMessage = (socket: Socket, io: Server) => {
   );
 };
 
+const deleteMessage = (socket: Socket, io: Server) => {
+  socket.on(
+    SocketEvent.CLIENT_DELETE_MESSAGE,
+    async (data: ClientDeleteMessageDto) => {
+      const { userId, roomChatId, messageId } = data;
+
+      if (!userId || !roomChatId || !messageId) {
+        return;
+      }
+
+      const roomChatExists = await roomChatService.findOne({
+        filter: {
+          _id: roomChatId,
+          users: { $elemMatch: { userId } },
+          status: ERoomChatStatus.active,
+        },
+      });
+
+      if (!roomChatExists) {
+        return;
+      }
+
+      const messageExists = await messageService.findOne({
+        filter: { _id: messageId, roomChatId, userId },
+      });
+
+      if (!messageExists || messageExists.deleted) {
+        return;
+      }
+
+      const updatedMessage = await messageService.findOneAndUpdate({
+        filter: { _id: messageId, roomChatId, userId },
+        update: {
+          deleted: true,
+          pinned: false,
+          pinnedBy: "",
+          pinnedAt: null,
+        },
+      });
+
+      if (!updatedMessage) {
+        return;
+      }
+
+      io.emit(SocketEvent.SERVER_RESPONSE_DELETE_MESSAGE, {
+        userId,
+        roomChatId,
+        messageId,
+        deleted: true,
+      });
+    }
+  );
+};
+
 const typingToRoomChat = (socket: Socket, io: Server) => {
   socket.on(
     SocketEvent.CLIENT_TYPING_TO_ROOM_CHAT,
@@ -338,12 +394,14 @@ const register = (socket: Socket, io: Server) => {
   sendMessageToAiAssistant(socket, io);
   sendMessageToRoomChat(socket, io);
   togglePinMessage(socket, io);
+  deleteMessage(socket, io);
   typingToRoomChat(socket, io);
 };
 
 const messageSocket = {
   sendMessageToAiAssistant,
   sendMessageToRoomChat,
+  deleteMessage,
   typingToRoomChat,
   register,
 };

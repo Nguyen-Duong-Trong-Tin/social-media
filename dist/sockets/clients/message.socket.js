@@ -215,6 +215,7 @@ const sendMessageToRoomChat = (socket, io) => {
             pinnedBy: (newMessage === null || newMessage === void 0 ? void 0 : newMessage.pinnedBy) || "",
             pinnedAt: toIsoString((newMessage === null || newMessage === void 0 ? void 0 : newMessage.pinnedAt) || null),
             createdAt: newMessage === null || newMessage === void 0 ? void 0 : newMessage.createdAt,
+            deleted: (newMessage === null || newMessage === void 0 ? void 0 : newMessage.deleted) || false,
         });
     }));
 };
@@ -268,6 +269,48 @@ const togglePinMessage = (socket, io) => {
         });
     }));
 };
+const deleteMessage = (socket, io) => {
+    socket.on(socketEvent_enum_1.default.CLIENT_DELETE_MESSAGE, (data) => __awaiter(void 0, void 0, void 0, function* () {
+        const { userId, roomChatId, messageId } = data;
+        if (!userId || !roomChatId || !messageId) {
+            return;
+        }
+        const roomChatExists = yield roomChat_service_1.default.findOne({
+            filter: {
+                _id: roomChatId,
+                users: { $elemMatch: { userId } },
+                status: roomChat_enum_1.ERoomChatStatus.active,
+            },
+        });
+        if (!roomChatExists) {
+            return;
+        }
+        const messageExists = yield message_service_1.default.findOne({
+            filter: { _id: messageId, roomChatId, userId },
+        });
+        if (!messageExists || messageExists.deleted) {
+            return;
+        }
+        const updatedMessage = yield message_service_1.default.findOneAndUpdate({
+            filter: { _id: messageId, roomChatId, userId },
+            update: {
+                deleted: true,
+                pinned: false,
+                pinnedBy: "",
+                pinnedAt: null,
+            },
+        });
+        if (!updatedMessage) {
+            return;
+        }
+        io.emit(socketEvent_enum_1.default.SERVER_RESPONSE_DELETE_MESSAGE, {
+            userId,
+            roomChatId,
+            messageId,
+            deleted: true,
+        });
+    }));
+};
 const typingToRoomChat = (socket, io) => {
     socket.on(socketEvent_enum_1.default.CLIENT_TYPING_TO_ROOM_CHAT, (data) => __awaiter(void 0, void 0, void 0, function* () {
         const { userId, roomChatId, isTyping } = data;
@@ -285,11 +328,13 @@ const register = (socket, io) => {
     sendMessageToAiAssistant(socket, io);
     sendMessageToRoomChat(socket, io);
     togglePinMessage(socket, io);
+    deleteMessage(socket, io);
     typingToRoomChat(socket, io);
 };
 const messageSocket = {
     sendMessageToAiAssistant,
     sendMessageToRoomChat,
+    deleteMessage,
     typingToRoomChat,
     register,
 };

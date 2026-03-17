@@ -62,8 +62,8 @@ const find = async (req: Request, res: Response) => {
     }
 
     const [total, items] = await Promise.all([
-      messageService.countDocuments({ filter: filterOptions }),
-      messageService.find({
+      messageService.countDocumentsWithDeleted({ filter: filterOptions }),
+      messageService.findWithDeleted({
         filter: filterOptions,
         // skip: pagination.skip,
         // limit: pagination.limit,

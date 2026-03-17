@@ -8,6 +8,8 @@ var SocketEvent;
     SocketEvent["SERVER_RESPONSE_MESSAGE_TO_ROOM_CHAT"] = "server.response.message.to.room.chat";
     SocketEvent["CLIENT_TOGGLE_PIN_MESSAGE"] = "client.toggle.pin.message";
     SocketEvent["SERVER_RESPONSE_PIN_MESSAGE"] = "server.response.pin.message";
+    SocketEvent["CLIENT_DELETE_MESSAGE"] = "client.delete.message";
+    SocketEvent["SERVER_RESPONSE_DELETE_MESSAGE"] = "server.response.delete.message";
     SocketEvent["CLIENT_TYPING_TO_ROOM_CHAT"] = "client.typing.to.room.chat";
     SocketEvent["SERVER_RESPONSE_TYPING_TO_ROOM_CHAT"] = "server.response.typing.to.room.chat";
     SocketEvent["CLIENT_ACCEPT_FRIEND_REQUEST"] = "client.accept.friend.request";
