@@ -39,6 +39,21 @@ router.post(
   deserialize,
   groupController.inviteMemberReject
 );
+router.post(
+  "/request-join/:userId/:id",
+  deserialize,
+  groupController.requestJoin
+);
+router.post(
+  "/request-join/accept/:adminId/:userId/:id",
+  deserialize,
+  groupController.requestJoinAccept
+);
+router.post(
+  "/request-join/reject/:adminId/:userId/:id",
+  deserialize,
+  groupController.requestJoinReject
+);
 
 router.patch(
   "/description/:id",

@@ -22,6 +22,9 @@ router.post("/", deserialize_middleware_1.default, upload.fields([
 router.post("/invite-member/:userId/:id", deserialize_middleware_1.default, group_controller_1.default.inviteMember);
 router.post("/invite-member/accept/:userId/:id", deserialize_middleware_1.default, group_controller_1.default.inviteMemberAccept);
 router.post("/invite-member/reject/:userId/:id", deserialize_middleware_1.default, group_controller_1.default.inviteMemberReject);
+router.post("/request-join/:userId/:id", deserialize_middleware_1.default, group_controller_1.default.requestJoin);
+router.post("/request-join/accept/:adminId/:userId/:id", deserialize_middleware_1.default, group_controller_1.default.requestJoinAccept);
+router.post("/request-join/reject/:adminId/:userId/:id", deserialize_middleware_1.default, group_controller_1.default.requestJoinReject);
 router.patch("/description/:id", deserialize_middleware_1.default, group_validate_1.default.updateDescription, group_controller_1.default.updateDescription);
 router.patch("/invitation/:id", deserialize_middleware_1.default, group_validate_1.default.updateInvitation, group_controller_1.default.updateInvitation);
 router.patch("/change-user-role/:role/:userId/:id", deserialize_middleware_1.default, group_controller_1.default.changeUserRole);

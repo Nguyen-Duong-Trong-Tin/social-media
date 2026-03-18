@@ -11,6 +11,8 @@ import groupService from "../../services/client/group.service";
 import { EGroupRole, EGroupStatus } from "../../enums/group.enum";
 import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
 import groupTopicService from "../../services/client/groupTopic.service";
+import notificationService from "../../services/client/notification.service";
+import ENotificationType from "../../enums/notification.enum";
 
 // GET /v1/groups?sort&page&limit&filter
 const find = async (req: Request, res: Response) => {
@@ -619,6 +621,300 @@ const leaveGroup = async (req: Request, res: Response) => {
   }
 };
 
+// POST /v1/groups/request-join/:userId/:id
+const requestJoin = async (req: Request, res: Response) => {
+  try {
+    const { userId, id } = req.params;
+
+    const [userExists, groupExists] = await Promise.all([
+      userService.findOne({ filter: { _id: userId } }),
+      groupService.findOne({ filter: { _id: id } }),
+    ]);
+
+    if (!userExists) {
+      return res.status(404).json({
+        status: false,
+        message: "User id not found",
+      });
+    }
+
+    if (!groupExists) {
+      return res.status(404).json({
+        status: false,
+        message: "Group id not found",
+      });
+    }
+
+    if (groupExists.users.some((user) => user.userId === userId)) {
+      return res.status(400).json({
+        status: false,
+        message: "User already in this group",
+      });
+    }
+
+    if (groupExists.userRequests.includes(userId)) {
+      return res.status(400).json({
+        status: false,
+        message: "Request already sent",
+      });
+    }
+
+    if (groupExists.usersInvited?.includes(userId)) {
+      return res.status(400).json({
+        status: false,
+        message: "User already invited to this group",
+      });
+    }
+
+    const newGroup = await groupService.findOneAndUpdate({
+      filter: { _id: id },
+      update: { $addToSet: { userRequests: userId } },
+    });
+
+    const adminIds = groupExists.users
+      .filter(
+        (user) =>
+          user.role === EGroupRole.superAdmin ||
+          user.role === EGroupRole.admin
+      )
+      .map((user) => user.userId)
+      .filter(
+        (userId): userId is string =>
+          typeof userId === "string" && userId.length > 0
+      );
+
+    if (adminIds.length > 0) {
+      await notificationService.insertMany({
+        docs: adminIds.map((adminId) => ({
+          userId: adminId,
+          type: ENotificationType.group_request,
+          title: "New group join request",
+          message: `${userExists.fullName || "A user"} requested to join ${
+            groupExists.title
+          }.`,
+          data: {
+            groupId: groupExists.id,
+            groupSlug: groupExists.slug,
+            requesterId: userId,
+          },
+          isRead: false,
+          deleted: false,
+        })),
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: "Request sent successfully",
+      data: newGroup,
+    });
+  } catch {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+// POST /v1/groups/request-join/accept/:adminId/:userId/:id
+const requestJoinAccept = async (req: Request, res: Response) => {
+  try {
+    const { adminId, userId, id } = req.params;
+
+    const [adminExists, userExists, groupExists] = await Promise.all([
+      userService.findOne({ filter: { _id: adminId } }),
+      userService.findOne({ filter: { _id: userId } }),
+      groupService.findOne({ filter: { _id: id } }),
+    ]);
+
+    if (!adminExists) {
+      return res.status(404).json({
+        status: false,
+        message: "Admin id not found",
+      });
+    }
+
+    if (!userExists) {
+      return res.status(404).json({
+        status: false,
+        message: "User id not found",
+      });
+    }
+
+    if (!groupExists) {
+      return res.status(404).json({
+        status: false,
+        message: "Group id not found",
+      });
+    }
+
+    const isAdmin = groupExists.users.some(
+      (user) =>
+        user.userId === adminId &&
+        (user.role === EGroupRole.superAdmin || user.role === EGroupRole.admin)
+    );
+
+    if (!isAdmin) {
+      return res.status(403).json({
+        status: false,
+        message: "Access denied",
+      });
+    }
+
+    if (!groupExists.userRequests.includes(userId)) {
+      return res.status(400).json({
+        status: false,
+        message: "Request not found",
+      });
+    }
+
+    const newGroup = await groupService.findOneAndUpdate({
+      filter: { _id: id },
+      update: {
+        $pull: { userRequests: userId },
+        $addToSet: { users: { userId, role: EGroupRole.user } },
+      },
+    });
+
+    await notificationService.insertMany({
+      docs: [
+        {
+          userId,
+          type: ENotificationType.group_request_accept,
+          title: "Group request approved",
+          message: `Your request to join ${groupExists.title} was approved.`,
+          data: {
+            groupId: groupExists.id,
+            groupSlug: groupExists.slug,
+          },
+          isRead: false,
+          deleted: false,
+        },
+      ],
+    });
+
+    await notificationService.updateMany({
+      filter: {
+        userId: adminId,
+        type: ENotificationType.group_request,
+        "data.groupId": groupExists.id,
+        "data.requesterId": userId,
+      },
+      update: { $set: { deleted: true, isRead: true } },
+    });
+
+    return res.status(200).json({
+      status: true,
+      message: "Request approved",
+      data: newGroup,
+    });
+  } catch {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+// POST /v1/groups/request-join/reject/:adminId/:userId/:id
+const requestJoinReject = async (req: Request, res: Response) => {
+  try {
+    const { adminId, userId, id } = req.params;
+
+    const [adminExists, userExists, groupExists] = await Promise.all([
+      userService.findOne({ filter: { _id: adminId } }),
+      userService.findOne({ filter: { _id: userId } }),
+      groupService.findOne({ filter: { _id: id } }),
+    ]);
+
+    if (!adminExists) {
+      return res.status(404).json({
+        status: false,
+        message: "Admin id not found",
+      });
+    }
+
+    if (!userExists) {
+      return res.status(404).json({
+        status: false,
+        message: "User id not found",
+      });
+    }
+
+    if (!groupExists) {
+      return res.status(404).json({
+        status: false,
+        message: "Group id not found",
+      });
+    }
+
+    const isAdmin = groupExists.users.some(
+      (user) =>
+        user.userId === adminId &&
+        (user.role === EGroupRole.superAdmin || user.role === EGroupRole.admin)
+    );
+
+    if (!isAdmin) {
+      return res.status(403).json({
+        status: false,
+        message: "Access denied",
+      });
+    }
+
+    if (!groupExists.userRequests.includes(userId)) {
+      return res.status(400).json({
+        status: false,
+        message: "Request not found",
+      });
+    }
+
+    const newGroup = await groupService.findOneAndUpdate({
+      filter: { _id: id },
+      update: {
+        $pull: { userRequests: userId },
+      },
+    });
+
+    await notificationService.insertMany({
+      docs: [
+        {
+          userId,
+          type: ENotificationType.group_request_reject,
+          title: "Group request declined",
+          message: `Your request to join ${groupExists.title} was declined.`,
+          data: {
+            groupId: groupExists.id,
+            groupSlug: groupExists.slug,
+          },
+          isRead: false,
+          deleted: false,
+        },
+      ],
+    });
+
+    await notificationService.updateMany({
+      filter: {
+        userId: adminId,
+        type: ENotificationType.group_request,
+        "data.groupId": groupExists.id,
+        "data.requesterId": userId,
+      },
+      update: { $set: { deleted: true, isRead: true } },
+    });
+
+    return res.status(200).json({
+      status: true,
+      message: "Request declined",
+      data: newGroup,
+    });
+  } catch {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
 const groupController = {
   find,
   findById,
@@ -632,5 +928,8 @@ const groupController = {
   inviteMemberAccept,
   inviteMemberReject,
   leaveGroup,
+  requestJoin,
+  requestJoinAccept,
+  requestJoinReject,
 };
 export default groupController;
