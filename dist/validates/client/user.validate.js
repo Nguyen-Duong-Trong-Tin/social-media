@@ -42,9 +42,33 @@ const updateBio = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     }
     return next();
 });
+// PATCH /v1/users/location/:id
+const updateLocation = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { lat, lng, visibility } = req.body;
+    if (typeof lat !== "number" || typeof lng !== "number") {
+        return res.status(400).json({
+            status: false,
+            message: "Latitude and longitude are required",
+        });
+    }
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+        return res.status(400).json({
+            status: false,
+            message: "Invalid coordinates",
+        });
+    }
+    if (visibility && visibility !== "friends" && visibility !== "everyone") {
+        return res.status(400).json({
+            status: false,
+            message: "Invalid visibility",
+        });
+    }
+    return next();
+});
 const userValidate = {
     checkExistsEmail,
     checkExistsPhone,
     updateBio,
+    updateLocation,
 };
 exports.default = userValidate;

@@ -25,7 +25,9 @@ const UserSchema = new mongoose_1.default.Schema({
     },
     phone: {
         type: String,
-        required: true,
+        required() {
+            return this.authProvider !== "google";
+        },
     },
     avatar: {
         type: String,
@@ -43,6 +45,22 @@ const UserSchema = new mongoose_1.default.Schema({
     bio: {
         type: String,
         default: "",
+    },
+    lastLocation: {
+        lat: {
+            type: Number,
+        },
+        lng: {
+            type: Number,
+        },
+        updatedAt: {
+            type: Date,
+        },
+    },
+    locationVisibility: {
+        type: String,
+        enum: ["friends", "everyone"],
+        default: "friends",
     },
     friends: {
         type: [
@@ -71,6 +89,14 @@ const UserSchema = new mongoose_1.default.Schema({
         required: true,
     },
     refreshToken: {
+        type: String,
+    },
+    authProvider: {
+        type: String,
+        enum: ["local", "google"],
+        default: "local",
+    },
+    googleId: {
         type: String,
     },
 }, {

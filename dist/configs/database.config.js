@@ -18,8 +18,8 @@ const connect = () => __awaiter(void 0, void 0, void 0, function* () {
         yield mongoose_1.default.connect(process.env.DATABASE_URL);
         console.log("Connect success.");
     }
-    catch (_a) {
-        console.log("Connect error.");
+    catch (error) {
+        console.log("Connect error.", error);
     }
 });
 const database = { connect };

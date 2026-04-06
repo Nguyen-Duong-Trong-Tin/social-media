@@ -23,11 +23,14 @@ const UserSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      required: true,
+      required(this: { authProvider?: string }) {
+        return this.authProvider !== "google";
+      },
     },
     avatar: {
       type: String,
-      default: "https://res.cloudinary.com/dbddxrmpy/image/upload/v1773669359/facebook-avt_emcnlh.png",
+      default:
+        "https://res.cloudinary.com/dbddxrmpy/image/upload/v1773669359/facebook-avt_emcnlh.png",
     },
     status: {
       type: String,
@@ -36,11 +39,28 @@ const UserSchema = new mongoose.Schema(
     },
     coverPhoto: {
       type: String,
-      default: "https://cellphones.com.vn/sforum/wp-content/uploads/2024/04/anh-bia-facebook-3.jpg",
+      default:
+        "https://cellphones.com.vn/sforum/wp-content/uploads/2024/04/anh-bia-facebook-3.jpg",
     },
     bio: {
       type: String,
       default: "",
+    },
+    lastLocation: {
+      lat: {
+        type: Number,
+      },
+      lng: {
+        type: Number,
+      },
+      updatedAt: {
+        type: Date,
+      },
+    },
+    locationVisibility: {
+      type: String,
+      enum: ["friends", "everyone"],
+      default: "friends",
     },
     friends: {
       type: [
@@ -71,10 +91,18 @@ const UserSchema = new mongoose.Schema(
     refreshToken: {
       type: String,
     },
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+    googleId: {
+      type: String,
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const UserModel = mongoose.model("UserModel", UserSchema, "users");

@@ -18,6 +18,37 @@ const slug_util_1 = __importDefault(require("../../utils/slug.util"));
 const user_service_1 = __importDefault(require("../../services/client/user.service"));
 const shortUniqueKey_util_1 = __importDefault(require("../../utils/shortUniqueKey.util"));
 const user_enum_1 = require("../../enums/user.enum");
+const buildFrontendRedirectUrl = ({ accessToken, refreshToken, userId, userSlug, error, }) => {
+    const fallback = "http://localhost:5173/login";
+    const base = process.env.GOOGLE_OAUTH_FRONTEND_REDIRECT || fallback;
+    const redirectUrl = new URL(base);
+    if (error) {
+        redirectUrl.searchParams.set("error", error);
+        return redirectUrl.toString();
+    }
+    if (accessToken)
+        redirectUrl.searchParams.set("accessToken", accessToken);
+    if (refreshToken)
+        redirectUrl.searchParams.set("refreshToken", refreshToken);
+    if (userId)
+        redirectUrl.searchParams.set("userId", userId);
+    if (userSlug)
+        redirectUrl.searchParams.set("userSlug", userSlug);
+    return redirectUrl.toString();
+};
+const buildGoogleAuthUrl = () => {
+    const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID || "";
+    const redirectUri = process.env.GOOGLE_OAUTH_REDIRECT_URI || "";
+    const params = new URLSearchParams({
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        response_type: "code",
+        scope: "openid email profile",
+        access_type: "online",
+        prompt: "select_account",
+    });
+    return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+};
 // POST /v1/auth/register
 const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -185,10 +216,122 @@ const refreshToken = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         });
     }
 });
+// GET /v1/auth/google
+const googleLogin = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        return res.redirect(buildGoogleAuthUrl());
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong.",
+        });
+    }
+});
+// GET /v1/auth/google/callback
+const googleCallback = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { code, error } = req.query;
+        if (error) {
+            return res.redirect(buildFrontendRedirectUrl({ error }));
+        }
+        if (!code) {
+            return res.redirect(buildFrontendRedirectUrl({ error: "missing_code" }));
+        }
+        const tokenResponse = yield fetch("https://oauth2.googleapis.com/token", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+                code,
+                client_id: process.env.GOOGLE_OAUTH_CLIENT_ID || "",
+                client_secret: process.env.GOOGLE_OAUTH_CLIENT_SECRET || "",
+                redirect_uri: process.env.GOOGLE_OAUTH_REDIRECT_URI || "",
+                grant_type: "authorization_code",
+            }),
+        });
+        if (!tokenResponse.ok) {
+            return res.redirect(buildFrontendRedirectUrl({ error: "token_exchange_failed" }));
+        }
+        const tokenData = (yield tokenResponse.json());
+        if (!tokenData.access_token) {
+            return res.redirect(buildFrontendRedirectUrl({ error: "missing_access_token" }));
+        }
+        const userInfoResponse = yield fetch("https://openidconnect.googleapis.com/v1/userinfo", {
+            headers: {
+                Authorization: `Bearer ${tokenData.access_token}`,
+            },
+        });
+        if (!userInfoResponse.ok) {
+            return res.redirect(buildFrontendRedirectUrl({ error: "user_info_failed" }));
+        }
+        const userInfo = (yield userInfoResponse.json());
+        if (!userInfo.email) {
+            return res.redirect(buildFrontendRedirectUrl({ error: "missing_email" }));
+        }
+        const userExists = yield user_service_1.default.findOne({
+            filter: { email: userInfo.email },
+        });
+        if (userExists) {
+            if (userExists.authProvider !== "google") {
+                return res.redirect(buildFrontendRedirectUrl({ error: "account_exists_local" }));
+            }
+            const accessToken = jwt_util_1.default.accountGenerate(userExists.id, [], "3d");
+            const refreshToken = jwt_util_1.default.generateRefreshToken(userExists.id, [], "90d");
+            yield user_service_1.default.updateOne({
+                filter: { _id: userExists.id },
+                update: { refreshToken },
+            });
+            return res.redirect(buildFrontendRedirectUrl({
+                accessToken,
+                refreshToken,
+                userId: userExists.id,
+                userSlug: userExists.slug,
+            }));
+        }
+        const fullName = userInfo.name || userInfo.email.split("@")[0];
+        const slug = slug_util_1.default.convert(fullName) + "-" + shortUniqueKey_util_1.default.generate();
+        const password = md5_util_1.default.encode(shortUniqueKey_util_1.default.generate());
+        const newUser = yield user_service_1.default.create({
+            doc: {
+                fullName,
+                slug,
+                email: userInfo.email,
+                password,
+                avatar: userInfo.picture || undefined,
+                status: user_enum_1.EUserStatus.active,
+                friends: [],
+                friendAccepts: [],
+                friendRequests: [],
+                online: user_enum_1.EUserOnline.online,
+                deleted: false,
+                authProvider: "google",
+                googleId: userInfo.sub,
+            },
+        });
+        const accessToken = jwt_util_1.default.accountGenerate(newUser.id, [], "3d");
+        const refreshToken = jwt_util_1.default.generateRefreshToken(newUser.id, [], "90d");
+        yield user_service_1.default.updateOne({
+            filter: { _id: newUser.id },
+            update: { refreshToken },
+        });
+        return res.redirect(buildFrontendRedirectUrl({
+            accessToken,
+            refreshToken,
+            userId: newUser.id,
+            userSlug: newUser.slug,
+        }));
+    }
+    catch (error) {
+        console.error("Google OAuth callback error:", error);
+        return res.redirect(buildFrontendRedirectUrl({ error: "unknown_error" }));
+    }
+});
 const authController = {
     register,
     login,
     verifyAccessToken,
     refreshToken,
+    googleLogin,
+    googleCallback,
 };
 exports.default = authController;

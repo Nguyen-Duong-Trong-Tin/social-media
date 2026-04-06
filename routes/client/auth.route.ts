@@ -6,15 +6,17 @@ import authController from "../../controllers/client/auth.controller";
 
 router.post("/register", authValidate.register, authController.register);
 router.post("/login", authValidate.login, authController.login);
+router.get("/google", authController.googleLogin);
+router.get("/google/callback", authController.googleCallback);
 router.get(
   "/verify-access-token",
   authValidate.verifyAccessToken,
-  authController.verifyAccessToken
+  authController.verifyAccessToken,
 );
 router.post(
   "/refresh-token",
   authValidate.refreshToken,
-  authController.refreshToken
+  authController.refreshToken,
 );
 
 export default router;

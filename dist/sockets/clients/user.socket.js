@@ -18,6 +18,7 @@ const notification_enum_1 = __importDefault(require("../../enums/notification.en
 const user_service_1 = __importDefault(require("../../services/client/user.service"));
 const roomChat_service_1 = __importDefault(require("../../services/client/roomChat.service"));
 const notification_service_1 = __importDefault(require("../../services/client/notification.service"));
+const message_service_1 = __importDefault(require("../../services/client/message.service"));
 const slug_util_1 = __importDefault(require("../../utils/slug.util"));
 const shortUniqueKey_util_1 = __importDefault(require("../../utils/shortUniqueKey.util"));
 const acceptFriendRequest = (socket, io) => {
@@ -260,12 +261,92 @@ const deleteFriend = (socket, io) => {
         });
     }));
 };
+const updateLocation = (socket, io) => {
+    socket.on(socketEvent_enum_1.default.CLIENT_UPDATE_LOCATION, (data) => __awaiter(void 0, void 0, void 0, function* () {
+        io.emit(socketEvent_enum_1.default.SERVER_LOCATION_UPDATED, {
+            userId: data.userId,
+        });
+    }));
+};
+const callOffer = (socket, io) => {
+    socket.on(socketEvent_enum_1.default.CLIENT_CALL_OFFER, (data) => __awaiter(void 0, void 0, void 0, function* () {
+        io.emit(socketEvent_enum_1.default.SERVER_CALL_OFFER, data);
+    }));
+};
+const callAnswer = (socket, io) => {
+    socket.on(socketEvent_enum_1.default.CLIENT_CALL_ANSWER, (data) => __awaiter(void 0, void 0, void 0, function* () {
+        io.emit(socketEvent_enum_1.default.SERVER_CALL_ANSWER, data);
+    }));
+};
+const callIce = (socket, io) => {
+    socket.on(socketEvent_enum_1.default.CLIENT_CALL_ICE, (data) => __awaiter(void 0, void 0, void 0, function* () {
+        io.emit(socketEvent_enum_1.default.SERVER_CALL_ICE, data);
+    }));
+};
+const callEnd = (socket, io) => {
+    socket.on(socketEvent_enum_1.default.CLIENT_CALL_END, (data) => __awaiter(void 0, void 0, void 0, function* () {
+        io.emit(socketEvent_enum_1.default.SERVER_CALL_END, data);
+        const typeLabel = data.callType === "video" ? "Video call" : "Audio call";
+        const hasDuration = (data.durationSeconds || 0) > 0;
+        const minutes = Math.floor((data.durationSeconds || 0) / 60);
+        const seconds = (data.durationSeconds || 0) % 60;
+        const durationText = `${minutes}m ${seconds.toString().padStart(2, "0")}s`;
+        const content = hasDuration
+            ? `${typeLabel} • ${durationText}`
+            : data.endReason === "declined"
+                ? `${typeLabel} • Declined`
+                : data.endReason === "canceled"
+                    ? `${typeLabel} • Canceled`
+                    : `${typeLabel} • Missed`;
+        const [newMessage] = yield message_service_1.default.insertMany({
+            docs: [
+                {
+                    content,
+                    userId: data.fromUserId,
+                    roomChatId: data.roomChatId,
+                    deleted: false,
+                },
+            ],
+        });
+        io.emit(socketEvent_enum_1.default.SERVER_RESPONSE_MESSAGE_TO_ROOM_CHAT, {
+            _id: newMessage === null || newMessage === void 0 ? void 0 : newMessage._id,
+            userId: data.fromUserId,
+            roomChatId: data.roomChatId,
+            content,
+            images: [],
+            videos: [],
+            materials: [],
+            pinned: false,
+            pinnedBy: "",
+            pinnedAt: null,
+            createdAt: newMessage === null || newMessage === void 0 ? void 0 : newMessage.createdAt,
+            deleted: false,
+        });
+    }));
+};
+const callUpgradeRequest = (socket, io) => {
+    socket.on(socketEvent_enum_1.default.CLIENT_CALL_UPGRADE_REQUEST, (data) => __awaiter(void 0, void 0, void 0, function* () {
+        io.emit(socketEvent_enum_1.default.SERVER_CALL_UPGRADE_REQUEST, data);
+    }));
+};
+const callUpgradeResponse = (socket, io) => {
+    socket.on(socketEvent_enum_1.default.CLIENT_CALL_UPGRADE_RESPONSE, (data) => __awaiter(void 0, void 0, void 0, function* () {
+        io.emit(socketEvent_enum_1.default.SERVER_CALL_UPGRADE_RESPONSE, data);
+    }));
+};
 const register = (socket, io) => {
     acceptFriendRequest(socket, io);
     sendFriendRequest(socket, io);
     rejectFriendRequest(socket, io);
     deleteFriendAccept(socket, io);
     deleteFriend(socket, io);
+    updateLocation(socket, io);
+    callOffer(socket, io);
+    callAnswer(socket, io);
+    callIce(socket, io);
+    callEnd(socket, io);
+    callUpgradeRequest(socket, io);
+    callUpgradeResponse(socket, io);
 };
 const userSocket = {
     acceptFriendRequest,
@@ -273,6 +354,13 @@ const userSocket = {
     deleteFriendAccept,
     deleteFriend,
     rejectFriendRequest,
+    updateLocation,
+    callOffer,
+    callAnswer,
+    callIce,
+    callEnd,
+    callUpgradeRequest,
+    callUpgradeResponse,
     register,
 };
 exports.default = userSocket;

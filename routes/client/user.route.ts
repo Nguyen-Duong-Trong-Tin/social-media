@@ -9,14 +9,16 @@ import userController from "../../controllers/client/user.controller";
 router.post(
   "/check-exists/email",
   userValidate.checkExistsEmail,
-  userController.checkExistsEmail
+  userController.checkExistsEmail,
 );
 router.post(
   "/check-exists/phone",
   userValidate.checkExistsPhone,
-  userController.checkExistsPhone
+  userController.checkExistsPhone,
 );
 router.post("/ids", deserialize, userController.findUsersByIds);
+
+router.get("/locations", deserialize, userController.findUsersWithLocation);
 
 router.get("/", deserialize, userController.findUsers);
 router.get("/:id", deserialize, userController.findUserById);
@@ -26,7 +28,14 @@ router.patch(
   "/bio/:id",
   deserialize,
   userValidate.updateBio,
-  userController.updateBio
+  userController.updateBio,
+);
+
+router.patch(
+  "/location/:id",
+  deserialize,
+  userValidate.updateLocation,
+  userController.updateLocation,
 );
 
 export default router;

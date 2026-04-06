@@ -11,8 +11,10 @@ const user_controller_1 = __importDefault(require("../../controllers/client/user
 router.post("/check-exists/email", user_validate_1.default.checkExistsEmail, user_controller_1.default.checkExistsEmail);
 router.post("/check-exists/phone", user_validate_1.default.checkExistsPhone, user_controller_1.default.checkExistsPhone);
 router.post("/ids", deserialize_middleware_1.default, user_controller_1.default.findUsersByIds);
+router.get("/locations", deserialize_middleware_1.default, user_controller_1.default.findUsersWithLocation);
 router.get("/", deserialize_middleware_1.default, user_controller_1.default.findUsers);
 router.get("/:id", deserialize_middleware_1.default, user_controller_1.default.findUserById);
 router.get("/slug/:slug", deserialize_middleware_1.default, user_controller_1.default.findUserBySlug);
 router.patch("/bio/:id", deserialize_middleware_1.default, user_validate_1.default.updateBio, user_controller_1.default.updateBio);
+router.patch("/location/:id", deserialize_middleware_1.default, user_validate_1.default.updateLocation, user_controller_1.default.updateLocation);
 exports.default = router;

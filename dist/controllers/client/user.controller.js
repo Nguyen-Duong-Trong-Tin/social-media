@@ -226,6 +226,112 @@ const updateBio = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
 });
+// PATCH /v1/users/location/:id
+const updateLocation = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const { lat, lng, visibility } = req.body;
+        const updatePayload = {
+            lastLocation: {
+                lat,
+                lng,
+                updatedAt: new Date(),
+            },
+        };
+        if (visibility) {
+            updatePayload.locationVisibility = visibility;
+        }
+        const userExists = yield user_service_1.default.findOneAndUpdate({
+            filter: { _id: id },
+            update: updatePayload,
+            select: "-password",
+        });
+        if (!userExists) {
+            return res.status(404).json({
+                status: false,
+                message: "User id not found",
+            });
+        }
+        return res.status(200).json({
+            status: true,
+            message: "Location updated",
+            data: userExists,
+        });
+    }
+    catch (_a) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong",
+        });
+    }
+});
+// GET /v1/users/locations
+const findUsersWithLocation = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const viewerId = req.query.viewerId;
+        if (!viewerId) {
+            return res.status(400).json({
+                status: false,
+                message: "Viewer id is required",
+            });
+        }
+        const viewer = yield user_service_1.default.findOne({
+            filter: { _id: viewerId },
+            select: "friends locationVisibility",
+        });
+        if (!viewer) {
+            return res.status(404).json({
+                status: false,
+                message: "User id not found",
+            });
+        }
+        const friendIds = (viewer.friends || [])
+            .map((friend) => friend.userId)
+            .filter(Boolean);
+        const visibility = viewer.locationVisibility || "friends";
+        const filterOptions = {
+            lastLocation: { $exists: true },
+            _id: { $ne: viewerId },
+        };
+        if (visibility === "friends") {
+            if (!friendIds.length) {
+                return res.status(200).json({
+                    status: true,
+                    message: "Users found",
+                    data: [],
+                });
+            }
+            filterOptions["_id"] = { $in: friendIds };
+        }
+        else {
+            if (friendIds.length) {
+                filterOptions["$or"] = [
+                    { locationVisibility: "everyone" },
+                    { _id: { $in: friendIds } },
+                ];
+            }
+            else {
+                filterOptions["locationVisibility"] = "everyone";
+            }
+        }
+        const users = yield user_service_1.default.find({
+            filter: filterOptions,
+            select: "fullName avatar lastLocation online slug",
+            limit: 200,
+        });
+        return res.status(200).json({
+            status: true,
+            message: "Users found",
+            data: users,
+        });
+    }
+    catch (_a) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong",
+        });
+    }
+});
 const userController = {
     checkExistsEmail,
     checkExistsPhone,
@@ -234,5 +340,7 @@ const userController = {
     findUsersByIds,
     findUserBySlug,
     updateBio,
+    updateLocation,
+    findUsersWithLocation,
 };
 exports.default = userController;

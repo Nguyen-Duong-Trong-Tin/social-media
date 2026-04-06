@@ -10,6 +10,7 @@ import ENotificationType from "../../enums/notification.enum";
 import userService from "../../services/client/user.service";
 import roomChatService from "../../services/client/roomChat.service";
 import notificationService from "../../services/client/notification.service";
+import messageService from "../../services/client/message.service";
 import {
   ClientAcceptFriendRequestDto,
   ClientDeleteFriendDto,
@@ -111,7 +112,7 @@ const acceptFriendRequest = (socket: Socket, io: Server) => {
         type: ENotificationType.friend_accept,
         data: { fromUserId: userId, roomChatId: newRoomChat.id },
       });
-    }
+    },
   );
 };
 
@@ -167,7 +168,7 @@ const rejectFriendRequest = (socket: Socket, io: Server) => {
         type: ENotificationType.friend_reject,
         data: { fromUserId: userId },
       });
-    }
+    },
   );
 };
 
@@ -236,7 +237,7 @@ const sendFriendRequest = (socket: Socket, io: Server) => {
         type: ENotificationType.friend_request,
         data: { fromUserId: userId },
       });
-    }
+    },
   );
 };
 
@@ -272,7 +273,7 @@ const deleteFriendAccept = (socket: Socket, io: Server) => {
         userId,
         userRequestId,
       });
-    }
+    },
   );
 };
 
@@ -287,7 +288,7 @@ const deleteFriend = (socket: Socket, io: Server) => {
       });
 
       const friendEntry = userExists?.friends?.find(
-        (friend) => friend.userId === userRequestId
+        (friend) => friend.userId === userRequestId,
       );
 
       if (!friendEntry) {
@@ -314,7 +315,143 @@ const deleteFriend = (socket: Socket, io: Server) => {
         userId,
         userRequestId,
       });
-    }
+    },
+  );
+};
+
+const updateLocation = (socket: Socket, io: Server) => {
+  socket.on(
+    SocketEvent.CLIENT_UPDATE_LOCATION,
+    async (data: { userId: string }) => {
+      io.emit(SocketEvent.SERVER_LOCATION_UPDATED, {
+        userId: data.userId,
+      });
+    },
+  );
+};
+
+const callOffer = (socket: Socket, io: Server) => {
+  socket.on(
+    SocketEvent.CLIENT_CALL_OFFER,
+    async (data: {
+      fromUserId: string;
+      toUserId: string;
+      roomChatId: string;
+      offer: Record<string, unknown>;
+      callType: "audio" | "video";
+    }) => {
+      io.emit(SocketEvent.SERVER_CALL_OFFER, data);
+    },
+  );
+};
+
+const callAnswer = (socket: Socket, io: Server) => {
+  socket.on(
+    SocketEvent.CLIENT_CALL_ANSWER,
+    async (data: {
+      fromUserId: string;
+      toUserId: string;
+      roomChatId: string;
+      answer: Record<string, unknown>;
+    }) => {
+      io.emit(SocketEvent.SERVER_CALL_ANSWER, data);
+    },
+  );
+};
+
+const callIce = (socket: Socket, io: Server) => {
+  socket.on(
+    SocketEvent.CLIENT_CALL_ICE,
+    async (data: {
+      fromUserId: string;
+      toUserId: string;
+      roomChatId: string;
+      candidate: Record<string, unknown>;
+    }) => {
+      io.emit(SocketEvent.SERVER_CALL_ICE, data);
+    },
+  );
+};
+
+const callEnd = (socket: Socket, io: Server) => {
+  socket.on(
+    SocketEvent.CLIENT_CALL_END,
+    async (data: {
+      fromUserId: string;
+      toUserId: string;
+      roomChatId: string;
+      durationSeconds?: number;
+      callType?: "audio" | "video";
+      endReason?: "declined" | "missed" | "ended" | "canceled";
+    }) => {
+      io.emit(SocketEvent.SERVER_CALL_END, data);
+
+      const typeLabel = data.callType === "video" ? "Video call" : "Audio call";
+      const hasDuration = (data.durationSeconds || 0) > 0;
+      const minutes = Math.floor((data.durationSeconds || 0) / 60);
+      const seconds = (data.durationSeconds || 0) % 60;
+      const durationText = `${minutes}m ${seconds.toString().padStart(2, "0")}s`;
+      const content = hasDuration
+        ? `${typeLabel} • ${durationText}`
+        : data.endReason === "declined"
+          ? `${typeLabel} • Declined`
+          : data.endReason === "canceled"
+            ? `${typeLabel} • Canceled`
+            : `${typeLabel} • Missed`;
+
+      const [newMessage] = await messageService.insertMany({
+        docs: [
+          {
+            content,
+            userId: data.fromUserId,
+            roomChatId: data.roomChatId,
+            deleted: false,
+          },
+        ],
+      });
+
+      io.emit(SocketEvent.SERVER_RESPONSE_MESSAGE_TO_ROOM_CHAT, {
+        _id: newMessage?._id,
+        userId: data.fromUserId,
+        roomChatId: data.roomChatId,
+        content,
+        images: [],
+        videos: [],
+        materials: [],
+        pinned: false,
+        pinnedBy: "",
+        pinnedAt: null,
+        createdAt: newMessage?.createdAt,
+        deleted: false,
+      });
+    },
+  );
+};
+
+const callUpgradeRequest = (socket: Socket, io: Server) => {
+  socket.on(
+    SocketEvent.CLIENT_CALL_UPGRADE_REQUEST,
+    async (data: {
+      fromUserId: string;
+      toUserId: string;
+      roomChatId: string;
+    }) => {
+      io.emit(SocketEvent.SERVER_CALL_UPGRADE_REQUEST, data);
+    },
+  );
+};
+
+const callUpgradeResponse = (socket: Socket, io: Server) => {
+  socket.on(
+    SocketEvent.CLIENT_CALL_UPGRADE_RESPONSE,
+    async (data: {
+      fromUserId: string;
+      toUserId: string;
+      roomChatId: string;
+      accepted: boolean;
+    }) => {
+      io.emit(SocketEvent.SERVER_CALL_UPGRADE_RESPONSE, data);
+    },
   );
 };
 
@@ -324,6 +461,13 @@ const register = (socket: Socket, io: Server) => {
   rejectFriendRequest(socket, io);
   deleteFriendAccept(socket, io);
   deleteFriend(socket, io);
+  updateLocation(socket, io);
+  callOffer(socket, io);
+  callAnswer(socket, io);
+  callIce(socket, io);
+  callEnd(socket, io);
+  callUpgradeRequest(socket, io);
+  callUpgradeResponse(socket, io);
 };
 
 const userSocket = {
@@ -332,6 +476,13 @@ const userSocket = {
   deleteFriendAccept,
   deleteFriend,
   rejectFriendRequest,
+  updateLocation,
+  callOffer,
+  callAnswer,
+  callIce,
+  callEnd,
+  callUpgradeRequest,
+  callUpgradeResponse,
   register,
 };
 export default userSocket;
