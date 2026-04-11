@@ -12,12 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const crypto_1 = __importDefault(require("crypto"));
 const md5_util_1 = __importDefault(require("../../utils/md5.util"));
 const jwt_util_1 = __importDefault(require("../../utils/jwt.util"));
 const slug_util_1 = __importDefault(require("../../utils/slug.util"));
 const user_service_1 = __importDefault(require("../../services/client/user.service"));
 const shortUniqueKey_util_1 = __importDefault(require("../../utils/shortUniqueKey.util"));
 const user_enum_1 = require("../../enums/user.enum");
+const sendMail_helper_1 = __importDefault(require("../../helpers/sendMail.helper"));
 const buildFrontendRedirectUrl = ({ accessToken, refreshToken, userId, userSlug, error, }) => {
     const fallback = "http://localhost:5173/login";
     const base = process.env.GOOGLE_OAUTH_FRONTEND_REDIRECT || fallback;
@@ -216,6 +218,96 @@ const refreshToken = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         });
     }
 });
+// POST /v1/auth/forgot-password
+const forgotPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email } = req.body;
+        const userExists = yield user_service_1.default.findOne({
+            filter: { email },
+            select: "_id email fullName authProvider",
+        });
+        if (userExists && userExists.authProvider === "google") {
+            return res.status(200).json({
+                status: true,
+                message: "This email uses Google login, please continue with Google",
+            });
+        }
+        if (userExists && userExists.authProvider === "local") {
+            const resetToken = crypto_1.default.randomBytes(32).toString("hex");
+            const resetPasswordToken = md5_util_1.default.encode(resetToken);
+            const resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
+            yield user_service_1.default.updateOne({
+                filter: { _id: userExists.id },
+                update: { resetPasswordToken, resetPasswordExpires },
+            });
+            const resetPasswordBaseUrl = process.env.CLIENT_RESET_PASSWORD_URL ||
+                "http://localhost:5173/reset-password";
+            const resetPasswordUrl = new URL(resetPasswordBaseUrl);
+            resetPasswordUrl.searchParams.set("token", resetToken);
+            resetPasswordUrl.searchParams.set("email", userExists.email);
+            (0, sendMail_helper_1.default)({
+                email: userExists.email,
+                subject: "Reset your password",
+                html: `
+          <p>Hello ${userExists.fullName},</p>
+          <p>We received a request to reset your password.</p>
+          <p>Click the link below to set a new password. This link expires in 15 minutes.</p>
+          <p><a href="${resetPasswordUrl.toString()}">${resetPasswordUrl.toString()}</a></p>
+          <p>If you did not request this, you can ignore this email.</p>
+        `,
+            });
+        }
+        return res.status(200).json({
+            status: true,
+            message: "If this email is registered, a password reset link has been sent.",
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong.",
+        });
+    }
+});
+// POST /v1/auth/reset-password
+const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, token, password } = req.body;
+        const resetPasswordToken = md5_util_1.default.encode(token);
+        const userExists = yield user_service_1.default.findOne({
+            filter: {
+                email,
+                authProvider: "local",
+                resetPasswordToken,
+                resetPasswordExpires: { $gt: new Date() },
+            },
+        });
+        if (!userExists) {
+            return res.status(400).json({
+                status: false,
+                message: "Reset link is invalid or expired",
+            });
+        }
+        yield user_service_1.default.updateOne({
+            filter: { _id: userExists.id },
+            update: {
+                password: md5_util_1.default.encode(password),
+                resetPasswordToken: null,
+                resetPasswordExpires: null,
+            },
+        });
+        return res.status(200).json({
+            status: true,
+            message: "Password reset successfully",
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong.",
+        });
+    }
+});
 // GET /v1/auth/google
 const googleLogin = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -331,6 +423,8 @@ const authController = {
     login,
     verifyAccessToken,
     refreshToken,
+    forgotPassword,
+    resetPassword,
     googleLogin,
     googleCallback,
 };

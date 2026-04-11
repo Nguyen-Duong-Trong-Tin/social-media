@@ -5,6 +5,9 @@ interface IUser {
   slug: string;
   email: string;
   password: string;
+  refreshToken?: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   phone?: string;
   avatar: string;
   status: EUserStatus;

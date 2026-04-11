@@ -59,10 +59,45 @@ const refreshToken = (req: Request, res: Response, next: NextFunction) => {
   return next();
 };
 
+const forgotPassword = (req: Request, res: Response, next: NextFunction) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      status: false,
+      message: "Input required!",
+    });
+  }
+
+  return next();
+};
+
+const resetPassword = (req: Request, res: Response, next: NextFunction) => {
+  const { email, token, password, confirmPassword } = req.body;
+
+  if (!email || !token || !password || !confirmPassword) {
+    return res.status(400).json({
+      status: false,
+      message: "Input required!",
+    });
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({
+      status: false,
+      message: "Password and confirm password not same",
+    });
+  }
+
+  return next();
+};
+
 const authValidate = {
   register,
   login,
   verifyAccessToken,
   refreshToken,
+  forgotPassword,
+  resetPassword,
 };
 export default authValidate;

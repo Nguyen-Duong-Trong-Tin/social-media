@@ -91,6 +91,12 @@ const UserSchema = new mongoose_1.default.Schema({
     refreshToken: {
         type: String,
     },
+    resetPasswordToken: {
+        type: String,
+    },
+    resetPasswordExpires: {
+        type: Date,
+    },
     authProvider: {
         type: String,
         enum: ["local", "google"],

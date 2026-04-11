@@ -6,6 +6,16 @@ import authController from "../../controllers/client/auth.controller";
 
 router.post("/register", authValidate.register, authController.register);
 router.post("/login", authValidate.login, authController.login);
+router.post(
+  "/forgot-password",
+  authValidate.forgotPassword,
+  authController.forgotPassword,
+);
+router.post(
+  "/reset-password",
+  authValidate.resetPassword,
+  authController.resetPassword,
+);
 router.get("/google", authController.googleLogin);
 router.get("/google/callback", authController.googleCallback);
 router.get(

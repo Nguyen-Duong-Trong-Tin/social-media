@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import crypto from "crypto";
 
 import md5Util from "../../utils/md5.util";
 import jwtUtil from "../../utils/jwt.util";
@@ -6,6 +7,7 @@ import slugUtil from "../../utils/slug.util";
 import userService from "../../services/client/user.service";
 import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
 import { EUserOnline, EUserStatus } from "../../enums/user.enum";
+import sendMailHelper from "../../helpers/sendMail.helper";
 
 const buildFrontendRedirectUrl = ({
   accessToken,
@@ -238,6 +240,110 @@ const refreshToken = async (req: Request, res: Response) => {
   }
 };
 
+// POST /v1/auth/forgot-password
+const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    const userExists = await userService.findOne({
+      filter: { email },
+      select: "_id email fullName authProvider",
+    });
+
+    if (userExists && userExists.authProvider === "google") {
+      return res.status(200).json({
+        status: true,
+        message: "This email uses Google login, please continue with Google",
+      });
+    }
+
+    if (userExists && userExists.authProvider === "local") {
+      const resetToken = crypto.randomBytes(32).toString("hex");
+      const resetPasswordToken = md5Util.encode(resetToken);
+      const resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
+
+      await userService.updateOne({
+        filter: { _id: userExists.id },
+        update: { resetPasswordToken, resetPasswordExpires },
+      });
+
+      const resetPasswordBaseUrl =
+        process.env.CLIENT_RESET_PASSWORD_URL ||
+        "http://localhost:5173/reset-password";
+      const resetPasswordUrl = new URL(resetPasswordBaseUrl);
+      resetPasswordUrl.searchParams.set("token", resetToken);
+      resetPasswordUrl.searchParams.set("email", userExists.email);
+
+      sendMailHelper({
+        email: userExists.email,
+        subject: "Reset your password",
+        html: `
+          <p>Hello ${userExists.fullName},</p>
+          <p>We received a request to reset your password.</p>
+          <p>Click the link below to set a new password. This link expires in 15 minutes.</p>
+          <p><a href="${resetPasswordUrl.toString()}">${resetPasswordUrl.toString()}</a></p>
+          <p>If you did not request this, you can ignore this email.</p>
+        `,
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      message:
+        "If this email is registered, a password reset link has been sent.",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong.",
+    });
+  }
+};
+
+// POST /v1/auth/reset-password
+const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { email, token, password } = req.body;
+
+    const resetPasswordToken = md5Util.encode(token);
+
+    const userExists = await userService.findOne({
+      filter: {
+        email,
+        authProvider: "local",
+        resetPasswordToken,
+        resetPasswordExpires: { $gt: new Date() },
+      },
+    });
+
+    if (!userExists) {
+      return res.status(400).json({
+        status: false,
+        message: "Reset link is invalid or expired",
+      });
+    }
+
+    await userService.updateOne({
+      filter: { _id: userExists.id },
+      update: {
+        password: md5Util.encode(password),
+        resetPasswordToken: null,
+        resetPasswordExpires: null,
+      },
+    });
+
+    return res.status(200).json({
+      status: true,
+      message: "Password reset successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong.",
+    });
+  }
+};
+
 // GET /v1/auth/google
 const googleLogin = async (_req: Request, res: Response) => {
   try {
@@ -403,6 +509,8 @@ const authController = {
   login,
   verifyAccessToken,
   refreshToken,
+  forgotPassword,
+  resetPassword,
   googleLogin,
   googleCallback,
 };

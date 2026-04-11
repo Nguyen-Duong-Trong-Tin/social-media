@@ -9,6 +9,8 @@ const auth_validate_1 = __importDefault(require("../../validates/client/auth.val
 const auth_controller_1 = __importDefault(require("../../controllers/client/auth.controller"));
 router.post("/register", auth_validate_1.default.register, auth_controller_1.default.register);
 router.post("/login", auth_validate_1.default.login, auth_controller_1.default.login);
+router.post("/forgot-password", auth_validate_1.default.forgotPassword, auth_controller_1.default.forgotPassword);
+router.post("/reset-password", auth_validate_1.default.resetPassword, auth_controller_1.default.resetPassword);
 router.get("/google", auth_controller_1.default.googleLogin);
 router.get("/google/callback", auth_controller_1.default.googleCallback);
 router.get("/verify-access-token", auth_validate_1.default.verifyAccessToken, auth_controller_1.default.verifyAccessToken);
