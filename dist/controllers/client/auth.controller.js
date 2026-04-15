@@ -20,6 +20,7 @@ const user_service_1 = __importDefault(require("../../services/client/user.servi
 const shortUniqueKey_util_1 = __importDefault(require("../../utils/shortUniqueKey.util"));
 const user_enum_1 = require("../../enums/user.enum");
 const sendMail_helper_1 = __importDefault(require("../../helpers/sendMail.helper"));
+const cloudinary_util_1 = require("../../utils/cloudinary.util");
 const buildFrontendRedirectUrl = ({ accessToken, refreshToken, userId, userSlug, error, }) => {
     const fallback = "http://localhost:5173/login";
     const base = process.env.GOOGLE_OAUTH_FRONTEND_REDIRECT || fallback;
@@ -51,6 +52,16 @@ const buildGoogleAuthUrl = () => {
     });
     return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 };
+const resolveGoogleAvatarUrl = (avatarUrl) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!avatarUrl)
+        return undefined;
+    try {
+        return yield (0, cloudinary_util_1.uploadImageFromUrl)({ sourceUrl: avatarUrl });
+    }
+    catch (error) {
+        return avatarUrl;
+    }
+});
 // POST /v1/auth/register
 const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -367,11 +378,12 @@ const googleCallback = (req, res) => __awaiter(void 0, void 0, void 0, function*
             if (userExists.authProvider !== "google") {
                 return res.redirect(buildFrontendRedirectUrl({ error: "account_exists_local" }));
             }
+            const avatar = yield resolveGoogleAvatarUrl(userInfo.picture);
             const accessToken = jwt_util_1.default.accountGenerate(userExists.id, [], "3d");
             const refreshToken = jwt_util_1.default.generateRefreshToken(userExists.id, [], "90d");
             yield user_service_1.default.updateOne({
                 filter: { _id: userExists.id },
-                update: { refreshToken },
+                update: Object.assign({ refreshToken }, (avatar ? { avatar } : {})),
             });
             return res.redirect(buildFrontendRedirectUrl({
                 accessToken,
@@ -383,13 +395,14 @@ const googleCallback = (req, res) => __awaiter(void 0, void 0, void 0, function*
         const fullName = userInfo.name || userInfo.email.split("@")[0];
         const slug = slug_util_1.default.convert(fullName) + "-" + shortUniqueKey_util_1.default.generate();
         const password = md5_util_1.default.encode(shortUniqueKey_util_1.default.generate());
+        const avatar = yield resolveGoogleAvatarUrl(userInfo.picture);
         const newUser = yield user_service_1.default.create({
             doc: {
                 fullName,
                 slug,
                 email: userInfo.email,
                 password,
-                avatar: userInfo.picture || undefined,
+                avatar,
                 status: user_enum_1.EUserStatus.active,
                 friends: [],
                 friendAccepts: [],

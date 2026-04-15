@@ -42,4 +42,26 @@ const buildSignedRawUrlFromSource = (sourceUrl?: string) => {
   return buildSignedRawUrl(parts);
 };
 
-export { buildSignedRawUrl, buildSignedRawUrlFromSource, parseCloudinaryRawUrl };
+const uploadImageFromUrl = async ({
+  sourceUrl,
+  folder = "google-avatars",
+}: {
+  sourceUrl: string;
+  folder?: string;
+}) => {
+  const uploaded = await cloudinary.uploader.upload(sourceUrl, {
+    folder,
+    resource_type: "image",
+    overwrite: true,
+    access_mode: "public",
+  });
+
+  return uploaded.secure_url as string;
+};
+
+export {
+  buildSignedRawUrl,
+  buildSignedRawUrlFromSource,
+  parseCloudinaryRawUrl,
+  uploadImageFromUrl,
+};

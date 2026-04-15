@@ -8,6 +8,7 @@ import userService from "../../services/client/user.service";
 import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
 import { EUserOnline, EUserStatus } from "../../enums/user.enum";
 import sendMailHelper from "../../helpers/sendMail.helper";
+import { uploadImageFromUrl } from "../../utils/cloudinary.util";
 
 const buildFrontendRedirectUrl = ({
   accessToken,
@@ -53,6 +54,16 @@ const buildGoogleAuthUrl = () => {
   });
 
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+};
+
+const resolveGoogleAvatarUrl = async (avatarUrl?: string) => {
+  if (!avatarUrl) return undefined;
+
+  try {
+    return await uploadImageFromUrl({ sourceUrl: avatarUrl });
+  } catch (error) {
+    return avatarUrl;
+  }
 };
 
 // POST /v1/auth/register
@@ -437,6 +448,8 @@ const googleCallback = async (req: Request, res: Response) => {
         );
       }
 
+      const avatar = await resolveGoogleAvatarUrl(userInfo.picture);
+
       const accessToken = jwtUtil.accountGenerate(userExists.id, [], "3d");
       const refreshToken = jwtUtil.generateRefreshToken(
         userExists.id,
@@ -446,7 +459,10 @@ const googleCallback = async (req: Request, res: Response) => {
 
       await userService.updateOne({
         filter: { _id: userExists.id },
-        update: { refreshToken },
+        update: {
+          refreshToken,
+          ...(avatar ? { avatar } : {}),
+        },
       });
 
       return res.redirect(
@@ -463,6 +479,7 @@ const googleCallback = async (req: Request, res: Response) => {
     const slug: string =
       slugUtil.convert(fullName) + "-" + shortUniqueKeyUtil.generate();
     const password = md5Util.encode(shortUniqueKeyUtil.generate());
+    const avatar = await resolveGoogleAvatarUrl(userInfo.picture);
 
     const newUser = await userService.create({
       doc: {
@@ -470,7 +487,7 @@ const googleCallback = async (req: Request, res: Response) => {
         slug,
         email: userInfo.email,
         password,
-        avatar: userInfo.picture || undefined,
+        avatar,
         status: EUserStatus.active,
         friends: [],
         friendAccepts: [],
