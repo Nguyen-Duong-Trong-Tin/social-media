@@ -8,47 +8,85 @@ const articleGroup_enum_1 = require("../enums/articleGroup.enum");
 const ArticleGroupSchema = new mongoose_1.default.Schema({
     title: {
         type: String,
-        required: true
+        required: true,
     },
     slug: {
         type: String,
         unique: true,
-        required: true
+        required: true,
     },
     description: {
         type: String,
-        required: true
+        required: true,
     },
     images: {
         type: Array,
-        required: true
+        required: true,
     },
     videos: {
         type: Array,
-        required: true
+        required: true,
     },
     status: {
         type: String,
         enum: Object.values(articleGroup_enum_1.EArticleGroupStatus),
-        required: true
+        required: true,
     },
     groupId: {
         type: String,
-        required: true
+        required: true,
     },
     createdBy: {
         type: {
             userId: String,
-            createdAt: Date
+            createdAt: Date,
         },
-        required: true
+        required: true,
+    },
+    likes: {
+        type: [
+            {
+                userId: {
+                    type: String,
+                    required: true,
+                },
+                createdAt: {
+                    type: Date,
+                    required: true,
+                },
+            },
+        ],
+        default: [],
+    },
+    comments: {
+        type: [
+            {
+                userId: {
+                    type: String,
+                    required: true,
+                },
+                content: {
+                    type: String,
+                    required: true,
+                },
+                createdAt: {
+                    type: Date,
+                    required: true,
+                },
+                updatedAt: {
+                    type: Date,
+                    required: true,
+                },
+            },
+        ],
+        default: [],
     },
     deleted: {
         type: Boolean,
-        required: true
-    }
+        required: true,
+    },
 }, {
-    timestamps: true
+    timestamps: true,
 });
 const ArticleGroupModel = mongoose_1.default.model("ArticleGroupModel", ArticleGroupSchema, "articleGroups");
 exports.default = ArticleGroupModel;

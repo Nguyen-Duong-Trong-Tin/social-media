@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const mongoose_1 = __importDefault(require("mongoose"));
 const sort_helper_1 = __importDefault(require("../../helpers/sort.helper"));
 const pagination_helper_1 = __importDefault(require("../../helpers/pagination.helper"));
 const articleGroup_service_1 = __importDefault(require("../../services/client/articleGroup.service"));
@@ -47,6 +48,21 @@ const parseExistingMedia = (value) => {
         .filter(Boolean);
 };
 const uniqueList = (items) => Array.from(new Set(items));
+const ensureMemberPermission = (_a) => __awaiter(void 0, [_a], void 0, function* ({ groupId, userId, }) {
+    var _b;
+    if (!userId) {
+        return { statusCode: 400, message: "Missing required fields" };
+    }
+    const groupExists = yield group_service_1.default.findOne({ filter: { _id: groupId } });
+    if (!groupExists) {
+        return { statusCode: 404, message: "Group id not found" };
+    }
+    const isMember = (_b = groupExists.users) === null || _b === void 0 ? void 0 : _b.some((user) => user.userId === userId);
+    if (!isMember) {
+        return { statusCode: 403, message: "Forbidden" };
+    }
+    return { statusCode: 200, message: "OK" };
+});
 // GET /v1/articleGroups?sort&page&limit&filter
 const find = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -224,7 +240,7 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
     try {
         const { id } = req.params;
-        const { title, description, userId, status, existingImages, existingVideos } = req.body;
+        const { title, description, userId, status, existingImages, existingVideos, } = req.body;
         const images = ((_a = req.files) === null || _a === void 0 ? void 0 : _a["images"]) || [];
         const videos = ((_b = req.files) === null || _b === void 0 ? void 0 : _b["videos"]) || [];
         const articleGroupExists = yield articleGroup_service_1.default.findOne({
@@ -245,7 +261,9 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         let slug;
         if (title && title !== articleGroupExists.title) {
             slug = slug_util_1.default.convert(title) + "-" + shortUniqueKey_util_1.default.generate();
-            const slugExists = yield articleGroup_service_1.default.findOne({ filter: { slug } });
+            const slugExists = yield articleGroup_service_1.default.findOne({
+                filter: { slug },
+            });
             if (slugExists) {
                 return res.status(500).json({
                     status: false,
@@ -324,6 +342,192 @@ const del = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
 });
+// PATCH /v1/articleGroups/:id/like
+const toggleLike = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const { id } = req.params;
+        const { userId } = req.body;
+        const articleGroupExists = yield articleGroup_service_1.default.findOne({
+            filter: { _id: id },
+        });
+        if (!articleGroupExists) {
+            return res.status(404).json({
+                status: false,
+                message: "Article group id not found",
+            });
+        }
+        const permission = yield ensureMemberPermission({
+            groupId: articleGroupExists.groupId,
+            userId,
+        });
+        if (permission.statusCode !== 200) {
+            return res.status(permission.statusCode).json({
+                status: false,
+                message: permission.message,
+            });
+        }
+        const likes = Array.isArray(articleGroupExists.likes)
+            ? articleGroupExists.likes
+            : [];
+        const hasLiked = likes.some((like) => like.userId === userId);
+        const nextLikes = hasLiked
+            ? likes.filter((like) => like.userId !== userId)
+            : [...likes, { userId, createdAt: new Date() }];
+        const updatedArticleGroup = yield articleGroup_service_1.default.findOneAndUpdate({
+            filter: { _id: id },
+            update: {
+                $set: {
+                    likes: nextLikes,
+                },
+            },
+        });
+        return res.status(200).json({
+            status: true,
+            message: hasLiked ? "Article unliked" : "Article liked",
+            data: {
+                liked: !hasLiked,
+                likes: (_a = updatedArticleGroup === null || updatedArticleGroup === void 0 ? void 0 : updatedArticleGroup.likes) !== null && _a !== void 0 ? _a : [],
+            },
+        });
+    }
+    catch (_b) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong",
+        });
+    }
+});
+// POST /v1/articleGroups/:id/comments
+const createComment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const { id } = req.params;
+        const { userId, content } = req.body;
+        const articleGroupExists = yield articleGroup_service_1.default.findOne({
+            filter: { _id: id },
+        });
+        if (!articleGroupExists) {
+            return res.status(404).json({
+                status: false,
+                message: "Article group id not found",
+            });
+        }
+        const permission = yield ensureMemberPermission({
+            groupId: articleGroupExists.groupId,
+            userId,
+        });
+        if (permission.statusCode !== 200) {
+            return res.status(permission.statusCode).json({
+                status: false,
+                message: permission.message,
+            });
+        }
+        const normalizedContent = typeof content === "string" ? content.trim() : "";
+        if (!normalizedContent) {
+            return res.status(400).json({
+                status: false,
+                message: "Comment content is required",
+            });
+        }
+        const comments = Array.isArray(articleGroupExists.comments)
+            ? articleGroupExists.comments
+            : [];
+        const newComment = {
+            _id: new mongoose_1.default.Types.ObjectId(),
+            userId,
+            content: normalizedContent,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        };
+        const updatedArticleGroup = yield articleGroup_service_1.default.findOneAndUpdate({
+            filter: { _id: id },
+            update: {
+                $set: {
+                    comments: [...comments, newComment],
+                },
+            },
+        });
+        return res.status(201).json({
+            status: true,
+            message: "Comment created successfully",
+            data: {
+                comments: (_a = updatedArticleGroup === null || updatedArticleGroup === void 0 ? void 0 : updatedArticleGroup.comments) !== null && _a !== void 0 ? _a : [],
+            },
+        });
+    }
+    catch (_b) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong",
+        });
+    }
+});
+// DELETE /v1/articleGroups/:id/comments/:commentId
+const deleteComment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const { id, commentId } = req.params;
+        const { userId } = req.body;
+        const articleGroupExists = yield articleGroup_service_1.default.findOne({
+            filter: { _id: id },
+        });
+        if (!articleGroupExists) {
+            return res.status(404).json({
+                status: false,
+                message: "Article group id not found",
+            });
+        }
+        const permission = yield ensureMemberPermission({
+            groupId: articleGroupExists.groupId,
+            userId,
+        });
+        if (permission.statusCode !== 200) {
+            return res.status(permission.statusCode).json({
+                status: false,
+                message: permission.message,
+            });
+        }
+        const comments = Array.isArray(articleGroupExists.comments)
+            ? articleGroupExists.comments
+            : [];
+        const targetComment = comments.find((comment) => String(comment._id) === commentId);
+        if (!targetComment) {
+            return res.status(404).json({
+                status: false,
+                message: "Comment not found",
+            });
+        }
+        const canDeleteComment = targetComment.userId === userId;
+        if (!canDeleteComment) {
+            return res.status(403).json({
+                status: false,
+                message: "Forbidden",
+            });
+        }
+        const updatedArticleGroup = yield articleGroup_service_1.default.findOneAndUpdate({
+            filter: { _id: id },
+            update: {
+                $set: {
+                    comments: comments.filter((comment) => String(comment._id) !== commentId),
+                },
+            },
+        });
+        return res.status(200).json({
+            status: true,
+            message: "Comment deleted successfully",
+            data: {
+                comments: (_a = updatedArticleGroup === null || updatedArticleGroup === void 0 ? void 0 : updatedArticleGroup.comments) !== null && _a !== void 0 ? _a : [],
+            },
+        });
+    }
+    catch (_b) {
+        return res.status(500).json({
+            status: false,
+            message: "Something went wrong",
+        });
+    }
+});
 const articleGroupController = {
     find,
     findById,
@@ -331,5 +535,8 @@ const articleGroupController = {
     create,
     update,
     del,
+    toggleLike,
+    createComment,
+    deleteComment,
 };
 exports.default = articleGroupController;

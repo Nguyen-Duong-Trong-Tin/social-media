@@ -21,5 +21,8 @@ router.patch("/:id", deserialize_middleware_1.default, upload.fields([
     { name: "images", maxCount: 6 },
     { name: "videos", maxCount: 6 },
 ]), articleGroup_controller_1.default.update);
+router.patch("/:id/like", deserialize_middleware_1.default, articleGroup_controller_1.default.toggleLike);
+router.post("/:id/comments", deserialize_middleware_1.default, articleGroup_controller_1.default.createComment);
+router.delete("/:id/comments/:commentId", deserialize_middleware_1.default, articleGroup_controller_1.default.deleteComment);
 router.delete("/:id", deserialize_middleware_1.default, articleGroup_controller_1.default.del);
 exports.default = router;

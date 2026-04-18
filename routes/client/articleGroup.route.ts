@@ -18,7 +18,7 @@ router.post(
     { name: "images", maxCount: 6 },
     { name: "videos", maxCount: 6 },
   ]),
-  articleGroupController.create
+  articleGroupController.create,
 );
 router.patch(
   "/:id",
@@ -27,7 +27,14 @@ router.patch(
     { name: "images", maxCount: 6 },
     { name: "videos", maxCount: 6 },
   ]),
-  articleGroupController.update
+  articleGroupController.update,
+);
+router.patch("/:id/like", deserialize, articleGroupController.toggleLike);
+router.post("/:id/comments", deserialize, articleGroupController.createComment);
+router.delete(
+  "/:id/comments/:commentId",
+  deserialize,
+  articleGroupController.deleteComment,
 );
 router.delete("/:id", deserialize, articleGroupController.del);
 

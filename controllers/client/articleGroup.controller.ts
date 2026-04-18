@@ -1,4 +1,4 @@
-import { RootFilterQuery } from "mongoose";
+import mongoose, { RootFilterQuery } from "mongoose";
 import { Request, Response } from "express";
 
 import sortHelper from "../../helpers/sort.helper";
@@ -38,6 +38,43 @@ const parseExistingMedia = (value?: unknown) => {
 };
 
 const uniqueList = (items: string[]) => Array.from(new Set(items));
+
+type IArticleGroupLike = {
+  userId: string;
+  createdAt: Date;
+};
+
+type IArticleGroupComment = {
+  _id?: mongoose.Types.ObjectId;
+  userId: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+const ensureMemberPermission = async ({
+  groupId,
+  userId,
+}: {
+  groupId: string;
+  userId?: string;
+}) => {
+  if (!userId) {
+    return { statusCode: 400, message: "Missing required fields" };
+  }
+
+  const groupExists = await groupService.findOne({ filter: { _id: groupId } });
+  if (!groupExists) {
+    return { statusCode: 404, message: "Group id not found" };
+  }
+
+  const isMember = groupExists.users?.some((user) => user.userId === userId);
+  if (!isMember) {
+    return { statusCode: 403, message: "Forbidden" };
+  }
+
+  return { statusCode: 200, message: "OK" };
+};
 
 // GET /v1/articleGroups?sort&page&limit&filter
 const find = async (req: Request, res: Response) => {
@@ -235,7 +272,14 @@ const create = async (req: any, res: Response) => {
 const update = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
-    const { title, description, userId, status, existingImages, existingVideos } = req.body;
+    const {
+      title,
+      description,
+      userId,
+      status,
+      existingImages,
+      existingVideos,
+    } = req.body;
     const images: any[] = req.files?.["images"] || [];
     const videos: any[] = req.files?.["videos"] || [];
 
@@ -259,7 +303,9 @@ const update = async (req: any, res: Response) => {
     let slug: string | undefined;
     if (title && title !== articleGroupExists.title) {
       slug = slugUtil.convert(title) + "-" + shortUniqueKeyUtil.generate();
-      const slugExists = await articleGroupService.findOne({ filter: { slug } });
+      const slugExists = await articleGroupService.findOne({
+        filter: { slug },
+      });
       if (slugExists) {
         return res.status(500).json({
           status: false,
@@ -344,6 +390,213 @@ const del = async (req: Request, res: Response) => {
   }
 };
 
+// PATCH /v1/articleGroups/:id/like
+const toggleLike = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+
+    const articleGroupExists = await articleGroupService.findOne({
+      filter: { _id: id },
+    });
+    if (!articleGroupExists) {
+      return res.status(404).json({
+        status: false,
+        message: "Article group id not found",
+      });
+    }
+
+    const permission = await ensureMemberPermission({
+      groupId: articleGroupExists.groupId,
+      userId,
+    });
+    if (permission.statusCode !== 200) {
+      return res.status(permission.statusCode).json({
+        status: false,
+        message: permission.message,
+      });
+    }
+
+    const likes = Array.isArray(articleGroupExists.likes)
+      ? (articleGroupExists.likes as IArticleGroupLike[])
+      : [];
+    const hasLiked = likes.some((like) => like.userId === userId);
+
+    const nextLikes = hasLiked
+      ? likes.filter((like) => like.userId !== userId)
+      : [...likes, { userId, createdAt: new Date() }];
+
+    const updatedArticleGroup = await articleGroupService.findOneAndUpdate({
+      filter: { _id: id },
+      update: {
+        $set: {
+          likes: nextLikes,
+        },
+      },
+    });
+
+    return res.status(200).json({
+      status: true,
+      message: hasLiked ? "Article unliked" : "Article liked",
+      data: {
+        liked: !hasLiked,
+        likes: updatedArticleGroup?.likes ?? [],
+      },
+    });
+  } catch {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+// POST /v1/articleGroups/:id/comments
+const createComment = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { userId, content } = req.body;
+
+    const articleGroupExists = await articleGroupService.findOne({
+      filter: { _id: id },
+    });
+    if (!articleGroupExists) {
+      return res.status(404).json({
+        status: false,
+        message: "Article group id not found",
+      });
+    }
+
+    const permission = await ensureMemberPermission({
+      groupId: articleGroupExists.groupId,
+      userId,
+    });
+    if (permission.statusCode !== 200) {
+      return res.status(permission.statusCode).json({
+        status: false,
+        message: permission.message,
+      });
+    }
+
+    const normalizedContent = typeof content === "string" ? content.trim() : "";
+    if (!normalizedContent) {
+      return res.status(400).json({
+        status: false,
+        message: "Comment content is required",
+      });
+    }
+
+    const comments = Array.isArray(articleGroupExists.comments)
+      ? (articleGroupExists.comments as IArticleGroupComment[])
+      : [];
+
+    const newComment: IArticleGroupComment = {
+      _id: new mongoose.Types.ObjectId(),
+      userId,
+      content: normalizedContent,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const updatedArticleGroup = await articleGroupService.findOneAndUpdate({
+      filter: { _id: id },
+      update: {
+        $set: {
+          comments: [...comments, newComment],
+        },
+      },
+    });
+
+    return res.status(201).json({
+      status: true,
+      message: "Comment created successfully",
+      data: {
+        comments: updatedArticleGroup?.comments ?? [],
+      },
+    });
+  } catch {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+// DELETE /v1/articleGroups/:id/comments/:commentId
+const deleteComment = async (req: Request, res: Response) => {
+  try {
+    const { id, commentId } = req.params;
+    const { userId } = req.body;
+
+    const articleGroupExists = await articleGroupService.findOne({
+      filter: { _id: id },
+    });
+    if (!articleGroupExists) {
+      return res.status(404).json({
+        status: false,
+        message: "Article group id not found",
+      });
+    }
+
+    const permission = await ensureMemberPermission({
+      groupId: articleGroupExists.groupId,
+      userId,
+    });
+    if (permission.statusCode !== 200) {
+      return res.status(permission.statusCode).json({
+        status: false,
+        message: permission.message,
+      });
+    }
+
+    const comments = Array.isArray(articleGroupExists.comments)
+      ? (articleGroupExists.comments as IArticleGroupComment[])
+      : [];
+    const targetComment = comments.find(
+      (comment) => String(comment._id) === commentId,
+    );
+
+    if (!targetComment) {
+      return res.status(404).json({
+        status: false,
+        message: "Comment not found",
+      });
+    }
+
+    const canDeleteComment = targetComment.userId === userId;
+    if (!canDeleteComment) {
+      return res.status(403).json({
+        status: false,
+        message: "Forbidden",
+      });
+    }
+
+    const updatedArticleGroup = await articleGroupService.findOneAndUpdate({
+      filter: { _id: id },
+      update: {
+        $set: {
+          comments: comments.filter(
+            (comment) => String(comment._id) !== commentId,
+          ),
+        },
+      },
+    });
+
+    return res.status(200).json({
+      status: true,
+      message: "Comment deleted successfully",
+      data: {
+        comments: updatedArticleGroup?.comments ?? [],
+      },
+    });
+  } catch {
+    return res.status(500).json({
+      status: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
 const articleGroupController = {
   find,
   findById,
@@ -351,6 +604,9 @@ const articleGroupController = {
   create,
   update,
   del,
+  toggleLike,
+  createComment,
+  deleteComment,
 };
 
 export default articleGroupController;
