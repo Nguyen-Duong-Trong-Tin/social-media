@@ -145,6 +145,13 @@ const login = async (req: Request, res: Response) => {
       });
     }
 
+    if (userExists.status === EUserStatus.inactive) {
+      return res.status(403).json({
+        status: false,
+        message: "Account is inactive",
+      });
+    }
+
     const accessToken = jwtUtil.accountGenerate(userExists.id, [], "3d");
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
@@ -445,6 +452,12 @@ const googleCallback = async (req: Request, res: Response) => {
       if (userExists.authProvider !== "google") {
         return res.redirect(
           buildFrontendRedirectUrl({ error: "account_exists_local" }),
+        );
+      }
+
+      if (userExists.status === EUserStatus.inactive) {
+        return res.redirect(
+          buildFrontendRedirectUrl({ error: "inactive_account" }),
         );
       }
 

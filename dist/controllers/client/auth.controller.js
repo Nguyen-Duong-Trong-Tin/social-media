@@ -133,6 +133,12 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 message: "Email or password wrong",
             });
         }
+        if (userExists.status === user_enum_1.EUserStatus.inactive) {
+            return res.status(403).json({
+                status: false,
+                message: "Account is inactive",
+            });
+        }
         const accessToken = jwt_util_1.default.accountGenerate(userExists.id, [], "3d");
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
@@ -377,6 +383,9 @@ const googleCallback = (req, res) => __awaiter(void 0, void 0, void 0, function*
         if (userExists) {
             if (userExists.authProvider !== "google") {
                 return res.redirect(buildFrontendRedirectUrl({ error: "account_exists_local" }));
+            }
+            if (userExists.status === user_enum_1.EUserStatus.inactive) {
+                return res.redirect(buildFrontendRedirectUrl({ error: "inactive_account" }));
             }
             const avatar = yield resolveGoogleAvatarUrl(userInfo.picture);
             const accessToken = jwt_util_1.default.accountGenerate(userExists.id, [], "3d");

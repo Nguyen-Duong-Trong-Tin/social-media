@@ -28,47 +28,49 @@ const get = async (req: any, res: Response): Promise<void> => {
 
     const filter: string = req.query.filter;
     const filterOptions: {
-      value: string,
-      title: string
+      value: string;
+      title: string;
     }[] = [
-        { value: "", title: "---" },
-        { value: "status-active", title: "Active status" },
-        { value: "status-inactive", title: "Inactive status" },
-      ];
+      { value: "", title: "---" },
+      { value: "status-active", title: "Active status" },
+      { value: "status-inactive", title: "Inactive status" },
+    ];
 
     const sort: string = req.query.sort;
     const sortOptions: {
-      value: string,
-      title: string
+      value: string;
+      title: string;
     }[] = [
-        { value: "", title: "---" },
-        { value: "fullName-asc", title: "Title (A - Z)" },
-        { value: "fullName-desc", title: "Title (Z - A)" },
-        { value: "email-asc", title: "Email (A - Z)" },
-        { value: "email-desc", title: "Email (Z - A)" },
-        { value: "roleId-asc", title: "Group by role" }
-      ];
+      { value: "", title: "---" },
+      { value: "fullName-asc", title: "Title (A - Z)" },
+      { value: "fullName-desc", title: "Title (Z - A)" },
+      { value: "email-asc", title: "Email (A - Z)" },
+      { value: "email-desc", title: "Email (Z - A)" },
+      { value: "roleId-asc", title: "Group by role" },
+    ];
 
     const keyword: string = req.query.keyword;
 
     const actionOptions: {
-      value: string,
-      title: string
+      value: string;
+      title: string;
     }[] = [
-        { value: "", title: "---" },
-        { value: "delete", title: "Delete" },
-        { value: "active", title: "Active" },
-        { value: "inactive", title: "Inactive" }
-      ];
+      { value: "", title: "---" },
+      { value: "delete", title: "Delete" },
+      { value: "active", title: "Active" },
+      { value: "inactive", title: "Inactive" },
+    ];
 
     const page: number = parseInt(req.query.page as string) || 1;
     const limit: number = parseInt(req.query.limit as string) || 10;
 
     const [maxPage, accounts] = await Promise.all([
       accountService.calculateMaxPage(limit),
-      accountService.find(req)
+      accountService.find(req),
     ]);
-    const roles = await Promise.all(accounts.map(account => roleService.findById(account.roleId)));
+    const roles = await Promise.all(
+      accounts.map((account) => roleService.findById(account.roleId)),
+    );
 
     return res.render("admin/pages/accounts", {
       pageTitle: "List of accounts",
@@ -77,25 +79,25 @@ const get = async (req: any, res: Response): Promise<void> => {
       roles,
       filter: {
         filter,
-        filterOptions
+        filterOptions,
       },
       sort: {
         sort,
-        sortOptions
+        sortOptions,
       },
       keyword,
       actionOptions,
       pagination: {
         page,
         limit,
-        maxPage
-      }
+        maxPage,
+      },
     });
   } catch {
     req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [GET] /admin/accounts/detail/:id
 const getById = async (req: any, res: Response): Promise<void> => {
@@ -112,31 +114,31 @@ const getById = async (req: any, res: Response): Promise<void> => {
 
     const id: string = req.params.id;
 
-    const [
-      accountExists,
-      roles
-    ] = await Promise.all([
+    const [accountExists, roles] = await Promise.all([
       accountService.findById(id),
-      roleService.findAll()
+      roleService.findAll(),
     ]);
     if (!accountExists) {
       req.flash("error", "Account not found!");
       return res.redirect("back");
     }
 
-    const [
-      createdBy,
-      updatedBy
-    ] = await Promise.all([
-      accountService.findById(accountExists.createdBy.accountId as string).then(account => ({
-        account,
-        createdAt: accountExists.createdBy.createdAt as Date
-      })),
+    const [createdBy, updatedBy] = await Promise.all([
+      accountService
+        .findById(accountExists.createdBy.accountId as string)
+        .then((account) => ({
+          account,
+          createdAt: accountExists.createdBy.createdAt as Date,
+        })),
 
-      Promise.all(accountExists.updatedBy.map(item => accountService.findById(item.accountId as string).then(account => ({
-        account,
-        updatedAt: item.updatedAt as Date
-      }))))
+      Promise.all(
+        accountExists.updatedBy.map((item) =>
+          accountService.findById(item.accountId as string).then((account) => ({
+            account,
+            updatedAt: item.updatedAt as Date,
+          })),
+        ),
+      ),
     ]);
 
     return res.render("admin/pages/accounts/detail", {
@@ -144,13 +146,13 @@ const getById = async (req: any, res: Response): Promise<void> => {
       account: accountExists,
       roles,
       createdBy,
-      updatedBy
+      updatedBy,
     });
   } catch {
     req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [GET] /admin/accounts/create
 const create = async (req: any, res: Response): Promise<void> => {
@@ -168,20 +170,20 @@ const create = async (req: any, res: Response): Promise<void> => {
     const roles = await roleService.findAll();
     return res.render("admin/pages/accounts/create", {
       pageTitle: "Create new account",
-      roles
+      roles,
     });
   } catch {
     req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [POST] /admin/accounts/create
 const createPost = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountCreate")) {
@@ -190,7 +192,8 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     }
 
     const fullName: string = req.body.fullName;
-    const slug: string = slugUtil.convert(fullName) + '-' + shortUniqueKeyUtil.generate();
+    const slug: string =
+      slugUtil.convert(fullName) + "-" + shortUniqueKeyUtil.generate();
     const email: string = req.body.email;
     const password: string = md5Util.encode(req.body.password);
     const phone: string = req.body.phone;
@@ -202,12 +205,12 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       accountSlugExists,
       accountEmailExists,
       accountPhoneExists,
-      roleExists
+      roleExists,
     ] = await Promise.all([
       accountService.findBySlug(slug),
       accountService.findByEmail(email),
       accountService.findByPhone(phone),
-      roleService.findById(roleId)
+      roleService.findById(roleId),
     ]);
     if (accountSlugExists) {
       req.flash("error", "Something went wrong!");
@@ -237,27 +240,27 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       roleId,
       createdBy: {
         accountId: myAccount.accountId,
-        createdAt: new Date()
+        createdAt: new Date(),
       },
-      deleted: false
+      deleted: false,
     });
 
     req.flash("success", "Account was created successfully!");
     return res.redirect(`/${configs.admin}/accounts`);
-  } catch(e) {
+  } catch (e) {
     console.log(e);
-    
+
     req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [GET] /admin/accounts/update/:id
 const update = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountUpdate")) {
@@ -267,12 +270,9 @@ const update = async (req: any, res: Response): Promise<void> => {
 
     const id: string = req.params.id;
 
-    const [
-      accountExists,
-      roles
-    ] = await Promise.all([
+    const [accountExists, roles] = await Promise.all([
       accountService.findById(id),
-      roleService.findAll()
+      roleService.findAll(),
     ]);
     if (!accountExists) {
       req.flash("error", "Account not found!");
@@ -282,20 +282,20 @@ const update = async (req: any, res: Response): Promise<void> => {
     return res.render("admin/pages/accounts/update", {
       pageTitle: "Update account",
       account: accountExists,
-      roles
+      roles,
     });
   } catch {
     req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [PATCH] /admin/accounts/update/:id
 const updatePatch = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountUpdate")) {
@@ -306,7 +306,8 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     const id: string = req.params.id;
 
     const fullName: string = req.body.fullName;
-    const slug: string = slugUtil.convert(fullName) + '-' + shortUniqueKeyUtil.generate();
+    const slug: string =
+      slugUtil.convert(fullName) + "-" + shortUniqueKeyUtil.generate();
     const email: string = req.body.email;
     const phone: string = req.body.phone;
     const status: string = req.body.status;
@@ -314,7 +315,7 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
 
     let avatar: string | undefined = undefined;
     if (req.file) {
-      avatar = req.file.path
+      avatar = req.file.path;
     }
 
     const [
@@ -322,13 +323,13 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       accountSlugExists,
       accountEmailExists,
       accountPhoneExists,
-      roleExists
+      roleExists,
     ] = await Promise.all([
       accountService.findById(id),
       accountService.findBySlug(slug),
       accountService.findByEmail(email),
       accountService.findByPhone(phone),
-      roleService.findById(roleId)
+      roleService.findById(roleId),
     ]);
     if (!accountIdExists) {
       req.flash("error", "Account not found!");
@@ -338,17 +339,11 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       req.flash("error", "Something went wrong!");
       return res.redirect("back");
     }
-    if (
-      accountEmailExists &&
-      accountEmailExists.id !== id
-    ) {
+    if (accountEmailExists && accountEmailExists.id !== id) {
       req.flash("error", "Email already exists!");
       return res.redirect("back");
     }
-    if (
-      accountPhoneExists &&
-      accountPhoneExists.id !== id
-    ) {
+    if (accountPhoneExists && accountPhoneExists.id !== id) {
       req.flash("error", "Phone already exists!");
       return res.redirect("back");
     }
@@ -368,27 +363,27 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       $push: {
         updatedBy: {
           accountId: myAccount.accountId,
-          updatedAt: new Date()
-        }
-      }
+          updatedAt: new Date(),
+        },
+      },
     });
     req.flash("success", "Account was updated successfully!");
   } catch {
     req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 // [PATCH] /admin/accounts/actions
 const actions = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     const action: string = req.body.action;
-    const ids: string[] = req.body.ids.split(',');
+    const ids: string[] = req.body.ids.split(",");
 
     switch (action) {
       case "delete": {
@@ -397,10 +392,14 @@ const actions = async (req: any, res: Response): Promise<void> => {
           return res.redirect(`/${configs.admin}/accounts`);
         }
 
-        await Promise.all(ids.map(id => accountService.del(id, {
-          accountId: myAccount.accountId,
-          deletedAt: new Date()
-        })));
+        await Promise.all(
+          ids.map((id) =>
+            accountService.del(id, {
+              accountId: myAccount.accountId,
+              deletedAt: new Date(),
+            }),
+          ),
+        );
 
         break;
       }
@@ -411,15 +410,19 @@ const actions = async (req: any, res: Response): Promise<void> => {
           return res.redirect(`/${configs.admin}/accounts`);
         }
 
-        await Promise.all(ids.map(id => accountService.update(id, {
-          status: EAccountStatus.active,
-          $push: {
-            updatedBy: {
-              accountId: myAccount.accountId,
-              updatedAt: new Date()
-            }
-          }
-        })));
+        await Promise.all(
+          ids.map((id) =>
+            accountService.update(id, {
+              status: EAccountStatus.active,
+              $push: {
+                updatedBy: {
+                  accountId: myAccount.accountId,
+                  updatedAt: new Date(),
+                },
+              },
+            }),
+          ),
+        );
 
         break;
       }
@@ -430,15 +433,19 @@ const actions = async (req: any, res: Response): Promise<void> => {
           return res.redirect(`/${configs.admin}/accounts`);
         }
 
-        await Promise.all(ids.map(id => accountService.update(id, {
-          status: EAccountStatus.inactive,
-          $push: {
-            updatedBy: {
-              accountId: myAccount.accountId,
-              updatedAt: new Date()
-            }
-          }
-        })));
+        await Promise.all(
+          ids.map((id) =>
+            accountService.update(id, {
+              status: EAccountStatus.inactive,
+              $push: {
+                updatedBy: {
+                  accountId: myAccount.accountId,
+                  updatedAt: new Date(),
+                },
+              },
+            }),
+          ),
+        );
 
         break;
       }
@@ -454,14 +461,14 @@ const actions = async (req: any, res: Response): Promise<void> => {
     req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 // [PATCH] /admin/accounts/updateStatus/:status/:id
 const updateStatus = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountUpdate")) {
@@ -483,23 +490,23 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
       $push: {
         updatedBy: {
           accountId: myAccount.accountId,
-          updatedAt: new Date()
-        }
-      }
+          updatedAt: new Date(),
+        },
+      },
     });
     req.flash("success", "Account was updated successfully!");
   } catch {
     req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 // [DELETE] /admin/accounts/delete/:id
 const del = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("accountDelete")) {
@@ -517,14 +524,14 @@ const del = async (req: any, res: Response): Promise<void> => {
 
     await accountService.del(id, {
       accountId: myAccount.accountId,
-      deletedAt: new Date()
+      deletedAt: new Date(),
     });
     req.flash("success", "Account was deleted successfully!");
   } catch {
     req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 const accountController = {
   get,
@@ -535,6 +542,6 @@ const accountController = {
   updatePatch,
   actions,
   updateStatus,
-  del
+  del,
 };
 export default accountController;

@@ -14,8 +14,8 @@ import shortUniqueKeyUtil from "../../utils/shortUniqueKey.util";
 const get = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleView")) {
@@ -25,30 +25,30 @@ const get = async (req: any, res: Response): Promise<void> => {
 
     const sort: string = req.query.sort;
     const sortOptions: {
-      value: string,
-      title: string
+      value: string;
+      title: string;
     }[] = [
-        { value: "", title: "---" },
-        { value: "title-asc", title: "Title (A - Z)" },
-        { value: "title-desc", title: "Title (Z - A)" }
-      ];
+      { value: "", title: "---" },
+      { value: "title-asc", title: "Title (A - Z)" },
+      { value: "title-desc", title: "Title (Z - A)" },
+    ];
 
     const keyword: string = req.query.keyword;
 
     const actionOptions: {
-      value: string,
-      title: string
+      value: string;
+      title: string;
     }[] = [
-        { value: "", title: "---" },
-        { value: "delete", title: "Delete" }
-      ];
+      { value: "", title: "---" },
+      { value: "delete", title: "Delete" },
+    ];
 
     const page: number = parseInt(req.query.page as string) || 1;
     const limit: number = parseInt(req.query.limit as string) || 10;
 
     const [maxPage, roles] = await Promise.all([
       roleService.calculateMaxPage(limit),
-      roleService.find(req)
+      roleService.find(req),
     ]);
 
     return res.render("admin/pages/roles", {
@@ -57,28 +57,28 @@ const get = async (req: any, res: Response): Promise<void> => {
       roles,
       sort: {
         sort,
-        sortOptions
+        sortOptions,
       },
       keyword,
       actionOptions,
       pagination: {
         page,
         limit,
-        maxPage
-      }
+        maxPage,
+      },
     });
   } catch {
     req.flash("error", "Something went wrong");
     return res.redirect("back");
   }
-}
+};
 
 // [GET] /admin/roles/detail/:id
 const getById = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleView")) {
@@ -94,39 +94,42 @@ const getById = async (req: any, res: Response): Promise<void> => {
       return res.redirect("back");
     }
 
-    const [
-      createdBy,
-      updatedBy
-    ] = await Promise.all([
-      accountService.findById(roleExists.createdBy.accountId as string).then(account => ({
-        account,
-        createdAt: roleExists.createdBy.createdAt as Date
-      })),
+    const [createdBy, updatedBy] = await Promise.all([
+      accountService
+        .findById(roleExists.createdBy.accountId as string)
+        .then((account) => ({
+          account,
+          createdAt: roleExists.createdBy.createdAt as Date,
+        })),
 
-      Promise.all(roleExists.updatedBy.map(item => accountService.findById(item.accountId as string).then(account => ({
-        account,
-        updatedAt: item.updatedAt as Date
-      }))))
+      Promise.all(
+        roleExists.updatedBy.map((item) =>
+          accountService.findById(item.accountId as string).then((account) => ({
+            account,
+            updatedAt: item.updatedAt as Date,
+          })),
+        ),
+      ),
     ]);
 
     return res.render("admin/pages/roles/detail", {
       pageTitle: "Role details",
       role: roleExists,
       createdBy,
-      updatedBy
+      updatedBy,
     });
   } catch {
     req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [GET] /admin/roles/create
 const create = (req: any, res: Response): void => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleCreate")) {
@@ -135,20 +138,20 @@ const create = (req: any, res: Response): void => {
     }
 
     return res.render("admin/pages/roles/create", {
-      pageTitle: "Create new role"
+      pageTitle: "Create new role",
     });
   } catch {
     req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [POST] /admin/roles/create
 const createPost = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleCreate")) {
@@ -157,7 +160,8 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     }
 
     const title: string = req.body.title;
-    const slug: string = slugUtil.convert(title) + '-' + shortUniqueKeyUtil.generate();
+    const slug: string =
+      slugUtil.convert(title) + "-" + shortUniqueKeyUtil.generate();
     const description: string = req.body.description;
 
     const roleSlugExists = await roleService.findBySlug(slug);
@@ -173,25 +177,25 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       permissions: [],
       createdBy: {
         accountId: myAccount.accountId,
-        createdAt: new Date()
+        createdAt: new Date(),
       },
-      deleted: false
+      deleted: false,
     });
 
-    req.flash("success", "Role was updated successfully!");
+    req.flash("success", "Role was created successfully!");
     return res.redirect(`/${configs.admin}/roles`);
   } catch {
     req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [GET] /admin/roles/update/:id
 const update = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleUpdate")) {
@@ -209,20 +213,20 @@ const update = async (req: any, res: Response): Promise<void> => {
 
     return res.render("admin/pages/roles/update", {
       pageTitle: "Update role",
-      role: roleExists
+      role: roleExists,
     });
   } catch {
     req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [PATCH] /admin/roles/update/:id
 const updatePatch = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("roleUpdate")) {
@@ -233,15 +237,13 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     const id: string = req.params.id;
 
     const title: string = req.body.title;
-    const slug: string = slugUtil.convert(title) + '-' + shortUniqueKeyUtil.generate();
+    const slug: string =
+      slugUtil.convert(title) + "-" + shortUniqueKeyUtil.generate();
     const description: string = req.body.description;
 
-    const [
-      roleExists,
-      roleSlugExists
-    ] = await Promise.all([
+    const [roleExists, roleSlugExists] = await Promise.all([
       roleService.findById(id),
-      roleService.findBySlug(slug)
+      roleService.findBySlug(slug),
     ]);
     if (!roleExists) {
       req.flash("error", "Role not found!");
@@ -259,28 +261,28 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       $push: {
         updatedBy: {
           accountId: myAccount.accountId,
-          updatedAt: new Date()
-        }
-      }
-    },);
+          updatedAt: new Date(),
+        },
+      },
+    });
 
     req.flash("success", "Role was updated successfully!");
   } catch {
     req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 // [PATCH] /admin/roles/actions
 const actions = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     const action: string = req.body.action;
-    const ids: string[] = req.body.ids.split(',');
+    const ids: string[] = req.body.ids.split(",");
 
     switch (action) {
       case "delete": {
@@ -289,10 +291,14 @@ const actions = async (req: any, res: Response): Promise<void> => {
           return res.redirect(`/${configs.admin}/roles`);
         }
 
-        await Promise.all(ids.map(id => roleService.del(id, {
-          accountId: myAccount.accountId,
-          deletedAt: new Date()
-        })));
+        await Promise.all(
+          ids.map((id) =>
+            roleService.del(id, {
+              accountId: myAccount.accountId,
+              deletedAt: new Date(),
+            }),
+          ),
+        );
 
         break;
       }
@@ -308,7 +314,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
     req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 // [DELETE] /admin/roles/delete/:id
 const del = async (req: any, res: Response): Promise<void> => {
@@ -333,7 +339,7 @@ const del = async (req: any, res: Response): Promise<void> => {
 
     await roleService.del(id, {
       accountId: myAccount.accountId,
-      deletedAt: new Date()
+      deletedAt: new Date(),
     });
 
     req.flash("success", "Role was deleted successfully!");
@@ -341,7 +347,7 @@ const del = async (req: any, res: Response): Promise<void> => {
     req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 const roleController = {
   get,
@@ -351,6 +357,6 @@ const roleController = {
   update,
   updatePatch,
   actions,
-  del
+  del,
 };
 export default roleController;

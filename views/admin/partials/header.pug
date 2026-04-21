@@ -1,12 +1,19 @@
 header.header
+  - const displayName = (myAccount && myAccount.fullName) || "Account"
+  - const accountInitial = displayName.trim().charAt(0).toUpperCase()
   .header-brand
     a.header-logo(href="/")
       .header-logo-icon
       span.header-logo-text EduS
   
   .header-auth
+    .header-account
+      span.header-account-avatar #{accountInitial}
+      .header-account-meta
+        span.header-account-label Signed in as
+        span.header-account-name #{displayName}
     form(
       method="POST"
       action=`/${admin}/auth/logout`
     )
-      button.btn.btn-danger Logout
+      button.btn.btn-danger.btn-logout(type="submit") Logout

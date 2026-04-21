@@ -27,44 +27,44 @@ const get = async (req: any, res: Response): Promise<void> => {
 
     const filter: string = req.query.filter;
     const filterOptions: {
-      value: string,
-      title: string
+      value: string;
+      title: string;
     }[] = [
-        { value: "", title: "---" },
-        { value: "status-active", title: "Active status" },
-        { value: "status-inactive", title: "Inative status" },
-      ];
+      { value: "", title: "---" },
+      { value: "status-active", title: "Active status" },
+      { value: "status-inactive", title: "Inative status" },
+    ];
 
     const sort: string = req.query.sort;
     const sortOptions: {
-      value: string,
-      title: string
+      value: string;
+      title: string;
     }[] = [
-        { value: "", title: "---" },
-        { value: "fullName-asc", title: "Full name (A - Z)" },
-        { value: "fullName-desc", title: "Full name (Z - A)" },
-        { value: "email-asc", title: "Email (A - Z)" },
-        { value: "email-desc", title: "Email (Z - A)" }
-      ];
+      { value: "", title: "---" },
+      { value: "fullName-asc", title: "Full name (A - Z)" },
+      { value: "fullName-desc", title: "Full name (Z - A)" },
+      { value: "email-asc", title: "Email (A - Z)" },
+      { value: "email-desc", title: "Email (Z - A)" },
+    ];
 
     const keyword: string = req.query.keyword;
 
     const actionOptions: {
-      value: string,
-      title: string
+      value: string;
+      title: string;
     }[] = [
-        { value: "", title: "---" },
-        { value: "delete", title: "Delete" },
-        { value: "active", title: "Active" },
-        { value: "inactive", title: "Inactive" }
-      ];
+      { value: "", title: "---" },
+      { value: "delete", title: "Delete" },
+      { value: "active", title: "Active" },
+      { value: "inactive", title: "Inactive" },
+    ];
 
     const page: number = parseInt(req.query.page as string) || 1;
     const limit: number = parseInt(req.query.limit as string) || 10;
 
     const [maxPage, users] = await Promise.all([
       userService.calculateMaxPage(limit),
-      userService.find(req)
+      userService.find(req),
     ]);
 
     return res.render("admin/pages/users", {
@@ -73,25 +73,25 @@ const get = async (req: any, res: Response): Promise<void> => {
       users,
       filter: {
         filter,
-        filterOptions
+        filterOptions,
       },
       sort: {
         sort,
-        sortOptions
+        sortOptions,
       },
       keyword,
       actionOptions,
       pagination: {
         page,
         limit,
-        maxPage
-      }
+        maxPage,
+      },
     });
   } catch {
     req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [GET] /admin/users/detail/:id
 const getById = async (req: any, res: Response): Promise<void> => {
@@ -116,13 +116,13 @@ const getById = async (req: any, res: Response): Promise<void> => {
 
     return res.render("admin/pages/users/detail", {
       pageTitle: "User details",
-      user: userExists
+      user: userExists,
     });
   } catch {
     req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [GET] /admin/users/create
 const create = (req: any, res: Response): void => {
@@ -144,14 +144,14 @@ const create = (req: any, res: Response): void => {
     req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [POST] /admin/users/create
 const createPost = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("userCreate")) {
@@ -160,7 +160,8 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     }
 
     const fullName: string = req.body.fullName;
-    const slug: string = slugUtil.convert(fullName) + '-' + shortUniqueKeyUtil.generate();
+    const slug: string =
+      slugUtil.convert(fullName) + "-" + shortUniqueKeyUtil.generate();
     const email: string = req.body.email;
     const password: string = md5Util.encode(req.body.password);
     const phone: string = req.body.phone;
@@ -169,15 +170,12 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     const bio: string = req.body.bio;
     const status: string = req.body.status;
 
-    const [
-      userSlugExists,
-      userEmailExists,
-      userPhoneExists
-    ] = await Promise.all([
-      userService.findBySlug(slug),
-      userService.findByEmail(email),
-      userService.findByPhone(phone)
-    ]);
+    const [userSlugExists, userEmailExists, userPhoneExists] =
+      await Promise.all([
+        userService.findBySlug(slug),
+        userService.findByEmail(email),
+        userService.findByPhone(phone),
+      ]);
     if (userSlugExists) {
       req.flash("error", "Something went wrong!");
       return res.redirect("back");
@@ -205,7 +203,7 @@ const createPost = async (req: any, res: Response): Promise<void> => {
       friendAccepts: [],
       friendRequests: [],
       online: EUserOnline.offline,
-      deleted: false
+      deleted: false,
     });
 
     req.flash("success", "User was created successfully!");
@@ -214,14 +212,14 @@ const createPost = async (req: any, res: Response): Promise<void> => {
     req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [GET] /admin/users/update/:id
 const update = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("userUpdate")) {
@@ -239,20 +237,20 @@ const update = async (req: any, res: Response): Promise<void> => {
 
     return res.render("admin/pages/users/update", {
       pageTitle: "Update user",
-      user: userExists
+      user: userExists,
     });
   } catch {
     req.flash("error", "Something went wrong!");
     return res.redirect("back");
   }
-}
+};
 
 // [PATCH] /admin/users/update/:id
 const updatePatch = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("userUpdate")) {
@@ -263,7 +261,8 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
     const id: string = req.params.id;
 
     const fullName: string = req.body.fullName;
-    const slug: string = slugUtil.convert(fullName) + '-' + shortUniqueKeyUtil.generate();
+    const slug: string =
+      slugUtil.convert(fullName) + "-" + shortUniqueKeyUtil.generate();
     const email: string = req.body.email;
     const phone: string = req.body.phone;
     const status: string = req.body.status;
@@ -278,17 +277,13 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       coverPhoto = req.files["coverPhoto"][0].path;
     }
 
-    const [
-      userIdExists,
-      userSlugExists,
-      userEmailExists,
-      userPhoneExists,
-    ] = await Promise.all([
-      userService.findById(id),
-      userService.findBySlug(slug),
-      userService.findByEmail(email),
-      userService.findByPhone(phone),
-    ]);
+    const [userIdExists, userSlugExists, userEmailExists, userPhoneExists] =
+      await Promise.all([
+        userService.findById(id),
+        userService.findBySlug(slug),
+        userService.findByEmail(email),
+        userService.findByPhone(phone),
+      ]);
     if (!userIdExists) {
       req.flash("error", "User not found!");
       return res.redirect("back");
@@ -297,17 +292,11 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       req.flash("error", "Something went wrong!");
       return res.redirect("back");
     }
-    if (
-      userEmailExists &&
-      userEmailExists.id !== id
-    ) {
+    if (userEmailExists && userEmailExists.id !== id) {
       req.flash("error", "Email already exists!");
       return res.redirect("back");
     }
-    if (
-      userPhoneExists &&
-      userPhoneExists.id !== id
-    ) {
+    if (userPhoneExists && userPhoneExists.id !== id) {
       req.flash("error", "Phone already exists!");
       return res.redirect("back");
     }
@@ -320,25 +309,25 @@ const updatePatch = async (req: any, res: Response): Promise<void> => {
       avatar,
       coverPhoto,
       bio,
-      status: status as EUserStatus
+      status: status as EUserStatus,
     });
     req.flash("success", "User was updated successfully!");
   } catch {
     req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 // [PATCH] /admin/users/actions
 const actions = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     const action: string = req.body.action;
-    const ids: string[] = req.body.ids.split(',');
+    const ids: string[] = req.body.ids.split(",");
 
     switch (action) {
       case "delete": {
@@ -347,7 +336,7 @@ const actions = async (req: any, res: Response): Promise<void> => {
           return res.redirect(`/${configs.admin}/users`);
         }
 
-        await Promise.all(ids.map(id => userService.del(id)));
+        await Promise.all(ids.map((id) => userService.del(id)));
 
         break;
       }
@@ -358,7 +347,11 @@ const actions = async (req: any, res: Response): Promise<void> => {
           return res.redirect(`/${configs.admin}/users`);
         }
 
-        await Promise.all(ids.map(id => userService.update(id, { status: EUserStatus.active })));
+        await Promise.all(
+          ids.map((id) =>
+            userService.update(id, { status: EUserStatus.active }),
+          ),
+        );
 
         break;
       }
@@ -369,7 +362,11 @@ const actions = async (req: any, res: Response): Promise<void> => {
           return res.redirect(`/${configs.admin}/users`);
         }
 
-        await Promise.all(ids.map(id => userService.update(id, { status: EUserStatus.inactive })));
+        await Promise.all(
+          ids.map((id) =>
+            userService.update(id, { status: EUserStatus.inactive }),
+          ),
+        );
 
         break;
       }
@@ -385,14 +382,14 @@ const actions = async (req: any, res: Response): Promise<void> => {
     req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 // [PATCH] /admin/users/updateStatus/:status/:id
 const updateStatus = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("userUpdate")) {
@@ -415,14 +412,14 @@ const updateStatus = async (req: any, res: Response): Promise<void> => {
     req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 // [DELETE] /admin/users/delete/:id
 const del = async (req: any, res: Response): Promise<void> => {
   try {
     const myAccount: {
-      accountId: string,
-      permissions: string[]
+      accountId: string;
+      permissions: string[];
     } = res.locals.myAccount;
 
     if (!myAccount.permissions.includes("userDelete")) {
@@ -444,7 +441,7 @@ const del = async (req: any, res: Response): Promise<void> => {
     req.flash("error", "Something went wrong!");
   }
   return res.redirect("back");
-}
+};
 
 const userController = {
   get,
@@ -455,6 +452,6 @@ const userController = {
   updatePatch,
   actions,
   updateStatus,
-  del
+  del,
 };
 export default userController;

@@ -39,20 +39,20 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             { value: "fullName-asc", title: "Full name (A - Z)" },
             { value: "fullName-desc", title: "Full name (Z - A)" },
             { value: "email-asc", title: "Email (A - Z)" },
-            { value: "email-desc", title: "Email (Z - A)" }
+            { value: "email-desc", title: "Email (Z - A)" },
         ];
         const keyword = req.query.keyword;
         const actionOptions = [
             { value: "", title: "---" },
             { value: "delete", title: "Delete" },
             { value: "active", title: "Active" },
-            { value: "inactive", title: "Inactive" }
+            { value: "inactive", title: "Inactive" },
         ];
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const [maxPage, users] = yield Promise.all([
             user_service_1.default.calculateMaxPage(limit),
-            user_service_1.default.find(req)
+            user_service_1.default.find(req),
         ]);
         return res.render("admin/pages/users", {
             pageTitle: "List of users",
@@ -60,19 +60,19 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             users,
             filter: {
                 filter,
-                filterOptions
+                filterOptions,
             },
             sort: {
                 sort,
-                sortOptions
+                sortOptions,
             },
             keyword,
             actionOptions,
             pagination: {
                 page,
                 limit,
-                maxPage
-            }
+                maxPage,
+            },
         });
     }
     catch (_a) {
@@ -96,7 +96,7 @@ const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         return res.render("admin/pages/users/detail", {
             pageTitle: "User details",
-            user: userExists
+            user: userExists,
         });
     }
     catch (_a) {
@@ -130,7 +130,7 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             return res.redirect(`/${index_config_1.default.admin}/users`);
         }
         const fullName = req.body.fullName;
-        const slug = slug_util_1.default.convert(fullName) + '-' + shortUniqueKey_util_1.default.generate();
+        const slug = slug_util_1.default.convert(fullName) + "-" + shortUniqueKey_util_1.default.generate();
         const email = req.body.email;
         const password = md5_util_1.default.encode(req.body.password);
         const phone = req.body.phone;
@@ -141,7 +141,7 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const [userSlugExists, userEmailExists, userPhoneExists] = yield Promise.all([
             user_service_1.default.findBySlug(slug),
             user_service_1.default.findByEmail(email),
-            user_service_1.default.findByPhone(phone)
+            user_service_1.default.findByPhone(phone),
         ]);
         if (userSlugExists) {
             req.flash("error", "Something went wrong!");
@@ -169,7 +169,7 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             friendAccepts: [],
             friendRequests: [],
             online: user_enum_1.EUserOnline.offline,
-            deleted: false
+            deleted: false,
         });
         req.flash("success", "User was created successfully!");
         return res.redirect(`/${index_config_1.default.admin}/users`);
@@ -195,7 +195,7 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         return res.render("admin/pages/users/update", {
             pageTitle: "Update user",
-            user: userExists
+            user: userExists,
         });
     }
     catch (_a) {
@@ -213,7 +213,7 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         }
         const id = req.params.id;
         const fullName = req.body.fullName;
-        const slug = slug_util_1.default.convert(fullName) + '-' + shortUniqueKey_util_1.default.generate();
+        const slug = slug_util_1.default.convert(fullName) + "-" + shortUniqueKey_util_1.default.generate();
         const email = req.body.email;
         const phone = req.body.phone;
         const status = req.body.status;
@@ -226,7 +226,7 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         if (req.files["coverPhoto"]) {
             coverPhoto = req.files["coverPhoto"][0].path;
         }
-        const [userIdExists, userSlugExists, userEmailExists, userPhoneExists,] = yield Promise.all([
+        const [userIdExists, userSlugExists, userEmailExists, userPhoneExists] = yield Promise.all([
             user_service_1.default.findById(id),
             user_service_1.default.findBySlug(slug),
             user_service_1.default.findByEmail(email),
@@ -240,13 +240,11 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             req.flash("error", "Something went wrong!");
             return res.redirect("back");
         }
-        if (userEmailExists &&
-            userEmailExists.id !== id) {
+        if (userEmailExists && userEmailExists.id !== id) {
             req.flash("error", "Email already exists!");
             return res.redirect("back");
         }
-        if (userPhoneExists &&
-            userPhoneExists.id !== id) {
+        if (userPhoneExists && userPhoneExists.id !== id) {
             req.flash("error", "Phone already exists!");
             return res.redirect("back");
         }
@@ -258,7 +256,7 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             avatar,
             coverPhoto,
             bio,
-            status: status
+            status: status,
         });
         req.flash("success", "User was updated successfully!");
     }
@@ -272,14 +270,14 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         const action = req.body.action;
-        const ids = req.body.ids.split(',');
+        const ids = req.body.ids.split(",");
         switch (action) {
             case "delete": {
                 if (!myAccount.permissions.includes("userDelete")) {
                     req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/users`);
                 }
-                yield Promise.all(ids.map(id => user_service_1.default.del(id)));
+                yield Promise.all(ids.map((id) => user_service_1.default.del(id)));
                 break;
             }
             case "active": {
@@ -287,7 +285,7 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/users`);
                 }
-                yield Promise.all(ids.map(id => user_service_1.default.update(id, { status: user_enum_1.EUserStatus.active })));
+                yield Promise.all(ids.map((id) => user_service_1.default.update(id, { status: user_enum_1.EUserStatus.active })));
                 break;
             }
             case "inactive": {
@@ -295,7 +293,7 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/users`);
                 }
-                yield Promise.all(ids.map(id => user_service_1.default.update(id, { status: user_enum_1.EUserStatus.inactive })));
+                yield Promise.all(ids.map((id) => user_service_1.default.update(id, { status: user_enum_1.EUserStatus.inactive })));
                 break;
             }
             default: {
@@ -364,6 +362,6 @@ const userController = {
     updatePatch,
     actions,
     updateStatus,
-    del
+    del,
 };
 exports.default = userController;

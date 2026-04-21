@@ -41,22 +41,22 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             { value: "fullName-desc", title: "Title (Z - A)" },
             { value: "email-asc", title: "Email (A - Z)" },
             { value: "email-desc", title: "Email (Z - A)" },
-            { value: "roleId-asc", title: "Group by role" }
+            { value: "roleId-asc", title: "Group by role" },
         ];
         const keyword = req.query.keyword;
         const actionOptions = [
             { value: "", title: "---" },
             { value: "delete", title: "Delete" },
             { value: "active", title: "Active" },
-            { value: "inactive", title: "Inactive" }
+            { value: "inactive", title: "Inactive" },
         ];
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const [maxPage, accounts] = yield Promise.all([
             account_service_1.default.calculateMaxPage(limit),
-            account_service_1.default.find(req)
+            account_service_1.default.find(req),
         ]);
-        const roles = yield Promise.all(accounts.map(account => role_service_1.default.findById(account.roleId)));
+        const roles = yield Promise.all(accounts.map((account) => role_service_1.default.findById(account.roleId)));
         return res.render("admin/pages/accounts", {
             pageTitle: "List of accounts",
             url: (0, getUrl_helper_1.default)(req),
@@ -64,19 +64,19 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             roles,
             filter: {
                 filter,
-                filterOptions
+                filterOptions,
             },
             sort: {
                 sort,
-                sortOptions
+                sortOptions,
             },
             keyword,
             actionOptions,
             pagination: {
                 page,
                 limit,
-                maxPage
-            }
+                maxPage,
+            },
         });
     }
     catch (_a) {
@@ -95,28 +95,30 @@ const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const id = req.params.id;
         const [accountExists, roles] = yield Promise.all([
             account_service_1.default.findById(id),
-            role_service_1.default.findAll()
+            role_service_1.default.findAll(),
         ]);
         if (!accountExists) {
             req.flash("error", "Account not found!");
             return res.redirect("back");
         }
         const [createdBy, updatedBy] = yield Promise.all([
-            account_service_1.default.findById(accountExists.createdBy.accountId).then(account => ({
+            account_service_1.default
+                .findById(accountExists.createdBy.accountId)
+                .then((account) => ({
                 account,
-                createdAt: accountExists.createdBy.createdAt
+                createdAt: accountExists.createdBy.createdAt,
             })),
-            Promise.all(accountExists.updatedBy.map(item => account_service_1.default.findById(item.accountId).then(account => ({
+            Promise.all(accountExists.updatedBy.map((item) => account_service_1.default.findById(item.accountId).then((account) => ({
                 account,
-                updatedAt: item.updatedAt
-            }))))
+                updatedAt: item.updatedAt,
+            })))),
         ]);
         return res.render("admin/pages/accounts/detail", {
             pageTitle: "Account details",
             account: accountExists,
             roles,
             createdBy,
-            updatedBy
+            updatedBy,
         });
     }
     catch (_a) {
@@ -135,7 +137,7 @@ const create = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const roles = yield role_service_1.default.findAll();
         return res.render("admin/pages/accounts/create", {
             pageTitle: "Create new account",
-            roles
+            roles,
         });
     }
     catch (_a) {
@@ -152,18 +154,18 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             return res.redirect(`/${index_config_1.default.admin}/accounts`);
         }
         const fullName = req.body.fullName;
-        const slug = slug_util_1.default.convert(fullName) + '-' + shortUniqueKey_util_1.default.generate();
+        const slug = slug_util_1.default.convert(fullName) + "-" + shortUniqueKey_util_1.default.generate();
         const email = req.body.email;
         const password = md5_util_1.default.encode(req.body.password);
         const phone = req.body.phone;
         const avatar = req.file.path;
         const status = req.body.status;
         const roleId = req.body.roleId;
-        const [accountSlugExists, accountEmailExists, accountPhoneExists, roleExists] = yield Promise.all([
+        const [accountSlugExists, accountEmailExists, accountPhoneExists, roleExists,] = yield Promise.all([
             account_service_1.default.findBySlug(slug),
             account_service_1.default.findByEmail(email),
             account_service_1.default.findByPhone(phone),
-            role_service_1.default.findById(roleId)
+            role_service_1.default.findById(roleId),
         ]);
         if (accountSlugExists) {
             req.flash("error", "Something went wrong!");
@@ -192,9 +194,9 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             roleId,
             createdBy: {
                 accountId: myAccount.accountId,
-                createdAt: new Date()
+                createdAt: new Date(),
             },
-            deleted: false
+            deleted: false,
         });
         req.flash("success", "Account was created successfully!");
         return res.redirect(`/${index_config_1.default.admin}/accounts`);
@@ -216,7 +218,7 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const id = req.params.id;
         const [accountExists, roles] = yield Promise.all([
             account_service_1.default.findById(id),
-            role_service_1.default.findAll()
+            role_service_1.default.findAll(),
         ]);
         if (!accountExists) {
             req.flash("error", "Account not found!");
@@ -225,7 +227,7 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res.render("admin/pages/accounts/update", {
             pageTitle: "Update account",
             account: accountExists,
-            roles
+            roles,
         });
     }
     catch (_a) {
@@ -243,7 +245,7 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         }
         const id = req.params.id;
         const fullName = req.body.fullName;
-        const slug = slug_util_1.default.convert(fullName) + '-' + shortUniqueKey_util_1.default.generate();
+        const slug = slug_util_1.default.convert(fullName) + "-" + shortUniqueKey_util_1.default.generate();
         const email = req.body.email;
         const phone = req.body.phone;
         const status = req.body.status;
@@ -252,12 +254,12 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         if (req.file) {
             avatar = req.file.path;
         }
-        const [accountIdExists, accountSlugExists, accountEmailExists, accountPhoneExists, roleExists] = yield Promise.all([
+        const [accountIdExists, accountSlugExists, accountEmailExists, accountPhoneExists, roleExists,] = yield Promise.all([
             account_service_1.default.findById(id),
             account_service_1.default.findBySlug(slug),
             account_service_1.default.findByEmail(email),
             account_service_1.default.findByPhone(phone),
-            role_service_1.default.findById(roleId)
+            role_service_1.default.findById(roleId),
         ]);
         if (!accountIdExists) {
             req.flash("error", "Account not found!");
@@ -267,13 +269,11 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             req.flash("error", "Something went wrong!");
             return res.redirect("back");
         }
-        if (accountEmailExists &&
-            accountEmailExists.id !== id) {
+        if (accountEmailExists && accountEmailExists.id !== id) {
             req.flash("error", "Email already exists!");
             return res.redirect("back");
         }
-        if (accountPhoneExists &&
-            accountPhoneExists.id !== id) {
+        if (accountPhoneExists && accountPhoneExists.id !== id) {
             req.flash("error", "Phone already exists!");
             return res.redirect("back");
         }
@@ -292,9 +292,9 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             $push: {
                 updatedBy: {
                     accountId: myAccount.accountId,
-                    updatedAt: new Date()
-                }
-            }
+                    updatedAt: new Date(),
+                },
+            },
         });
         req.flash("success", "Account was updated successfully!");
     }
@@ -308,16 +308,16 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         const action = req.body.action;
-        const ids = req.body.ids.split(',');
+        const ids = req.body.ids.split(",");
         switch (action) {
             case "delete": {
                 if (!myAccount.permissions.includes("accountDelete")) {
                     req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/accounts`);
                 }
-                yield Promise.all(ids.map(id => account_service_1.default.del(id, {
+                yield Promise.all(ids.map((id) => account_service_1.default.del(id, {
                     accountId: myAccount.accountId,
-                    deletedAt: new Date()
+                    deletedAt: new Date(),
                 })));
                 break;
             }
@@ -326,14 +326,14 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/accounts`);
                 }
-                yield Promise.all(ids.map(id => account_service_1.default.update(id, {
+                yield Promise.all(ids.map((id) => account_service_1.default.update(id, {
                     status: account_enum_1.EAccountStatus.active,
                     $push: {
                         updatedBy: {
                             accountId: myAccount.accountId,
-                            updatedAt: new Date()
-                        }
-                    }
+                            updatedAt: new Date(),
+                        },
+                    },
                 })));
                 break;
             }
@@ -342,14 +342,14 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/accounts`);
                 }
-                yield Promise.all(ids.map(id => account_service_1.default.update(id, {
+                yield Promise.all(ids.map((id) => account_service_1.default.update(id, {
                     status: account_enum_1.EAccountStatus.inactive,
                     $push: {
                         updatedBy: {
                             accountId: myAccount.accountId,
-                            updatedAt: new Date()
-                        }
-                    }
+                            updatedAt: new Date(),
+                        },
+                    },
                 })));
                 break;
             }
@@ -385,9 +385,9 @@ const updateStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             $push: {
                 updatedBy: {
                     accountId: myAccount.accountId,
-                    updatedAt: new Date()
-                }
-            }
+                    updatedAt: new Date(),
+                },
+            },
         });
         req.flash("success", "Account was updated successfully!");
     }
@@ -412,7 +412,7 @@ const del = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         yield account_service_1.default.del(id, {
             accountId: myAccount.accountId,
-            deletedAt: new Date()
+            deletedAt: new Date(),
         });
         req.flash("success", "Account was deleted successfully!");
     }
@@ -430,6 +430,6 @@ const accountController = {
     updatePatch,
     actions,
     updateStatus,
-    del
+    del,
 };
 exports.default = accountController;

@@ -30,18 +30,18 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const sortOptions = [
             { value: "", title: "---" },
             { value: "title-asc", title: "Title (A - Z)" },
-            { value: "title-desc", title: "Title (Z - A)" }
+            { value: "title-desc", title: "Title (Z - A)" },
         ];
         const keyword = req.query.keyword;
         const actionOptions = [
             { value: "", title: "---" },
-            { value: "delete", title: "Delete" }
+            { value: "delete", title: "Delete" },
         ];
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const [maxPage, roles] = yield Promise.all([
             role_service_1.default.calculateMaxPage(limit),
-            role_service_1.default.find(req)
+            role_service_1.default.find(req),
         ]);
         return res.render("admin/pages/roles", {
             pageTitle: "List of roles",
@@ -49,15 +49,15 @@ const get = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             roles,
             sort: {
                 sort,
-                sortOptions
+                sortOptions,
             },
             keyword,
             actionOptions,
             pagination: {
                 page,
                 limit,
-                maxPage
-            }
+                maxPage,
+            },
         });
     }
     catch (_a) {
@@ -80,20 +80,22 @@ const getById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             return res.redirect("back");
         }
         const [createdBy, updatedBy] = yield Promise.all([
-            account_service_1.default.findById(roleExists.createdBy.accountId).then(account => ({
+            account_service_1.default
+                .findById(roleExists.createdBy.accountId)
+                .then((account) => ({
                 account,
-                createdAt: roleExists.createdBy.createdAt
+                createdAt: roleExists.createdBy.createdAt,
             })),
-            Promise.all(roleExists.updatedBy.map(item => account_service_1.default.findById(item.accountId).then(account => ({
+            Promise.all(roleExists.updatedBy.map((item) => account_service_1.default.findById(item.accountId).then((account) => ({
                 account,
-                updatedAt: item.updatedAt
-            }))))
+                updatedAt: item.updatedAt,
+            })))),
         ]);
         return res.render("admin/pages/roles/detail", {
             pageTitle: "Role details",
             role: roleExists,
             createdBy,
-            updatedBy
+            updatedBy,
         });
     }
     catch (_a) {
@@ -110,7 +112,7 @@ const create = (req, res) => {
             return res.redirect(`/${index_config_1.default.admin}/roles`);
         }
         return res.render("admin/pages/roles/create", {
-            pageTitle: "Create new role"
+            pageTitle: "Create new role",
         });
     }
     catch (_a) {
@@ -127,7 +129,7 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             return res.redirect(`/${index_config_1.default.admin}/roles`);
         }
         const title = req.body.title;
-        const slug = slug_util_1.default.convert(title) + '-' + shortUniqueKey_util_1.default.generate();
+        const slug = slug_util_1.default.convert(title) + "-" + shortUniqueKey_util_1.default.generate();
         const description = req.body.description;
         const roleSlugExists = yield role_service_1.default.findBySlug(slug);
         if (roleSlugExists) {
@@ -141,11 +143,11 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             permissions: [],
             createdBy: {
                 accountId: myAccount.accountId,
-                createdAt: new Date()
+                createdAt: new Date(),
             },
-            deleted: false
+            deleted: false,
         });
-        req.flash("success", "Role was updated successfully!");
+        req.flash("success", "Role was created successfully!");
         return res.redirect(`/${index_config_1.default.admin}/roles`);
     }
     catch (_a) {
@@ -169,7 +171,7 @@ const update = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         return res.render("admin/pages/roles/update", {
             pageTitle: "Update role",
-            role: roleExists
+            role: roleExists,
         });
     }
     catch (_a) {
@@ -187,11 +189,11 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         }
         const id = req.params.id;
         const title = req.body.title;
-        const slug = slug_util_1.default.convert(title) + '-' + shortUniqueKey_util_1.default.generate();
+        const slug = slug_util_1.default.convert(title) + "-" + shortUniqueKey_util_1.default.generate();
         const description = req.body.description;
         const [roleExists, roleSlugExists] = yield Promise.all([
             role_service_1.default.findById(id),
-            role_service_1.default.findBySlug(slug)
+            role_service_1.default.findBySlug(slug),
         ]);
         if (!roleExists) {
             req.flash("error", "Role not found!");
@@ -208,9 +210,9 @@ const updatePatch = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             $push: {
                 updatedBy: {
                     accountId: myAccount.accountId,
-                    updatedAt: new Date()
-                }
-            }
+                    updatedAt: new Date(),
+                },
+            },
         });
         req.flash("success", "Role was updated successfully!");
     }
@@ -224,16 +226,16 @@ const actions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const myAccount = res.locals.myAccount;
         const action = req.body.action;
-        const ids = req.body.ids.split(',');
+        const ids = req.body.ids.split(",");
         switch (action) {
             case "delete": {
                 if (!myAccount.permissions.includes("roleDelete")) {
                     req.flash("error", "Access denied!");
                     return res.redirect(`/${index_config_1.default.admin}/roles`);
                 }
-                yield Promise.all(ids.map(id => role_service_1.default.del(id, {
+                yield Promise.all(ids.map((id) => role_service_1.default.del(id, {
                     accountId: myAccount.accountId,
-                    deletedAt: new Date()
+                    deletedAt: new Date(),
                 })));
                 break;
             }
@@ -265,7 +267,7 @@ const del = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         yield role_service_1.default.del(id, {
             accountId: myAccount.accountId,
-            deletedAt: new Date()
+            deletedAt: new Date(),
         });
         req.flash("success", "Role was deleted successfully!");
     }
@@ -282,6 +284,6 @@ const roleController = {
     update,
     updatePatch,
     actions,
-    del
+    del,
 };
 exports.default = roleController;
